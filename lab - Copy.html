@@ -1,0 +1,2462 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>JUT ECE Virtual Lab | Zone 2 — Interactive Breadboard Engine</title>
+  <meta name="description" content="Jharkhand University of Technology — 3D Interactive Electronics Lab. Diploma ECE Breadboard simulation with real-time MNA circuit solver, CRT oscilloscope, and gamified progression.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="lab.css">
+
+  <!-- Three.js r134 (Supports WebXR, shadow maps, shader materials) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════════════════════════ -->
+<!-- LOADING SCREEN                                                              -->
+<!-- ═══════════════════════════════════════════════════════════════════════════ -->
+<div id="loading-screen">
+  <div class="loading-logo">⚡</div>
+  <div class="loading-title">JUT ECE VIRTUAL LAB</div>
+  <div class="loading-subtitle">Zone 2 — Core Circuits &amp; Electronics</div>
+  <div class="loading-bar-track">
+    <div class="loading-bar-fill" id="loading-fill"></div>
+  </div>
+  <div class="loading-step" id="loading-step">Initializing 3D engine…</div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════════ -->
+<!-- 3D CANVAS                                                                  -->
+<!-- ═══════════════════════════════════════════════════════════════════════════ -->
+<canvas id="lab-canvas"></canvas>
+
+<!-- ═══════════════════════════════════════════════════════════════════════════ -->
+<!-- TOP NAVIGATION BAR                                                          -->
+<!-- ═══════════════════════════════════════════════════════════════════════════ -->
+<header id="lab-topbar">
+  <a class="topbar-brand" href="hub.html">
+    <div class="topbar-logo">⚡</div>
+    <div class="topbar-title">
+      <strong>JUT ECE VIRTUAL LABS</strong>
+      <span>Jharkhand University of Technology • Diploma ECE</span>
+    </div>
+  </a>
+
+  <nav class="topbar-zone-tabs">
+    <a class="zone-tab" href="zone1.html" style="text-decoration:none">Zone 1 — Foundation</a>
+    <span class="zone-tab active">Zone 2 — Core Circuits</span>
+    <a class="zone-tab" href="zone3.html" style="text-decoration:none">Zone 3 — Heavy Machinery</a>
+  </nav>
+
+  <div class="topbar-status">
+    <div class="status-badge">
+      <span class="status-dot"></span>
+      <span>SIM RUNNING</span>
+    </div>
+    <div class="status-badge" id="fps-badge">
+      <span id="fps-counter">60 FPS</span>
+    </div>
+    <div class="status-badge">
+      <span id="comp-count">0 components</span>
+    </div>
+  </div>
+</header>
+
+<!-- Mobile guide toggle -->
+<button id="mobile-guide-btn" onclick="toggleMobileGuide()" style="
+  display:none;position:fixed;top:58px;right:8px;z-index:300;
+  background:rgba(0,212,255,.15);border:1px solid rgba(0,212,255,.4);
+  color:#00d4ff;border-radius:10px;padding:6px 12px;
+  font-family:'JetBrains Mono',monospace;font-size:10px;cursor:pointer;">📋 Guide</button>
+
+<!-- ═══════════════════════════════════════════════════════════════════════════ -->
+<!-- TOOL PALETTE (LEFT)                                                         -->
+<!-- ═══════════════════════════════════════════════════════════════════════════ -->
+<aside id="tool-palette">
+  <button class="tool-btn active" id="btn-select" data-tool="SELECT" data-key="Q" onclick="setTool('SELECT')" title="Select / Orbit Camera">
+    <span class="tool-icon">🖱️</span>
+    <span class="tool-label">Select</span>
+  </button>
+
+  <div class="palette-divider"></div>
+
+  <button class="tool-btn" id="btn-battery" data-tool="BATTERY_9V" data-key="B" onclick="setTool('BATTERY_9V')" title="Place 9V Battery">
+    <span class="tool-icon">🔋</span>
+    <span class="tool-label">9V Batt</span>
+  </button>
+
+  <button class="tool-btn" id="btn-led" data-tool="LED" data-key="L" onclick="setTool('LED')" title="Place LED (Neon)">
+    <span class="tool-icon">💡</span>
+    <span class="tool-label">LED</span>
+  </button>
+
+  <button class="tool-btn" id="btn-resistor" data-tool="RESISTOR" data-key="R" onclick="setTool('RESISTOR')" title="Place 220Ω Resistor">
+    <span class="tool-icon">⚡</span>
+    <span class="tool-label">220Ω</span>
+  </button>
+
+  <button class="tool-btn" id="btn-cap" data-tool="CAPACITOR" data-key="C" onclick="setTool('CAPACITOR')" title="Place 100µF Capacitor">
+    <span class="tool-icon">🔲</span>
+    <span class="tool-label">100µF</span>
+  </button>
+
+  <div class="palette-divider"></div>
+
+  <button class="tool-btn" id="btn-wire" data-tool="WIRE" data-key="W" onclick="setTool('WIRE')" title="Route Jumper Wire">
+    <span class="tool-icon">〰️</span>
+    <span class="tool-label">Wire</span>
+  </button>
+
+  <button class="tool-btn" id="btn-probe" data-tool="PROBE" data-key="P" onclick="setTool('PROBE')" title="Oscilloscope Probe">
+    <span class="tool-icon">📡</span>
+    <span class="tool-label">Probe</span>
+  </button>
+
+  <div class="palette-divider"></div>
+
+  <button class="tool-btn danger" id="btn-delete" data-tool="DELETE" data-key="Del" onclick="setTool('DELETE')" title="Delete Component">
+    <span class="tool-icon">🗑️</span>
+    <span class="tool-label">Delete</span>
+  </button>
+</aside>
+
+<!-- ═══════════════════════════════════════════════════════════════════════════ -->
+<!-- PROPERTIES / LIVE READINGS PANEL (RIGHT)                                   -->
+<!-- ═══════════════════════════════════════════════════════════════════════════ -->
+<aside id="props-panel">
+  <div class="panel-header">
+    <span class="panel-title">⚡ LIVE TELEMETRY</span>
+  </div>
+  <div class="panel-body">
+
+    <div class="panel-section">
+      <div class="panel-section-title">Node Voltages</div>
+      <div id="voltage-readouts">
+        <div class="volt-card">
+          <span class="volt-label">Awaiting circuit…</span>
+          <span class="volt-value zero">0.00 V</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel-section">
+      <div class="panel-section-title">Branch Currents</div>
+      <div id="current-readouts">
+        <div class="volt-card">
+          <span class="volt-label">No active paths</span>
+          <span class="volt-value zero">0.00 mA</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel-section">
+      <div class="panel-section-title">Simulation Speed</div>
+      <div class="sim-control">
+        <div class="sim-label-row">
+          <span>Tick Rate</span>
+          <strong id="sim-speed-label">1× Real-time</strong>
+        </div>
+        <input type="range" class="jut-range" min="1" max="10" value="1" step="1"
+          oninput="updateSimSpeed(parseInt(this.value))">
+      </div>
+    </div>
+
+    <div class="panel-section">
+      <div class="panel-section-title">Component List</div>
+      <div id="comp-list"></div>
+    </div>
+
+  </div>
+</aside>
+
+<!-- ═══════════════════════════════════════════════════════════════════════════ -->
+<!-- CRT OSCILLOSCOPE PANEL                                                      -->
+<!-- ═══════════════════════════════════════════════════════════════════════════ -->
+<div id="scope-panel">
+  <div class="scope-header">
+    <span class="scope-title">▋ OSCILLOSCOPE — CH1</span>
+    <div class="scope-controls">
+      <button class="scope-btn" onclick="toggleScope()">✕</button>
+    </div>
+  </div>
+  <canvas id="scope-canvas-2d" width="320" height="160"></canvas>
+  <div class="scope-footer">
+    <div class="scope-readout">
+      <div class="scope-readout-label">Vmax</div>
+      <div class="scope-readout-value" id="scope-vmax">0.00 V</div>
+    </div>
+    <div class="scope-readout">
+      <div class="scope-readout-label">Freq</div>
+      <div class="scope-readout-value" id="scope-freq">—</div>
+    </div>
+    <div class="scope-readout">
+      <div class="scope-readout-label">V/Div</div>
+      <div class="scope-readout-value">2 V</div>
+    </div>
+    <div class="scope-readout">
+      <div class="scope-readout-label">Coupling</div>
+      <div class="scope-readout-value">DC</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════════ -->
+<!-- EXPERIMENT GUIDE (BOTTOM LEFT)                                              -->
+<!-- ═══════════════════════════════════════════════════════════════════════════ -->
+<div id="exp-guide">
+  <div class="guide-header">
+    <span class="guide-badge">EXP 2.03</span>
+    <span class="guide-title">LED Current Limiter</span>
+  </div>
+  <div class="guide-steps" id="guide-steps">
+    <div class="guide-step active" id="step-0">
+      <span class="step-num">1</span>
+      <span>Place a 9V Battery (B) on the top power rail</span>
+    </div>
+    <div class="guide-step" id="step-1">
+      <span class="step-num">2</span>
+      <span>Place a 220Ω Resistor (R) in column 15</span>
+    </div>
+    <div class="guide-step" id="step-2">
+      <span class="step-num">3</span>
+      <span>Place a Neon LED (L) in column 18, anode row E</span>
+    </div>
+    <div class="guide-step" id="step-3">
+      <span class="step-num">4</span>
+      <span>Wire power rail (+) to resistor Pin A</span>
+    </div>
+    <div class="guide-step" id="step-4">
+      <span class="step-num">5</span>
+      <span>Wire resistor to LED anode. LED cathode to GND rail</span>
+    </div>
+    <div class="guide-step" id="step-5">
+      <span class="step-num">6</span>
+      <span>Observe LED glow &amp; read current on telemetry panel</span>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════════ -->
+<!-- WIRE ROUTING TOOLTIP                                                        -->
+<!-- ═══════════════════════════════════════════════════════════════════════════ -->
+<div id="wire-tooltip">〰️ Wire started from <span id="wire-from-label">–</span> — click destination pin</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════════ -->
+<!-- SELECTION INFO                                                              -->
+<!-- ═══════════════════════════════════════════════════════════════════════════ -->
+<div id="selection-info">
+  <div class="sel-row"><span class="sel-key">Type</span><span class="sel-val" id="sel-type">—</span></div>
+  <div class="sel-row"><span class="sel-key">ID</span><span class="sel-val" id="sel-id">—</span></div>
+  <div class="sel-row"><span class="sel-key">Current</span><span class="sel-val" id="sel-current">0 mA</span></div>
+  <div class="sel-row"><span class="sel-key">State</span><span class="sel-val" id="sel-state">OFF</span></div>
+  <button class="sel-delete-btn" onclick="deleteSelectedComponent()">🗑 Delete Component [Del]</button>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════════ -->
+<!-- LOGIC GATES PANEL                                                           -->
+<!-- ═══════════════════════════════════════════════════════════════════════════ -->
+<div id="logic-panel" style="
+  position:fixed;left:76px;top:70px;bottom:70px;width:220px;z-index:100;
+  background:rgba(13,17,23,0.94);border:1px solid rgba(0,212,255,0.2);
+  border-radius:22px;backdrop-filter:blur(16px);display:none;flex-direction:column;overflow:hidden;
+  box-shadow:0 8px 32px rgba(0,0,0,.5);">
+  <div style="padding:12px 14px;border-bottom:1px solid rgba(255,255,255,.07);display:flex;align-items:center;justify-content:space-between;">
+    <span style="font-size:10px;font-family:'JetBrains Mono',monospace;font-weight:600;letter-spacing:.1em;color:#a855f7;text-transform:uppercase;">🔲 LOGIC GATES</span>
+    <button onclick="toggleLogicPanel()" style="background:none;border:none;color:#475569;cursor:pointer;font-size:14px;">✕</button>
+  </div>
+  <div style="padding:10px;display:flex;flex-direction:column;gap:8px;overflow-y:auto;">
+    <div style="font-size:9px;font-family:'JetBrains Mono',monospace;color:#475569;letter-spacing:.1em;text-transform:uppercase;margin-bottom:4px;">Digital Logic Simulator</div>
+
+    <!-- Gate Inputs -->
+    <div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:10px;padding:10px;">
+      <div style="font-size:9px;font-family:'JetBrains Mono',monospace;color:#94a3b8;margin-bottom:8px;">INPUT SWITCHES</div>
+      <div style="display:flex;gap:8px;margin-bottom:8px;">
+        <button id="inputA-btn" onclick="toggleLogicInput('A')" style="flex:1;padding:8px;border-radius:8px;border:1px solid rgba(255,68,68,.4);background:rgba(255,68,68,.08);color:#ef4444;font-family:'JetBrains Mono',monospace;font-size:10px;cursor:pointer;transition:all .2s;">A = 0</button>
+        <button id="inputB-btn" onclick="toggleLogicInput('B')" style="flex:1;padding:8px;border-radius:8px;border:1px solid rgba(255,68,68,.4);background:rgba(255,68,68,.08);color:#ef4444;font-family:'JetBrains Mono',monospace;font-size:10px;cursor:pointer;transition:all .2s;">B = 0</button>
+      </div>
+    </div>
+
+    <!-- Gate selector -->
+    <div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:10px;padding:10px;">
+      <div style="font-size:9px;font-family:'JetBrains Mono',monospace;color:#94a3b8;margin-bottom:8px;">SELECT GATE</div>
+      <div id="gate-btns" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px;">
+        <button class="gate-sel active" onclick="selectGate('AND')" style="padding:6px 4px;border-radius:6px;border:1px solid rgba(168,85,247,.4);background:rgba(168,85,247,.12);color:#a855f7;font-family:'JetBrains Mono',monospace;font-size:9px;cursor:pointer;">AND</button>
+        <button class="gate-sel" onclick="selectGate('OR')"  style="padding:6px 4px;border-radius:6px;border:1px solid rgba(255,255,255,.07);background:transparent;color:#475569;font-family:'JetBrains Mono',monospace;font-size:9px;cursor:pointer;">OR</button>
+        <button class="gate-sel" onclick="selectGate('NOT')" style="padding:6px 4px;border-radius:6px;border:1px solid rgba(255,255,255,.07);background:transparent;color:#475569;font-family:'JetBrains Mono',monospace;font-size:9px;cursor:pointer;">NOT</button>
+        <button class="gate-sel" onclick="selectGate('NAND')" style="padding:6px 4px;border-radius:6px;border:1px solid rgba(255,255,255,.07);background:transparent;color:#475569;font-family:'JetBrains Mono',monospace;font-size:9px;cursor:pointer;">NAND</button>
+        <button class="gate-sel" onclick="selectGate('NOR')"  style="padding:6px 4px;border-radius:6px;border:1px solid rgba(255,255,255,.07);background:transparent;color:#475569;font-family:'JetBrains Mono',monospace;font-size:9px;cursor:pointer;">NOR</button>
+        <button class="gate-sel" onclick="selectGate('XOR')"  style="padding:6px 4px;border-radius:6px;border:1px solid rgba(255,255,255,.07);background:transparent;color:#475569;font-family:'JetBrains Mono',monospace;font-size:9px;cursor:pointer;">XOR</button>
+      </div>
+    </div>
+
+    <!-- Gate Symbol Canvas -->
+    <div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:10px;padding:10px;">
+      <div style="font-size:9px;font-family:'JetBrains Mono',monospace;color:#94a3b8;margin-bottom:8px;">GATE SYMBOL</div>
+      <canvas id="gate-canvas" width="196" height="100" style="width:100%;border-radius:6px;background:#010d04;"></canvas>
+    </div>
+
+    <!-- Output -->
+    <div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:10px;padding:12px;text-align:center;">
+      <div style="font-size:9px;font-family:'JetBrains Mono',monospace;color:#94a3b8;margin-bottom:6px;">OUTPUT Q</div>
+      <div id="logic-output" style="font-size:32px;font-family:'JetBrains Mono',monospace;font-weight:700;color:#475569;text-shadow:none;transition:all .3s;">0</div>
+      <div id="logic-expr" style="font-size:9px;font-family:'JetBrains Mono',monospace;color:#475569;margin-top:4px;">Q = A AND B</div>
+    </div>
+
+    <!-- Truth Table -->
+    <div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:10px;padding:10px;">
+      <div style="font-size:9px;font-family:'JetBrains Mono',monospace;color:#94a3b8;margin-bottom:6px;">TRUTH TABLE</div>
+      <table id="truth-table" style="width:100%;border-collapse:collapse;font-family:'JetBrains Mono',monospace;font-size:9px;"></table>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════════ -->
+<!-- 8085 CPU VISUALIZER MODAL                                                   -->
+<!-- ═══════════════════════════════════════════════════════════════════════════ -->
+<div id="cpu-modal" style="
+  position:fixed;inset:0;z-index:500;display:none;align-items:center;justify-content:center;
+  background:rgba(6,8,16,.85);backdrop-filter:blur(12px);">
+  <div style="width:min(860px,96vw);max-height:92vh;overflow-y:auto;
+    background:rgba(13,17,23,.98);border:1px solid rgba(0,212,255,.25);border-radius:24px;
+    box-shadow:0 20px 60px rgba(0,0,0,.7),0 0 40px rgba(0,212,255,.08);">
+
+    <!-- Modal Header -->
+    <div style="padding:18px 24px;border-bottom:1px solid rgba(255,255,255,.07);display:flex;align-items:center;justify-content:space-between;">
+      <div>
+        <div style="font-size:14px;font-weight:700;color:#00d4ff;font-family:'Space Grotesk',sans-serif;letter-spacing:.05em;">🖥️ 8085 MICROPROCESSOR VISUALIZER</div>
+        <div style="font-size:10px;font-family:'JetBrains Mono',monospace;color:#475569;margin-top:2px;">Intel 8085 — 8-bit CPU | JUT ECE Sem 4 — Unit 2</div>
+      </div>
+      <button onclick="toggleCPU()" style="background:none;border:1px solid rgba(255,255,255,.1);color:#94a3b8;cursor:pointer;border-radius:8px;padding:6px 12px;font-size:12px;font-family:'JetBrains Mono',monospace;">✕ Close</button>
+    </div>
+
+    <!-- CPU Diagram + Registers -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:0;min-height:400px;">
+
+      <!-- Left: Register Bank -->
+      <div style="padding:20px;border-right:1px solid rgba(255,255,255,.07);">
+        <div style="font-size:9px;font-family:'JetBrains Mono',monospace;color:#475569;letter-spacing:.1em;text-transform:uppercase;margin-bottom:12px;">REGISTER BANK</div>
+        <div id="reg-bank" style="display:flex;flex-direction:column;gap:6px;"></div>
+
+        <div style="margin-top:16px;">
+          <div style="font-size:9px;font-family:'JetBrains Mono',monospace;color:#475569;letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px;">FLAGS REGISTER (F)</div>
+          <div id="flags-row" style="display:flex;gap:4px;flex-wrap:wrap;"></div>
+        </div>
+
+        <div style="margin-top:16px;">
+          <div style="font-size:9px;font-family:'JetBrains Mono',monospace;color:#475569;letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px;">EXECUTE INSTRUCTION</div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap;">
+            <button onclick="runInstruction('MOV A,B')" style="padding:5px 10px;border-radius:6px;border:1px solid rgba(0,212,255,.3);background:rgba(0,212,255,.06);color:#00d4ff;font-family:'JetBrains Mono',monospace;font-size:9px;cursor:pointer;">MOV A,B</button>
+            <button onclick="runInstruction('ADD B')"   style="padding:5px 10px;border-radius:6px;border:1px solid rgba(0,212,255,.3);background:rgba(0,212,255,.06);color:#00d4ff;font-family:'JetBrains Mono',monospace;font-size:9px;cursor:pointer;">ADD B</button>
+            <button onclick="runInstruction('INR A')"   style="padding:5px 10px;border-radius:6px;border:1px solid rgba(0,212,255,.3);background:rgba(0,212,255,.06);color:#00d4ff;font-family:'JetBrains Mono',monospace;font-size:9px;cursor:pointer;">INR A</button>
+            <button onclick="runInstruction('DCR B')"   style="padding:5px 10px;border-radius:6px;border:1px solid rgba(0,212,255,.3);background:rgba(0,212,255,.06);color:#00d4ff;font-family:'JetBrains Mono',monospace;font-size:9px;cursor:pointer;">DCR B</button>
+            <button onclick="runInstruction('CMA')"     style="padding:5px 10px;border-radius:6px;border:1px solid rgba(0,212,255,.3);background:rgba(0,212,255,.06);color:#00d4ff;font-family:'JetBrains Mono',monospace;font-size:9px;cursor:pointer;">CMA</button>
+            <button onclick="runInstruction('XRA A')"   style="padding:5px 10px;border-radius:6px;border:1px solid rgba(0,212,255,.3);background:rgba(0,212,255,.06);color:#00d4ff;font-family:'JetBrains Mono',monospace;font-size:9px;cursor:pointer;">XRA A</button>
+            <button onclick="resetCPU()"                style="padding:5px 10px;border-radius:6px;border:1px solid rgba(255,68,68,.3);background:rgba(255,68,68,.06);color:#ef4444;font-family:'JetBrains Mono',monospace;font-size:9px;cursor:pointer;">RESET</button>
+          </div>
+        </div>
+
+        <div style="margin-top:14px;padding:10px;background:rgba(0,212,255,.04);border:1px solid rgba(0,212,255,.15);border-radius:8px;font-family:'JetBrains Mono',monospace;font-size:9px;color:#94a3b8;" id="cpu-log">
+          Ready. Select an instruction to execute.
+        </div>
+      </div>
+
+      <!-- Right: Internal Architecture Diagram -->
+      <div style="padding:20px;">
+        <div style="font-size:9px;font-family:'JetBrains Mono',monospace;color:#475569;letter-spacing:.1em;text-transform:uppercase;margin-bottom:12px;">INTERNAL ARCHITECTURE</div>
+        <canvas id="cpu-arch-canvas" width="380" height="340" style="width:100%;border-radius:8px;background:#010810;border:1px solid rgba(255,255,255,.06);"></canvas>
+
+        <!-- Bus Activity -->
+        <div style="margin-top:12px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;">
+          <div style="text-align:center;padding:8px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:8px;">
+            <div style="font-size:8px;font-family:'JetBrains Mono',monospace;color:#475569;margin-bottom:3px;">ADDRESS BUS</div>
+            <div id="addr-bus" style="font-size:11px;font-family:'JetBrains Mono',monospace;font-weight:600;color:#00d4ff;">0000H</div>
+          </div>
+          <div style="text-align:center;padding:8px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:8px;">
+            <div style="font-size:8px;font-family:'JetBrains Mono',monospace;color:#475569;margin-bottom:3px;">DATA BUS</div>
+            <div id="data-bus" style="font-size:11px;font-family:'JetBrains Mono',monospace;font-weight:600;color:#00ff88;">00H</div>
+          </div>
+          <div style="text-align:center;padding:8px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:8px;">
+            <div style="font-size:8px;font-family:'JetBrains Mono',monospace;color:#475569;margin-bottom:3px;">PC</div>
+            <div id="pc-reg" style="font-size:11px;font-family:'JetBrains Mono',monospace;font-weight:600;color:#a855f7;">0000H</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════════ -->
+<!-- BOTTOM HUD BAR (ENHANCED)                                                   -->
+<!-- ═══════════════════════════════════════════════════════════════════════════ -->
+<div id="bottom-hud">
+  <a href="hub.html" style="text-decoration:none;">
+    <div class="hud-chip" style="color:#a855f7;border-color:rgba(168,85,247,.3);">🏠 Hub</div>
+  </a>
+  <div class="hud-sep"></div>
+  <div class="hud-chip highlight" id="active-tool-chip">🖱️ SELECT</div>
+  <div class="hud-sep"></div>
+  <div class="hud-chip">Q·Select</div>
+  <div class="hud-chip">B·Battery</div>
+  <div class="hud-chip">L·LED</div>
+  <div class="hud-chip">R·Resistor</div>
+  <div class="hud-chip">W·Wire</div>
+  <div class="hud-chip">Del·Remove</div>
+  <div class="hud-sep"></div>
+  <button class="hud-action-btn primary" onclick="toggleScope()">📡 Scope</button>
+  <button class="hud-action-btn primary" onclick="toggleLogicPanel()" style="border-color:#a855f7;color:#a855f7;">🔲 Logic</button>
+  <button class="hud-action-btn primary" onclick="toggleCPU()" style="border-color:#f97316;color:#f97316;">🖥️ 8085 CPU</button>
+  <a href="calculator.html" target="_blank" style="text-decoration:none;"><button class="hud-action-btn primary" style="border-color:#00ff88;color:#00ff88;">🧮 Tools</button></a>
+  <button class="hud-action-btn primary" onclick="resetView()">🎥 View</button>
+  <button class="hud-action-btn danger" onclick="clearAll()">⚠ Clear</button>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════════ -->
+<!-- TOAST CONTAINER                                                             -->
+<!-- ═══════════════════════════════════════════════════════════════════════════ -->
+<div id="toast-container"></div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════════ -->
+<!-- MAIN APPLICATION SCRIPT                                                     -->
+<!-- ═══════════════════════════════════════════════════════════════════════════ -->
+<script>
+/* ═══════════════════════════════════════════════════════════════════════════════
+   JUT ECE VIRTUAL LAB — Main Engine
+   Three.js r134 | MNA Circuit Sim | Interactive Breadboard Engine
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+'use strict';
+
+// ─── Application State (Zustand-equivalent transient store) ──────────────────
+const AppState = {
+  // Tool & Interaction
+  selectedTool: 'SELECT',
+  selectedComponentId: null,
+
+  // Wire Routing State
+  wireStartPin: null,
+  wireStartWorldPos: null,
+  wireMesh: null,
+
+  // Circuit Components & Wires
+  components: [],
+  wires: [],
+
+  // Simulation Results (mutated directly, never triggers DOM re-renders)
+  nodeVoltages: { GND: 0.0 },
+  branchCurrents: {},
+  oscilloscopeSamples: new Float32Array(1024),
+
+  // Simulation control
+  isSimulating: true,
+  simSpeed: 1,
+
+  // 3D Scene references (direct object refs)
+  scene3D: {},    // map: componentId → { group, materialRefs[] }
+  pinMap: {},     // map: pinId → { worldPos, parentCompId }
+
+  // Experiment progression tracking
+  completedSteps: new Set()
+};
+
+// ─── Global Three.js Variables ────────────────────────────────────────────────
+let scene, camera, renderer, raycaster, mouse;
+let orbitEnabled = true;
+let isDraggingOrbit = false;
+let lastTime = performance.now();
+let frameCount = 0;
+let fpsTime = performance.now();
+
+// Interactable click targets
+const clickableObjects = [];
+
+// For orbit camera
+let isMouseDown = false;
+let mouseButton = -1;
+let prevMouseX = 0, prevMouseY = 0;
+let camTheta = 0.5;       // azimuth (radians)
+let camPhi = 0.78;        // polar (radians)
+let camRadius = 9.5;
+let camTarget = { x: 0, y: 0.2, z: 0 };
+let camTargetSmooth = { x: 0, y: 0.2, z: 0 };
+
+// Web Worker
+let simWorker = null;
+
+// ─── Loading Sequence ─────────────────────────────────────────────────────────
+const LOAD_STEPS = [
+  'Compiling GLSL shaders…',
+  'Building 3D breadboard mesh…',
+  'Spawning simulation worker…',
+  'Calibrating MNA solver…',
+  'Initializing oscilloscope…',
+  'Lab ready — good soldering! ⚡'
+];
+let loadIdx = 0;
+const loadEl = document.getElementById('loading-step');
+
+function advanceLoad(msg) {
+  if (loadEl) loadEl.textContent = msg || LOAD_STEPS[loadIdx] || '';
+  loadIdx++;
+}
+
+// ─── Boot Sequence ────────────────────────────────────────────────────────────
+window.addEventListener('DOMContentLoaded', () => {
+  setTimeout(() => {
+    advanceLoad(LOAD_STEPS[0]);
+    initScene();
+
+    setTimeout(() => {
+      advanceLoad(LOAD_STEPS[1]);
+      buildBreadboard();
+
+      setTimeout(() => {
+        advanceLoad(LOAD_STEPS[2]);
+        initWorker();
+
+        setTimeout(() => {
+          advanceLoad(LOAD_STEPS[5]);
+          hideLoader();
+          animate();
+          initKeyboardShortcuts();
+          showToast('Lab online — Place components using the left palette!', 'info');
+        }, 400);
+      }, 300);
+    }, 250);
+  }, 100);
+});
+
+function hideLoader() {
+  const ls = document.getElementById('loading-screen');
+  ls.classList.add('hidden');
+  setTimeout(() => { ls.style.display = 'none'; }, 700);
+}
+
+// ─── THREE.JS SCENE INITIALIZATION ────────────────────────────────────────────
+function initScene() {
+  const canvas = document.getElementById('lab-canvas');
+
+  // Renderer
+  renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false, powerPreference: 'high-performance' });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure = 1.1;
+
+  // Scene
+  scene = new THREE.Scene();
+  scene.background = new THREE.Color(0x060810);
+  scene.fog = new THREE.FogExp2(0x060810, 0.045);
+
+  // Camera
+  camera = new THREE.PerspectiveCamera(42, window.innerWidth / window.innerHeight, 0.1, 80);
+  updateCameraFromSpherical();
+
+  // Raycaster
+  raycaster = new THREE.Raycaster();
+  mouse = new THREE.Vector2();
+
+  // Lighting Rig
+  const ambient = new THREE.AmbientLight(0x112233, 0.8);
+  scene.add(ambient);
+
+  // Key light (cool industrial)
+  const keyLight = new THREE.DirectionalLight(0xddeeff, 1.4);
+  keyLight.position.set(4, 10, 6);
+  keyLight.castShadow = true;
+  keyLight.shadow.mapSize.width = 2048;
+  keyLight.shadow.mapSize.height = 2048;
+  keyLight.shadow.camera.near = 0.5;
+  keyLight.shadow.camera.far = 30;
+  keyLight.shadow.camera.left = -8;
+  keyLight.shadow.camera.right = 8;
+  keyLight.shadow.camera.top = 8;
+  keyLight.shadow.camera.bottom = -8;
+  keyLight.shadow.bias = -0.0002;
+  scene.add(keyLight);
+
+  // Fill & Rim lights
+  const fillLight = new THREE.PointLight(0x00d4ff, 0.8, 18, 2);
+  fillLight.position.set(-6, 5, -3);
+  scene.add(fillLight);
+
+  const rimLight = new THREE.PointLight(0xf59e0b, 0.5, 14, 2);
+  rimLight.position.set(6, 3, 5);
+  scene.add(rimLight);
+
+  // Oscilloscope glow light (will be animated)
+  window.scopeLight = new THREE.PointLight(0x00ff66, 0.0, 4, 2);
+  window.scopeLight.position.set(4.0, 1.5, -1.0);
+  scene.add(window.scopeLight);
+
+  // Studio Ground Grid
+  addInfiniteGrid();
+
+  // Lab Table Surface
+  addLabTable();
+
+  // Static 3D Oscilloscope prop
+  addOscilloscopeProp();
+
+  // Event Listeners
+  canvas.addEventListener('mousemove', onMouseMove);
+  canvas.addEventListener('mousedown', onMouseDown);
+  canvas.addEventListener('mouseup', onMouseUp);
+  canvas.addEventListener('click', onCanvasClick);
+  canvas.addEventListener('contextmenu', e => e.preventDefault());
+  window.addEventListener('resize', onResize);
+
+  // Touch support for mobile
+  let lastTouchX = 0, lastTouchY = 0, lastTouchDist = 0;
+  canvas.addEventListener('touchstart', e => {
+    e.preventDefault();
+    if (e.touches.length === 1) {
+      lastTouchX = e.touches[0].clientX;
+      lastTouchY = e.touches[0].clientY;
+    } else if (e.touches.length === 2) {
+      lastTouchDist = Math.hypot(
+        e.touches[0].clientX - e.touches[1].clientX,
+        e.touches[0].clientY - e.touches[1].clientY
+      );
+    }
+  }, { passive: false });
+
+  canvas.addEventListener('touchmove', e => {
+    e.preventDefault();
+    if (e.touches.length === 1 && AppState.selectedTool === 'SELECT') {
+      const dx = e.touches[0].clientX - lastTouchX;
+      const dy = e.touches[0].clientY - lastTouchY;
+      spherical.theta -= dx * 0.005;
+      spherical.phi -= dy * 0.005;
+      spherical.phi = Math.max(0.1, Math.min(Math.PI / 2, spherical.phi));
+      updateCamera();
+      lastTouchX = e.touches[0].clientX;
+      lastTouchY = e.touches[0].clientY;
+    } else if (e.touches.length === 2) {
+      const dist = Math.hypot(
+        e.touches[0].clientX - e.touches[1].clientX,
+        e.touches[0].clientY - e.touches[1].clientY
+      );
+      spherical.radius *= lastTouchDist / dist;
+      spherical.radius = Math.max(8, Math.min(60, spherical.radius));
+      updateCamera();
+      lastTouchDist = dist;
+    }
+  }, { passive: false });
+
+  canvas.addEventListener('touchend', e => { e.preventDefault(); }, { passive: false });
+}
+
+// ─── ORBIT CAMERA ─────────────────────────────────────────────────────────────
+function updateCameraFromSpherical() {
+  if (!camera) return;
+  // Smooth lerp to target
+  camTargetSmooth.x += (camTarget.x - camTargetSmooth.x) * 0.1;
+  camTargetSmooth.y += (camTarget.y - camTargetSmooth.y) * 0.1;
+  camTargetSmooth.z += (camTarget.z - camTargetSmooth.z) * 0.1;
+
+  camera.position.x = camTargetSmooth.x + camRadius * Math.sin(camPhi) * Math.sin(camTheta);
+  camera.position.y = camTargetSmooth.y + camRadius * Math.cos(camPhi);
+  camera.position.z = camTargetSmooth.z + camRadius * Math.sin(camPhi) * Math.cos(camTheta);
+  camera.lookAt(camTargetSmooth.x, camTargetSmooth.y, camTargetSmooth.z);
+}
+
+function resetView() {
+  camTheta = 0.5;
+  camPhi = 0.75;
+  camRadius = 9.5;
+  camTarget = { x: 0, y: 0.2, z: 0 };
+  showToast('Camera reset', 'info');
+}
+
+// ─── INFINITE STUDIO GRID ─────────────────────────────────────────────────────
+function addInfiniteGrid() {
+  // Main grid plane
+  const gridGeo = new THREE.PlaneGeometry(60, 60, 60, 60);
+  const gridMat = new THREE.ShaderMaterial({
+    uniforms: {
+      uColor1: { value: new THREE.Color(0x0d1117) },
+      uColor2: { value: new THREE.Color(0x1e293b) },
+      uAccent: { value: new THREE.Color(0x00d4ff) },
+      uSize: { value: 1.0 }
+    },
+    vertexShader: `
+      varying vec2 vUv;
+      void main() {
+        vUv = uv;
+        gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+      }
+    `,
+    fragmentShader: `
+      uniform vec3 uColor1, uColor2, uAccent;
+      uniform float uSize;
+      varying vec2 vUv;
+      void main() {
+        vec2 uv = vUv * 60.0;
+        vec2 grid = abs(fract(uv - 0.5) - 0.5) / fwidth(uv);
+        float line = min(grid.x, grid.y);
+        float cell = 1.0 - min(line, 1.0);
+
+        // Larger 5-unit section lines
+        vec2 bigGrid = abs(fract(uv / 5.0 - 0.5) - 0.5) / fwidth(uv / 5.0);
+        float bigLine = min(bigGrid.x, bigGrid.y);
+        float bigCell = 1.0 - min(bigLine, 1.0);
+
+        vec3 col = uColor1;
+        col = mix(col, uColor2 * 0.7, cell * 0.5);
+        col = mix(col, uAccent * 0.25, bigCell * 0.6);
+
+        float fade = 1.0 - smoothstep(0.3, 1.0, length(vUv - 0.5) * 2.0);
+        gl_FragColor = vec4(col, fade * 0.85);
+      }
+    `,
+    transparent: true,
+    depthWrite: false
+  });
+
+  const gridMesh = new THREE.Mesh(gridGeo, gridMat);
+  gridMesh.rotation.x = -Math.PI / 2;
+  gridMesh.position.y = -0.18;
+  gridMesh.receiveShadow = false;
+  scene.add(gridMesh);
+}
+
+// ─── LAB TABLE SURFACE ────────────────────────────────────────────────────────
+function addLabTable() {
+  // Main table top
+  const tableGeo = new THREE.BoxGeometry(14, 0.35, 8);
+  const tableMat = new THREE.MeshStandardMaterial({
+    color: 0x1a2332,
+    roughness: 0.6,
+    metalness: 0.15
+  });
+  const table = new THREE.Mesh(tableGeo, tableMat);
+  table.position.set(0, -0.175, 0);
+  table.receiveShadow = true;
+  scene.add(table);
+
+  // Table edge strip (neon cyan)
+  const edgeGeo = new THREE.BoxGeometry(14.05, 0.04, 0.04);
+  const edgeMat = new THREE.MeshBasicMaterial({ color: 0x00d4ff });
+  const edge = new THREE.Mesh(edgeGeo, edgeMat);
+  edge.position.set(0, -0.01, 4.02);
+  scene.add(edge);
+
+  // Table legs
+  const legGeo = new THREE.BoxGeometry(0.3, 3.0, 0.3);
+  const legMat = new THREE.MeshStandardMaterial({ color: 0x111827, metalness: 0.7, roughness: 0.3 });
+  [[-5.5, -3.5], [-5.5, 3.5], [5.5, -3.5], [5.5, 3.5]].forEach(([x, z]) => {
+    const leg = new THREE.Mesh(legGeo, legMat);
+    leg.position.set(x, -1.85, z);
+    leg.castShadow = true;
+    scene.add(leg);
+  });
+}
+
+// ─── 3D OSCILLOSCOPE PROP ─────────────────────────────────────────────────────
+function addOscilloscopeProp() {
+  const scopeGroup = new THREE.Group();
+  scopeGroup.position.set(4.8, 0.0, -1.2);
+
+  // Chassis
+  const chassisGeo = new THREE.BoxGeometry(2.5, 1.8, 1.5);
+  const chassisMat = new THREE.MeshStandardMaterial({ color: 0x111827, roughness: 0.5, metalness: 0.6 });
+  const chassis = new THREE.Mesh(chassisGeo, chassisMat);
+  chassis.position.y = 0.9;
+  chassis.castShadow = true;
+  chassis.receiveShadow = true;
+  scopeGroup.add(chassis);
+
+  // Screen bezel
+  const bezelGeo = new THREE.BoxGeometry(1.9, 1.2, 0.05);
+  const bezelMat = new THREE.MeshStandardMaterial({ color: 0x0a1628, roughness: 0.8 });
+  const bezel = new THREE.Mesh(bezelGeo, bezelMat);
+  bezel.position.set(0, 1.05, 0.775);
+  scopeGroup.add(bezel);
+
+  // CRT screen — custom phosphor shader
+  window.scopeScreenMat = new THREE.ShaderMaterial({
+    uniforms: {
+      uWaveform: { value: new THREE.DataTexture(new Float32Array(1024), 1024, 1, THREE.RedFormat, THREE.FloatType) },
+      uTime: { value: 0.0 },
+      uVmax: { value: 9.0 }
+    },
+    vertexShader: `
+      varying vec2 vUv;
+      void main() {
+        vUv = uv;
+        gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+      }
+    `,
+    fragmentShader: `
+      uniform sampler2D uWaveform;
+      uniform float uTime;
+      uniform float uVmax;
+      varying vec2 vUv;
+
+      void main() {
+        // Grid reticle
+        vec2 gv = abs(fract(vUv * 8.0 - 0.5) - 0.5) / fwidth(vUv * 8.0);
+        float gridLine = 1.0 - min(min(gv.x, gv.y), 1.0);
+        vec3 bgColor = vec3(0.002, 0.04, 0.01) + vec3(0.0, gridLine * 0.06, 0.0);
+
+        // Read voltage sample for this X column
+        float sample = texture2D(uWaveform, vec2(vUv.x, 0.5)).r;
+
+        // Map 0V–uVmax to screen Y 0.1–0.9
+        float targetY = clamp((sample / uVmax) * 0.8 + 0.1, 0.0, 1.0);
+
+        // Phosphor beam with soft glow falloff
+        float dist = abs(vUv.y - targetY);
+        float beam = 0.0025 / (dist + 0.002);
+        beam = min(beam, 6.0);
+
+        // Warm phosphor tint (green-biased)
+        vec3 phosphor = vec3(beam * 0.05, beam * 1.0, beam * 0.3);
+
+        // Scanline & CRT vignette
+        float scan = sin(vUv.y * 240.0 + uTime * 3.0) * 0.025;
+        float vignette = smoothstep(0.0, 0.18, vUv.x) * smoothstep(1.0, 0.82, vUv.x)
+                       * smoothstep(0.0, 0.1, vUv.y) * smoothstep(1.0, 0.9, vUv.y);
+
+        vec3 finalColor = (bgColor + phosphor - scan) * vignette;
+        gl_FragColor = vec4(finalColor, 1.0);
+      }
+    `
+  });
+  window.scopeScreenMat.uniforms.uWaveform.value.needsUpdate = true;
+
+  const screenGeo = new THREE.PlaneGeometry(1.6, 1.0, 1, 1);
+  const screen = new THREE.Mesh(screenGeo, window.scopeScreenMat);
+  screen.position.set(0, 1.05, 0.805);
+  scopeGroup.add(screen);
+
+  // Control knobs
+  const knobGeo = new THREE.CylinderGeometry(0.1, 0.1, 0.08, 16);
+  const knobMat = new THREE.MeshStandardMaterial({ color: 0x374151, metalness: 0.8, roughness: 0.2 });
+  [-0.7, -0.2, 0.3, 0.8].forEach((x) => {
+    const knob = new THREE.Mesh(knobGeo, knobMat);
+    knob.position.set(x, 0.4, 0.76);
+    knob.rotation.x = Math.PI / 2;
+    scopeGroup.add(knob);
+
+    // Knob indicator line
+    const lineGeo = new THREE.BoxGeometry(0.01, 0.0, 0.09);
+    const lineMat = new THREE.MeshBasicMaterial({ color: 0x00d4ff });
+    const line = new THREE.Mesh(lineGeo, lineMat);
+    line.position.set(x, 0.4, 0.82);
+    scopeGroup.add(line);
+  });
+
+  // BNC probe connector
+  const bncGeo = new THREE.CylinderGeometry(0.08, 0.08, 0.2, 12);
+  const bncMat = new THREE.MeshStandardMaterial({ color: 0x94a3b8, metalness: 0.9, roughness: 0.1 });
+  const bnc = new THREE.Mesh(bncGeo, bncMat);
+  bnc.position.set(-0.95, 0.4, 0.76);
+  bnc.rotation.x = Math.PI / 2;
+  scopeGroup.add(bnc);
+
+  scene.add(scopeGroup);
+}
+
+// ─── 3D BREADBOARD CONSTRUCTION ───────────────────────────────────────────────
+const COLS = 30;
+const ROWS_TOP = ['A', 'B', 'C', 'D', 'E'];
+const ROWS_BOT = ['F', 'G', 'H', 'I', 'J'];
+const PITCH_X = 0.285;
+const PITCH_Z = 0.285;
+
+function buildBreadboard() {
+  const bbGroup = new THREE.Group();
+  bbGroup.position.set(0, 0, 0);
+
+  // ── Outer chassis ────────────────────────────────────────────────────────────
+  const bodyGeo = new THREE.BoxGeometry(9.6, 0.36, 5.0);
+  const bodyMat = new THREE.MeshStandardMaterial({
+    color: 0xf0f2f5,
+    roughness: 0.3,
+    metalness: 0.04
+  });
+  const body = new THREE.Mesh(bodyGeo, bodyMat);
+  body.receiveShadow = true;
+  body.castShadow = true;
+  bbGroup.add(body);
+
+  // ── Colored label sticker area ───────────────────────────────────────────────
+  const stickerGeo = new THREE.BoxGeometry(8.8, 0.005, 0.8);
+  const stickerMat = new THREE.MeshBasicMaterial({ color: 0x1e40af });
+  const sticker = new THREE.Mesh(stickerGeo, stickerMat);
+  sticker.position.set(0, 0.18, -2.2);
+  bbGroup.add(sticker);
+
+  // ── Center IC divider channel ────────────────────────────────────────────────
+  const divGeo = new THREE.BoxGeometry(9.0, 0.1, 0.26);
+  const divMat = new THREE.MeshStandardMaterial({ color: 0xd1d5db, roughness: 0.7 });
+  const div = new THREE.Mesh(divGeo, divMat);
+  div.position.set(0, 0.195, -0.08);
+  bbGroup.add(div);
+
+  // ── Power rail stripes ───────────────────────────────────────────────────────
+  function railStripe(color, z) {
+    const g = new THREE.BoxGeometry(8.8, 0.01, 0.04);
+    const m = new THREE.MeshBasicMaterial({ color });
+    const mesh = new THREE.Mesh(g, m);
+    mesh.position.set(0, 0.185, z);
+    bbGroup.add(mesh);
+  }
+
+  railStripe(0xef4444, -2.08);  // top positive (red)
+  railStripe(0x3b82f6, -1.79);  // top negative (blue)
+  railStripe(0xef4444, 1.64);   // bottom positive (red)
+  railStripe(0x3b82f6, 1.93);   // bottom negative (blue)
+
+  // ── Tie-point holes ──────────────────────────────────────────────────────────
+  const holeMat = new THREE.MeshStandardMaterial({ color: 0x1a1f2e, roughness: 0.9, metalness: 0.3 });
+  const springMat = new THREE.MeshStandardMaterial({ color: 0xd4af37, metalness: 0.85, roughness: 0.15 });
+  const holeGeo = new THREE.BoxGeometry(0.135, 0.08, 0.135);
+  const springGeo = new THREE.BoxGeometry(0.075, 0.05, 0.075);
+
+  function makePinHole(pinId, x, z, type) {
+    const holeGroup = new THREE.Group();
+    holeGroup.position.set(x, 0.19, z);
+
+    const hole = new THREE.Mesh(holeGeo, holeMat.clone());
+    const spring = new THREE.Mesh(springGeo, springMat);
+    spring.position.y = -0.02;
+    holeGroup.add(hole, spring);
+
+    // Store interactable reference
+    hole.userData = { isPinTarget: true, pinId, type, worldX: x, worldZ: z };
+    clickableObjects.push(hole);
+
+    // Map pin world position
+    const worldPos = new THREE.Vector3(x, 0.22, z);
+    AppState.pinMap[pinId] = { worldPos, type };
+
+    bbGroup.add(holeGroup);
+    return holeGroup;
+  }
+
+  // Power rails — top
+  for (let c = 1; c <= COLS; c++) {
+    const x = (c - COLS / 2 - 0.5) * PITCH_X;
+    makePinHole(`RAIL_TOP_POS_${c}`, x, -2.08, 'POWER_POS');
+    makePinHole(`RAIL_TOP_NEG_${c}`, x, -1.79, 'POWER_NEG');
+  }
+
+  // Terminal rows A–E (above divider)
+  ROWS_TOP.forEach((row, ri) => {
+    for (let c = 1; c <= COLS; c++) {
+      const x = (c - COLS / 2 - 0.5) * PITCH_X;
+      const z = -1.32 + ri * PITCH_Z;
+      makePinHole(`TIE_${row}_${c}`, x, z, 'TERMINAL');
+    }
+  });
+
+  // Terminal rows F–J (below divider)
+  ROWS_BOT.forEach((row, ri) => {
+    for (let c = 1; c <= COLS; c++) {
+      const x = (c - COLS / 2 - 0.5) * PITCH_X;
+      const z = 0.19 + ri * PITCH_Z;
+      makePinHole(`TIE_${row}_${c}`, x, z, 'TERMINAL');
+    }
+  });
+
+  // Power rails — bottom
+  for (let c = 1; c <= COLS; c++) {
+    const x = (c - COLS / 2 - 0.5) * PITCH_X;
+    makePinHole(`RAIL_BOT_POS_${c}`, x, 1.64, 'POWER_POS');
+    makePinHole(`RAIL_BOT_NEG_${c}`, x, 1.93, 'POWER_NEG');
+  }
+
+  scene.add(bbGroup);
+
+  // ── Breadboard mounting screws ───────────────────────────────────────────────
+  const screwGeo = new THREE.CylinderGeometry(0.09, 0.09, 0.05, 8);
+  const screwMat = new THREE.MeshStandardMaterial({ color: 0x94a3b8, metalness: 0.9, roughness: 0.2 });
+  [[-4.5, -2.3], [-4.5, 2.3], [4.5, -2.3], [4.5, 2.3]].forEach(([sx, sz]) => {
+    const screw = new THREE.Mesh(screwGeo, screwMat);
+    screw.position.set(sx, 0.2, sz);
+    bbGroup.add(screw);
+  });
+}
+
+// ─── WEB WORKER INITIALIZATION ────────────────────────────────────────────────
+function initWorker() {
+  // Fallback: use Blob URL since we can't use ES modules from file://
+  const workerScript = `
+    'use strict';
+
+    let components = [], wires = [];
+    let nodeVoltages = { GND: 0.0 };
+    let branchCurrents = {};
+    let simTime = 0.0;
+    let isRunning = false;
+    let loopHandle = null;
+    let dt = 0.0005;
+    const VISUAL_RATE_MS = 1000 / 60;
+    let lastBroadcast = 0;
+    const SCOPE_LEN = 1024;
+    let scopeBuffer = new Float32Array(SCOPE_LEN);
+    let scopeWriteIdx = 0;
+    let pinToNet = {};
+
+    self.onmessage = function(e) {
+      const { type, payload } = e.data;
+      switch(type) {
+        case 'INIT': startSimulation(); break;
+        case 'TOPOLOGY_UPDATE':
+          components = payload.components || [];
+          wires = payload.wires || [];
+          rebuildNetMap();
+          break;
+        case 'PAUSE': isRunning = false; if(loopHandle) clearTimeout(loopHandle); break;
+        case 'RESUME': if(!isRunning) startSimulation(); break;
+        case 'RESET':
+          nodeVoltages = { GND: 0.0 }; branchCurrents = {};
+          scopeBuffer = new Float32Array(SCOPE_LEN); scopeWriteIdx = 0;
+          break;
+      }
+    };
+
+    function rebuildNetMap() {
+      pinToNet = {};
+      let netCounter = 0;
+      for(let c = 1; c <= 60; c++) {
+        pinToNet['RAIL_TOP_NEG_' + c] = 'GND';
+        pinToNet['RAIL_BOT_NEG_' + c] = 'GND';
+      }
+      wires.forEach(function(wire) {
+        const a = wire.fromPin, b = wire.toPin;
+        const netA = pinToNet[a], netB = pinToNet[b];
+        if(!netA && !netB) { const n = 'NET_' + (netCounter++); pinToNet[a] = n; pinToNet[b] = n; }
+        else if(netA && !netB) { pinToNet[b] = netA; }
+        else if(!netA && netB) { pinToNet[a] = netB; }
+        else if(netA !== netB) {
+          Object.keys(pinToNet).forEach(function(p) { if(pinToNet[p] === netB) pinToNet[p] = netA; });
+        }
+      });
+      components.forEach(function(comp) {
+        if(comp.terminals) {
+          Object.values(comp.terminals).forEach(function(pin) {
+            if(pin && !pinToNet[pin]) pinToNet[pin] = 'NET_' + (netCounter++);
+          });
+        }
+      });
+    }
+
+    function solveCircuitStep() {
+      const voltages = { GND: 0.0 };
+      const currents = {};
+
+      components.forEach(function(comp) {
+        if(comp.type === 'BATTERY_9V') {
+          const posNet = pinToNet[comp.terminals && comp.terminals.pos] || 'SRC_' + comp.id;
+          const negNet = pinToNet[comp.terminals && comp.terminals.neg] || 'GND';
+          voltages[negNet] = 0.0;
+          voltages[posNet] = (comp.properties && comp.properties.voltage) || 9.0;
+        }
+      });
+      components.forEach(function(comp) {
+        if(comp.type === 'RESISTOR') {
+          const netA = pinToNet[comp.terminals && comp.terminals.pinA] || 'GND';
+          const netB = pinToNet[comp.terminals && comp.terminals.pinB] || 'GND';
+          const R = (comp.properties && comp.properties.resistance) || 220;
+          const vA = voltages[netA] || 0.0;
+          const vB = voltages[netB] || 0.0;
+          currents[comp.id] = (vA - vB) / R;
+        }
+      });
+      components.forEach(function(comp) {
+        if(comp.type === 'LED') {
+          const anodeNet = pinToNet[comp.terminals && comp.terminals.anode] || 'GND';
+          const cathNet  = pinToNet[comp.terminals && comp.terminals.cathode] || 'GND';
+          const vA = voltages[anodeNet] || 0.0;
+          const vK = voltages[cathNet]  || 0.0;
+          const vf = (comp.properties && comp.properties.forwardVoltage) || 2.0;
+          const vDrop = vA - vK;
+          if(vDrop > vf) {
+            currents[comp.id] = Math.min((vDrop - vf) / 68.0, 0.025);
+          } else {
+            currents[comp.id] = 0.0;
+          }
+        }
+      });
+
+      Object.keys(pinToNet).forEach(function(pin) {
+        const net = pinToNet[pin];
+        if(voltages[net] !== undefined) voltages[pin] = voltages[net];
+      });
+
+      nodeVoltages = voltages;
+      branchCurrents = currents;
+
+      // Scope probe — highest voltage node
+      let probeV = 0.0;
+      const vEntries = Object.entries(voltages);
+      for(let i = 0; i < vEntries.length; i++) {
+        if(vEntries[i][0] !== 'GND' && vEntries[i][1] > probeV) probeV = vEntries[i][1];
+      }
+      scopeBuffer[scopeWriteIdx] = probeV + (Math.random() - 0.5) * 0.03;
+      scopeWriteIdx = (scopeWriteIdx + 1) % SCOPE_LEN;
+      simTime += dt;
+    }
+
+    function simulationLoop() {
+      if(!isRunning) return;
+      for(let i = 0; i < 4; i++) solveCircuitStep();
+      const now = performance.now();
+      if(now - lastBroadcast >= VISUAL_RATE_MS) {
+        const aligned = new Float32Array(SCOPE_LEN);
+        for(let i = 0; i < SCOPE_LEN; i++) aligned[i] = scopeBuffer[(scopeWriteIdx + i) % SCOPE_LEN];
+        self.postMessage({
+          type: 'VOLTAGE_SYNC',
+          voltages: Object.assign({}, nodeVoltages),
+          currents: Object.assign({}, branchCurrents),
+          scopeData: Array.from(aligned),
+          simTime: simTime
+        });
+        lastBroadcast = now;
+      }
+      loopHandle = setTimeout(simulationLoop, 1);
+    }
+
+    function startSimulation() {
+      isRunning = true;
+      lastBroadcast = performance.now();
+      simulationLoop();
+    }
+  `;
+
+  const blob = new Blob([workerScript], { type: 'application/javascript' });
+  const blobURL = URL.createObjectURL(blob);
+  simWorker = new Worker(blobURL);
+  simWorker.postMessage({ type: 'INIT' });
+
+  simWorker.onmessage = (e) => {
+    const { type, voltages, currents, scopeData } = e.data;
+    if (type === 'VOLTAGE_SYNC') {
+      // Direct state mutation — no DOM re-render
+      AppState.nodeVoltages = voltages;
+      AppState.branchCurrents = currents;
+      if (scopeData) AppState.oscilloscopeSamples = new Float32Array(scopeData);
+    }
+  };
+
+  window.__CIRCUIT_WORKER__ = simWorker;
+}
+
+function notifyWorkerTopologyChange() {
+  if (!simWorker) return;
+  simWorker.postMessage({
+    type: 'TOPOLOGY_UPDATE',
+    payload: { components: AppState.components, wires: AppState.wires }
+  });
+}
+
+// ─── TOOL SYSTEM ──────────────────────────────────────────────────────────────
+const TOOL_ICONS = {
+  SELECT: '🖱️ SELECT', BATTERY_9V: '🔋 BATTERY', LED: '💡 LED',
+  RESISTOR: '⚡ RESISTOR', CAPACITOR: '🔲 CAPACITOR',
+  WIRE: '〰️ WIRE', PROBE: '📡 PROBE', DELETE: '🗑️ DELETE'
+};
+
+function setTool(tool) {
+  // Cancel pending wire
+  if (AppState.wireStartPin && tool !== 'WIRE') cancelWireRoute();
+
+  AppState.selectedTool = tool;
+
+  // Update palette button states
+  document.querySelectorAll('.tool-btn').forEach(btn => btn.classList.remove('active'));
+  const activeBtn = document.getElementById('btn-' + tool.toLowerCase().replace('_9v', '').replace('_', ''));
+  if (activeBtn) activeBtn.classList.add('active');
+
+  // Update bottom HUD chip
+  const chip = document.getElementById('active-tool-chip');
+  if (chip) chip.textContent = TOOL_ICONS[tool] || tool;
+
+  // Update cursor
+  const canvas = document.getElementById('lab-canvas');
+  canvas.className = 'tool-' + tool.toLowerCase().replace('_9v', '').replace('_', '');
+
+  // Enable/disable orbit
+  orbitEnabled = (tool === 'SELECT');
+
+  if (tool !== 'SELECT') {
+    AppState.selectedComponentId = null;
+    updateSelectionInfo(null);
+  }
+}
+
+// ─── COMPONENT PLACEMENT SYSTEM ───────────────────────────────────────────────
+function generateId(prefix) {
+  return `${prefix}_${Date.now()}_${Math.floor(Math.random() * 999)}`;
+}
+
+function placeComponentAtPin(pin) {
+  const { pinId, worldX, worldZ, type } = pin.userData;
+  const tool = AppState.selectedTool;
+  const wPos = AppState.pinMap[pinId]?.worldPos || new THREE.Vector3(worldX, 0.22, worldZ);
+
+  if (tool === 'BATTERY_9V') {
+    const id = generateId('BAT');
+    const posPin = `RAIL_TOP_POS_${getColFromPin(pinId)}`;
+    const negPin = `RAIL_TOP_NEG_${getColFromPin(pinId)}`;
+    const compData = {
+      id, type: 'BATTERY_9V',
+      position: [wPos.x - 1.2, 0.0, wPos.z],
+      terminals: { pos: posPin, neg: negPin },
+      properties: { voltage: 9.0 },
+      color: '#ffb700'
+    };
+    AppState.components.push(compData);
+    spawn3DBattery(compData);
+    notifyWorkerTopologyChange();
+    showToast(`🔋 9V Battery placed → ${posPin}(+) | ${negPin}(−)`, 'success');
+    updateGuideStep(0);
+
+  } else if (tool === 'LED') {
+    const id = generateId('LED');
+    const col = getColFromPin(pinId);
+    const row = getRowFromPin(pinId);
+    const anodePin = pinId;
+    const cathodePin = `TIE_${row === 'A' ? 'A' : String.fromCharCode(row.charCodeAt(0) + 1)}_${col}`;
+    const compData = {
+      id, type: 'LED',
+      position: [wPos.x, 0.0, wPos.z],
+      terminals: { anode: anodePin, cathode: cathodePin },
+      properties: { forwardVoltage: 2.0 },
+      color: '#00ffcc'
+    };
+    AppState.components.push(compData);
+    spawn3DLED(compData);
+    notifyWorkerTopologyChange();
+    showToast(`💡 Neon LED placed at ${pinId}`, 'success');
+    updateGuideStep(2);
+
+  } else if (tool === 'RESISTOR') {
+    const id = generateId('RES');
+    const col = getColFromPin(pinId);
+    const pinA = pinId;
+    const pinB = `TIE_E_${col}`;
+    const compData = {
+      id, type: 'RESISTOR',
+      position: [wPos.x, 0.0, wPos.z],
+      terminals: { pinA, pinB },
+      properties: { resistance: 220 },
+      color: '#fde68a'
+    };
+    AppState.components.push(compData);
+    spawn3DResistor(compData);
+    notifyWorkerTopologyChange();
+    showToast(`⚡ 220Ω Resistor placed at ${pinId}`, 'success');
+    updateGuideStep(1);
+
+  } else if (tool === 'WIRE') {
+    handleWireClick(pinId, wPos);
+
+  } else if (tool === 'PROBE') {
+    if (simWorker) simWorker.postMessage({ type: 'SET_SCOPE_PROBE', node: pinId });
+    document.getElementById('scope-panel').classList.add('visible');
+    showToast(`📡 Oscilloscope probing ${pinId}`, 'info');
+
+  } else if (tool === 'DELETE') {
+    // nothing — handled by component click
+  }
+
+  updateComponentList();
+}
+
+function getColFromPin(pinId) {
+  const parts = pinId.split('_');
+  return parseInt(parts[parts.length - 1]) || 1;
+}
+
+function getRowFromPin(pinId) {
+  if (pinId.startsWith('TIE_')) return pinId.split('_')[1];
+  return 'A';
+}
+
+// ─── WIRE ROUTING SYSTEM ──────────────────────────────────────────────────────
+function handleWireClick(pinId, worldPos) {
+  if (!AppState.wireStartPin) {
+    // Start a new wire
+    AppState.wireStartPin = pinId;
+    AppState.wireStartWorldPos = worldPos.clone();
+
+    // Create preview wire mesh
+    const previewGeo = new THREE.TubeGeometry(
+      new THREE.LineCurve3(worldPos, worldPos.clone().add(new THREE.Vector3(0, 0.5, 0))),
+      8, 0.03, 8, false
+    );
+    const previewMat = new THREE.MeshBasicMaterial({ color: 0x00d4ff, transparent: true, opacity: 0.5 });
+    AppState.wireMesh = new THREE.Mesh(previewGeo, previewMat);
+    scene.add(AppState.wireMesh);
+
+    // Show tooltip
+    const tooltip = document.getElementById('wire-tooltip');
+    document.getElementById('wire-from-label').textContent = pinId;
+    tooltip.style.display = 'block';
+    updateGuideStep(3);
+
+  } else {
+    // Complete the wire
+    if (pinId === AppState.wireStartPin) {
+      cancelWireRoute();
+      return;
+    }
+    const wireId = generateId('WIRE');
+    const wireData = {
+      id: wireId,
+      fromPin: AppState.wireStartPin,
+      toPin: pinId,
+      startPos: AppState.wireStartWorldPos.toArray(),
+      endPos: worldPos.toArray(),
+      color: getWireColor(AppState.wireStartPin)
+    };
+
+    AppState.wires.push(wireData);
+    spawn3DWire(wireData);
+    notifyWorkerTopologyChange();
+
+    // Remove preview
+    if (AppState.wireMesh) { scene.remove(AppState.wireMesh); AppState.wireMesh = null; }
+    document.getElementById('wire-tooltip').style.display = 'none';
+    AppState.wireStartPin = null;
+    AppState.wireStartWorldPos = null;
+
+    showToast(`〰️ Wire: ${wireData.fromPin} ↔ ${wireData.toPin}`, 'success');
+    updateGuideStep(4);
+    updateComponentList();
+  }
+}
+
+function cancelWireRoute() {
+  if (AppState.wireMesh) { scene.remove(AppState.wireMesh); AppState.wireMesh = null; }
+  document.getElementById('wire-tooltip').style.display = 'none';
+  AppState.wireStartPin = null;
+  AppState.wireStartWorldPos = null;
+}
+
+function getWireColor(pinId) {
+  if (pinId.includes('POS') || pinId.includes('pos')) return '#ef4444';
+  if (pinId.includes('NEG') || pinId.includes('neg')) return '#3b82f6';
+  const colors = ['#00ffcc', '#ffb700', '#a855f7', '#f97316', '#22d3ee'];
+  return colors[Math.floor(Math.random() * colors.length)];
+}
+
+// ─── 3D COMPONENT SPAWNERS ────────────────────────────────────────────────────
+
+function spawn3DBattery(data) {
+  const group = new THREE.Group();
+  group.position.set(data.position[0], data.position[1], data.position[2]);
+  group.userData = { componentId: data.id, type: 'BATTERY_9V' };
+
+  // Main casing
+  const bodyGeo = new THREE.BoxGeometry(1.2, 1.6, 0.78);
+  const bodyMat = new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.3, metalness: 0.6 });
+  const body = new THREE.Mesh(bodyGeo, bodyMat);
+  body.position.y = 0.85;
+  body.castShadow = true;
+  body.userData = { componentId: data.id, clickable: true };
+  group.add(body);
+  clickableObjects.push(body);
+
+  // Label face
+  const labelGeo = new THREE.BoxGeometry(1.1, 1.3, 0.01);
+  const labelMat = new THREE.MeshBasicMaterial({ color: 0xf59e0b });
+  const label = new THREE.Mesh(labelGeo, labelMat);
+  label.position.set(0, 0.85, 0.4);
+  group.add(label);
+
+  // Positive terminal (octagonal cap)
+  const posGeo = new THREE.CylinderGeometry(0.11, 0.11, 0.14, 8);
+  const posMat = new THREE.MeshStandardMaterial({ color: 0xe2e8f0, metalness: 0.95, roughness: 0.1 });
+  const posT = new THREE.Mesh(posGeo, posMat);
+  posT.position.set(-0.28, 1.74, 0);
+  group.add(posT);
+
+  // Negative terminal (hexagonal)
+  const negGeo = new THREE.CylinderGeometry(0.14, 0.14, 0.14, 6);
+  const negMat = new THREE.MeshStandardMaterial({ color: 0x94a3b8, metalness: 0.95, roughness: 0.1 });
+  const negT = new THREE.Mesh(negGeo, negMat);
+  negT.position.set(0.28, 1.74, 0);
+  group.add(negT);
+
+  // Glow when active
+  const glow = new THREE.PointLight(0xf59e0b, 0.0, 2.5, 2);
+  glow.position.set(0, 1.0, 0);
+  group.add(glow);
+
+  AppState.scene3D[data.id] = { group, glow, type: 'BATTERY_9V' };
+  scene.add(group);
+}
+
+function spawn3DLED(data) {
+  const group = new THREE.Group();
+  group.position.set(data.position[0], data.position[1], data.position[2]);
+  group.userData = { componentId: data.id, type: 'LED' };
+
+  const color = new THREE.Color(data.color || '#00ffcc');
+
+  // LED body cylinder
+  const bodyGeo = new THREE.CylinderGeometry(0.19, 0.19, 0.38, 32);
+  const bodyMat = new THREE.MeshStandardMaterial({
+    color, emissive: color, emissiveIntensity: 0.0,
+    roughness: 0.1, metalness: 0.05, transparent: true, opacity: 0.88
+  });
+  const body = new THREE.Mesh(bodyGeo, bodyMat);
+  body.position.y = 0.6;
+  body.castShadow = true;
+  body.userData = { componentId: data.id, clickable: true };
+  group.add(body);
+  clickableObjects.push(body);
+
+  // Dome top
+  const domeGeo = new THREE.SphereGeometry(0.19, 32, 16, 0, Math.PI * 2, 0, Math.PI / 2);
+  const domeMat = new THREE.MeshStandardMaterial({
+    color, emissive: color, emissiveIntensity: 0.0,
+    roughness: 0.08, metalness: 0.0, transparent: true, opacity: 0.9
+  });
+  const dome = new THREE.Mesh(domeGeo, domeMat);
+  dome.position.y = 0.79;
+  group.add(dome);
+
+  // Base flange
+  const baseGeo = new THREE.CylinderGeometry(0.23, 0.23, 0.065, 32);
+  const baseMat = new THREE.MeshStandardMaterial({ color, roughness: 0.3 });
+  const base = new THREE.Mesh(baseGeo, baseMat);
+  base.position.y = 0.42;
+  group.add(base);
+
+  // Anode lead (longer, left)
+  const aGeo = new THREE.CylinderGeometry(0.018, 0.018, 0.4, 12);
+  const aMat = new THREE.MeshStandardMaterial({ color: 0xcbd5e1, metalness: 0.9, roughness: 0.1 });
+  const anode = new THREE.Mesh(aGeo, aMat);
+  anode.position.set(-0.13, 0.2, 0);
+  group.add(anode);
+
+  // Cathode lead (shorter, right)
+  const kGeo = new THREE.CylinderGeometry(0.018, 0.018, 0.35, 12);
+  const kMat = new THREE.MeshStandardMaterial({ color: 0xcbd5e1, metalness: 0.9, roughness: 0.1 });
+  const cath = new THREE.Mesh(kGeo, kMat);
+  cath.position.set(0.13, 0.175, 0);
+  group.add(cath);
+
+  // Point light (glow source)
+  const light = new THREE.PointLight(color, 0.0, 2.5, 2);
+  light.position.set(0, 0.7, 0);
+  group.add(light);
+
+  AppState.scene3D[data.id] = { group, bodyMat, domeMat, light, type: 'LED', color };
+  scene.add(group);
+}
+
+function spawn3DResistor(data) {
+  const group = new THREE.Group();
+  group.position.set(data.position[0], data.position[1], data.position[2]);
+  group.rotation.z = Math.PI / 2;
+  group.userData = { componentId: data.id, type: 'RESISTOR' };
+
+  // Ceramic body
+  const bodyGeo = new THREE.CylinderGeometry(0.105, 0.105, 0.7, 24);
+  const bodyMat = new THREE.MeshStandardMaterial({ color: 0xfde68a, roughness: 0.4 });
+  const body = new THREE.Mesh(bodyGeo, bodyMat);
+  body.position.y = 0.55;
+  body.castShadow = true;
+  body.userData = { componentId: data.id, clickable: true };
+  group.add(body);
+  clickableObjects.push(body);
+
+  // End caps (bulged spheres)
+  const capGeo = new THREE.SphereGeometry(0.115, 16, 12);
+  const capMat = new THREE.MeshStandardMaterial({ color: 0xfde68a, roughness: 0.4 });
+  [0.9, 0.2].forEach(y => {
+    const cap = new THREE.Mesh(capGeo, capMat);
+    cap.position.y = y;
+    group.add(cap);
+  });
+
+  // 4-band color code (220Ω = R-R-Br-Gold)
+  const bandColors = [0xdc2626, 0xdc2626, 0x78350f, 0xd97706];
+  const bandPositions = [0.73, 0.63, 0.53, 0.39];
+  bandColors.forEach((c, i) => {
+    const bGeo = new THREE.CylinderGeometry(0.112, 0.112, 0.045, 24);
+    const bMat = new THREE.MeshBasicMaterial({ color: c });
+    const band = new THREE.Mesh(bGeo, bMat);
+    band.position.y = bandPositions[i];
+    group.add(band);
+  });
+
+  // Axial leads
+  const leadGeo = new THREE.CylinderGeometry(0.016, 0.016, 0.38, 12);
+  const leadMat = new THREE.MeshStandardMaterial({ color: 0xcbd5e1, metalness: 0.9, roughness: 0.1 });
+  [1.1, -0.05].forEach(y => {
+    const lead = new THREE.Mesh(leadGeo, leadMat);
+    lead.position.y = y;
+    group.add(lead);
+  });
+
+  AppState.scene3D[data.id] = { group, type: 'RESISTOR' };
+  scene.add(group);
+}
+
+function spawn3DWire(wireData) {
+  const start = new THREE.Vector3(...wireData.startPos);
+  const end = new THREE.Vector3(...wireData.endPos);
+
+  // Parabolic arc
+  const dist = start.distanceTo(end);
+  const midX = (start.x + end.x) / 2;
+  const midZ = (start.z + end.z) / 2;
+  const peakY = Math.max(start.y, end.y) + Math.min(dist * 0.45, 1.5);
+  const ctrl = new THREE.Vector3(midX, peakY, midZ);
+
+  const curve = new THREE.QuadraticBezierCurve3(start, ctrl, end);
+  const tubeGeo = new THREE.TubeGeometry(curve, 24, 0.036, 8, false);
+  const tubeMat = new THREE.MeshStandardMaterial({
+    color: new THREE.Color(wireData.color || '#ef4444'),
+    roughness: 0.3, metalness: 0.1
+  });
+  const wire = new THREE.Mesh(tubeGeo, tubeMat);
+  wire.userData = { isWire: true, wireId: wireData.id };
+
+  // Terminal sleeves
+  [start, end].forEach(pos => {
+    const sleeveGeo = new THREE.CylinderGeometry(0.048, 0.048, 0.1, 12);
+    const sleeveMat = new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.5 });
+    const sleeve = new THREE.Mesh(sleeveGeo, sleeveMat);
+    sleeve.position.copy(pos);
+    scene.add(sleeve);
+  });
+
+  scene.add(wire);
+  if (!AppState.scene3D['__wires__']) AppState.scene3D['__wires__'] = [];
+  AppState.scene3D['__wires__'].push({ mesh: wire, wireData });
+}
+
+// ─── INPUT HANDLING ───────────────────────────────────────────────────────────
+function onMouseMove(e) {
+  const rect = renderer.domElement.getBoundingClientRect();
+  mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+  mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+
+  // Orbit drag
+  if (isMouseDown && orbitEnabled && mouseButton === 0) {
+    const dx = e.clientX - prevMouseX;
+    const dy = e.clientY - prevMouseY;
+    camTheta -= dx * 0.008;
+    camPhi = Math.max(0.2, Math.min(Math.PI / 2.05, camPhi + dy * 0.006));
+    prevMouseX = e.clientX;
+    prevMouseY = e.clientY;
+  }
+
+  // Middle-button pan
+  if (isMouseDown && mouseButton === 1) {
+    const dx = e.clientX - prevMouseX;
+    const dy = e.clientY - prevMouseY;
+    const right = new THREE.Vector3();
+    camera.getWorldDirection(right);
+    right.cross(camera.up).normalize();
+    const up = new THREE.Vector3(0, 1, 0);
+    camTarget.x -= (right.x * dx - up.x * dy) * 0.01;
+    camTarget.z -= (right.z * dx - up.z * dy) * 0.01;
+    prevMouseX = e.clientX;
+    prevMouseY = e.clientY;
+  }
+
+  // Update preview wire while routing
+  if (AppState.wireStartPin && AppState.wireMesh && AppState.wireStartWorldPos) {
+    // Cast ray to breadboard plane
+    raycaster.setFromCamera(mouse, camera);
+    const plane = new THREE.Plane(new THREE.Vector3(0, 1, 0), -0.22);
+    const hit = new THREE.Vector3();
+    raycaster.ray.intersectPlane(plane, hit);
+    if (hit.length() > 0) {
+      if (AppState.wireMesh) { scene.remove(AppState.wireMesh); AppState.wireMesh = null; }
+      const start = AppState.wireStartWorldPos;
+      const end = hit;
+      const ctrl = new THREE.Vector3(
+        (start.x + end.x) / 2,
+        Math.max(start.y, end.y) + 0.5,
+        (start.z + end.z) / 2
+      );
+      const curve = new THREE.QuadraticBezierCurve3(start, ctrl, end);
+      const geo = new THREE.TubeGeometry(curve, 16, 0.03, 8, false);
+      const mat = new THREE.MeshBasicMaterial({ color: 0x00d4ff, transparent: true, opacity: 0.6 });
+      AppState.wireMesh = new THREE.Mesh(geo, mat);
+      scene.add(AppState.wireMesh);
+    }
+  }
+}
+
+function onMouseDown(e) {
+  isMouseDown = true;
+  mouseButton = e.button;
+  prevMouseX = e.clientX;
+  prevMouseY = e.clientY;
+}
+
+function onMouseUp() {
+  isMouseDown = false;
+  mouseButton = -1;
+}
+
+document.getElementById('lab-canvas').addEventListener('wheel', (e) => {
+  e.preventDefault();
+  camRadius = Math.max(3, Math.min(20, camRadius + e.deltaY * 0.01));
+}, { passive: false });
+
+function onCanvasClick(e) {
+  // Don't trigger on drag
+  if (Math.abs(e.clientX - prevMouseX) > 4 || Math.abs(e.clientY - prevMouseY) > 4) return;
+
+  raycaster.setFromCamera(mouse, camera);
+  const hits = raycaster.intersectObjects(clickableObjects, false);
+
+  if (hits.length === 0) {
+    // Deselect
+    AppState.selectedComponentId = null;
+    updateSelectionInfo(null);
+    return;
+  }
+
+  const hit = hits[0].object;
+
+  if (hit.userData.isPinTarget) {
+    // Clicked a breadboard tie-point
+    placeComponentAtPin(hit);
+  } else if (hit.userData.componentId) {
+    // Clicked a component
+    const compId = hit.userData.componentId;
+    if (AppState.selectedTool === 'DELETE') {
+      deleteComponent(compId);
+    } else if (AppState.selectedTool === 'SELECT') {
+      AppState.selectedComponentId = compId;
+      updateSelectionInfo(compId);
+    }
+  }
+}
+
+// ─── SELECTION INFO PANEL ─────────────────────────────────────────────────────
+function updateSelectionInfo(compId) {
+  const panel = document.getElementById('selection-info');
+  if (!compId) { panel.classList.remove('visible'); return; }
+
+  const comp = AppState.components.find(c => c.id === compId);
+  if (!comp) { panel.classList.remove('visible'); return; }
+
+  panel.classList.add('visible');
+  document.getElementById('sel-type').textContent = comp.type;
+  document.getElementById('sel-id').textContent = compId.split('_')[0] + '_' + compId.split('_')[1];
+
+  const mA = ((AppState.branchCurrents[compId] || 0) * 1000).toFixed(2);
+  document.getElementById('sel-current').textContent = mA + ' mA';
+
+  const isOn = (AppState.branchCurrents[compId] || 0) > 0.001;
+  const selState = document.getElementById('sel-state');
+  selState.textContent = isOn ? 'ON ✓' : 'OFF';
+  selState.style.color = isOn ? '#00ff88' : '#475569';
+}
+
+// ─── DELETE ───────────────────────────────────────────────────────────────────
+function deleteComponent(compId) {
+  const comp3D = AppState.scene3D[compId];
+  if (comp3D?.group) scene.remove(comp3D.group);
+  delete AppState.scene3D[compId];
+
+  // Remove from clickables
+  for (let i = clickableObjects.length - 1; i >= 0; i--) {
+    if (clickableObjects[i].userData.componentId === compId) {
+      clickableObjects.splice(i, 1);
+    }
+  }
+
+  AppState.components = AppState.components.filter(c => c.id !== compId);
+  AppState.wires = AppState.wires.filter(w => w.fromComp !== compId && w.toComp !== compId);
+  notifyWorkerTopologyChange();
+  updateSelectionInfo(null);
+  updateComponentList();
+  showToast('Component removed', 'warn');
+}
+
+function deleteSelectedComponent() {
+  if (AppState.selectedComponentId) deleteComponent(AppState.selectedComponentId);
+}
+
+function clearAll() {
+  AppState.components.forEach(c => {
+    const c3D = AppState.scene3D[c.id];
+    if (c3D?.group) scene.remove(c3D.group);
+  });
+  AppState.components = [];
+  AppState.wires = [];
+  AppState.scene3D = {};
+  clickableObjects.length = 0;
+  // Re-add pin clickables
+  rebuildPinClickables();
+  notifyWorkerTopologyChange();
+  updateComponentList();
+  updateSelectionInfo(null);
+  showToast('Board cleared', 'warn');
+}
+
+function rebuildPinClickables() {
+  // Rebuild from scene userData (pins were originally added)
+  scene.traverse(obj => {
+    if (obj.userData?.isPinTarget) clickableObjects.push(obj);
+  });
+}
+
+// ─── KEYBOARD SHORTCUTS ───────────────────────────────────────────────────────
+function initKeyboardShortcuts() {
+  window.addEventListener('keydown', (e) => {
+    if (e.target.tagName === 'INPUT') return;
+    switch (e.key.toLowerCase()) {
+      case 'q': setTool('SELECT'); break;
+      case 'b': setTool('BATTERY_9V'); break;
+      case 'l': setTool('LED'); break;
+      case 'r': setTool('RESISTOR'); break;
+      case 'c': setTool('CAPACITOR'); break;
+      case 'w': setTool('WIRE'); break;
+      case 'p': setTool('PROBE'); break;
+      case 'escape': cancelWireRoute(); setTool('SELECT'); break;
+      case 'delete':
+      case 'backspace':
+        if (AppState.selectedComponentId) deleteComponent(AppState.selectedComponentId);
+        break;
+    }
+  });
+}
+
+// ─── EXPERIMENT GUIDE STEPS ───────────────────────────────────────────────────
+function updateGuideStep(stepIndex) {
+  if (AppState.completedSteps.has(stepIndex)) return;
+  AppState.completedSteps.add(stepIndex);
+  const el = document.getElementById(`step-${stepIndex}`);
+  if (el) {
+    el.classList.remove('active');
+    el.classList.add('done');
+    el.querySelector('.step-num').textContent = '✓';
+  }
+  // Activate next
+  const next = document.getElementById(`step-${stepIndex + 1}`);
+  if (next) next.classList.add('active');
+}
+
+// ─── TELEMETRY PANEL UPDATES ──────────────────────────────────────────────────
+function updateTelemetryPanel() {
+  const voltEl = document.getElementById('voltage-readouts');
+  const currEl = document.getElementById('current-readouts');
+
+  // Voltage cards
+  const importantNodes = Object.entries(AppState.nodeVoltages)
+    .filter(([k, v]) => v > 0.01)
+    .sort(([, a], [, b]) => b - a)
+    .slice(0, 6);
+
+  if (importantNodes.length > 0) {
+    voltEl.innerHTML = importantNodes.map(([node, v]) => `
+      <div class="volt-card live">
+        <span class="volt-label">${node}</span>
+        <span class="volt-value">${v.toFixed(2)} V</span>
+      </div>
+    `).join('');
+  } else {
+    voltEl.innerHTML = `<div class="volt-card"><span class="volt-label">No active nodes</span><span class="volt-value zero">0.00 V</span></div>`;
+  }
+
+  // Current cards
+  const activeCurrEnts = Object.entries(AppState.branchCurrents)
+    .filter(([, v]) => Math.abs(v) > 0.0001);
+
+  if (activeCurrEnts.length > 0) {
+    currEl.innerHTML = activeCurrEnts.map(([id, i]) => `
+      <div class="volt-card ${Math.abs(i) > 0.001 ? 'live' : ''}">
+        <span class="volt-label">${id.split('_')[0]}</span>
+        <span class="volt-value ${Math.abs(i) < 0.001 ? 'zero' : ''}">${(i * 1000).toFixed(2)} mA</span>
+      </div>
+    `).join('');
+  } else {
+    currEl.innerHTML = `<div class="volt-card"><span class="volt-label">No active paths</span><span class="volt-value zero">0.00 mA</span></div>`;
+  }
+
+  // Selected component live update
+  if (AppState.selectedComponentId) updateSelectionInfo(AppState.selectedComponentId);
+}
+
+// ─── COMPONENT LIST SIDEBAR ───────────────────────────────────────────────────
+const COMP_ICONS = { BATTERY_9V: '🔋', LED: '💡', RESISTOR: '⚡', CAPACITOR: '🔲', WIRE: '〰️' };
+
+function updateComponentList() {
+  const el = document.getElementById('comp-list');
+  const compCount = document.getElementById('comp-count');
+  if (compCount) compCount.textContent = AppState.components.length + ' components';
+
+  if (AppState.components.length === 0) {
+    el.innerHTML = `<div style="font-size:10px;font-family:var(--font-mono);color:var(--text-muted);text-align:center;padding:12px 0;">
+      No components placed yet
+    </div>`;
+    return;
+  }
+
+  el.innerHTML = AppState.components.map(comp => {
+    const isActive = (AppState.branchCurrents[comp.id] || 0) > 0.001;
+    const isSelected = AppState.selectedComponentId === comp.id;
+    return `
+      <div class="comp-list-item ${isSelected ? 'selected' : ''}" onclick="selectFromList('${comp.id}')">
+        <span class="comp-icon">${COMP_ICONS[comp.type] || '📦'}</span>
+        <span class="comp-name">${comp.type} <span style="opacity:0.5">#${comp.id.split('_')[1] || '?'}</span></span>
+        <span class="comp-status ${isActive ? 'active' : ''}"></span>
+      </div>
+    `;
+  }).join('');
+}
+
+function selectFromList(id) {
+  AppState.selectedComponentId = id;
+  updateSelectionInfo(id);
+  setTool('SELECT');
+}
+
+// ─── OSCILLOSCOPE 2D CANVAS RENDERER ─────────────────────────────────────────
+const scopeCanvas2d = document.getElementById('scope-canvas-2d');
+const sCtx = scopeCanvas2d.getContext('2d');
+let scopeVmax = 0, scopeFreqDisplay = '—';
+
+function drawOscilloscope2D(samples) {
+  const W = 320, H = 160;
+  sCtx.clearRect(0, 0, W, H);
+
+  // Background
+  sCtx.fillStyle = '#010d04';
+  sCtx.fillRect(0, 0, W, H);
+
+  // Grid
+  sCtx.strokeStyle = 'rgba(0,255,102,0.12)';
+  sCtx.lineWidth = 0.5;
+  for (let i = 0; i <= 8; i++) {
+    const x = (W / 8) * i;
+    sCtx.beginPath(); sCtx.moveTo(x, 0); sCtx.lineTo(x, H); sCtx.stroke();
+  }
+  for (let i = 0; i <= 4; i++) {
+    const y = (H / 4) * i;
+    sCtx.beginPath(); sCtx.moveTo(0, y); sCtx.lineTo(W, y); sCtx.stroke();
+  }
+
+  // Center axis
+  sCtx.strokeStyle = 'rgba(0,255,102,0.22)';
+  sCtx.lineWidth = 1;
+  sCtx.beginPath(); sCtx.moveTo(0, H / 2); sCtx.lineTo(W, H / 2); sCtx.stroke();
+
+  if (!samples || samples.length === 0) return;
+
+  const vScale = 10.0; // 0–10V range
+  let localMax = 0;
+
+  // Glow pass
+  sCtx.save();
+  sCtx.shadowColor = '#00ff66';
+  sCtx.shadowBlur = 8;
+  sCtx.strokeStyle = 'rgba(0,255,100,0.3)';
+  sCtx.lineWidth = 3;
+  sCtx.beginPath();
+  for (let i = 0; i < W; i++) {
+    const idx = Math.floor((i / W) * samples.length);
+    const v = samples[idx] || 0;
+    if (Math.abs(v) > localMax) localMax = Math.abs(v);
+    const y = H - ((v / vScale) * H * 0.8 + H * 0.1);
+    if (i === 0) sCtx.moveTo(i, y);
+    else sCtx.lineTo(i, y);
+  }
+  sCtx.stroke();
+  sCtx.restore();
+
+  // Sharp beam pass
+  sCtx.strokeStyle = '#00ff88';
+  sCtx.lineWidth = 1.5;
+  sCtx.shadowColor = '#00ff88';
+  sCtx.shadowBlur = 4;
+  sCtx.beginPath();
+  for (let i = 0; i < W; i++) {
+    const idx = Math.floor((i / W) * samples.length);
+    const v = samples[idx] || 0;
+    const y = H - ((v / vScale) * H * 0.8 + H * 0.1);
+    if (i === 0) sCtx.moveTo(i, y);
+    else sCtx.lineTo(i, y);
+  }
+  sCtx.stroke();
+  sCtx.shadowBlur = 0;
+
+  scopeVmax = localMax;
+  document.getElementById('scope-vmax').textContent = localMax.toFixed(2) + ' V';
+}
+
+// ─── REAL-TIME 3D MATERIAL ANIMATION LOOP (60 FPS) ────────────────────────────
+function animateCircuitComponents(time) {
+  AppState.components.forEach(comp => {
+    const obj3D = AppState.scene3D[comp.id];
+    if (!obj3D) return;
+
+    if (comp.type === 'LED') {
+      // Read transient branch current (no React re-render)
+      const current = AppState.branchCurrents[comp.id] || 0;
+      const normI = Math.min(Math.max(current / 0.022, 0.0), 1.0);
+      const intensity = normI * 3.2;
+
+      // Direct mutation of Three.js material (bypasses all state management)
+      if (obj3D.bodyMat) {
+        obj3D.bodyMat.emissiveIntensity = intensity;
+      }
+      if (obj3D.domeMat) {
+        obj3D.domeMat.emissiveIntensity = intensity * 1.1;
+      }
+      if (obj3D.light) {
+        obj3D.light.intensity = normI * 2.2;
+      }
+    }
+
+    if (comp.type === 'BATTERY_9V') {
+      const hasLoad = AppState.components.some(c =>
+        c.type !== 'BATTERY_9V' && (AppState.branchCurrents[c.id] || 0) > 0.001
+      );
+      if (obj3D.glow) {
+        obj3D.glow.intensity = hasLoad ? (0.4 + Math.sin(time * 2) * 0.15) : 0;
+      }
+    }
+  });
+
+  // Animate oscilloscope scope glow light
+  if (window.scopeLight) {
+    const scopeVisible = document.getElementById('scope-panel').classList.contains('visible');
+    window.scopeLight.intensity = scopeVisible ? (0.5 + Math.sin(time * 1.5) * 0.2) : 0;
+  }
+}
+
+// ─── UPDATE 3D OSCILLOSCOPE SHADER TEXTURE ───────────────────────────────────
+function updateScopeShader() {
+  if (!window.scopeScreenMat) return;
+  const samples = AppState.oscilloscopeSamples;
+  if (!samples || samples.length === 0) return;
+  window.scopeScreenMat.uniforms.uWaveform.value.image.data.set(samples);
+  window.scopeScreenMat.uniforms.uWaveform.value.needsUpdate = true;
+  window.scopeScreenMat.uniforms.uTime.value += 0.016;
+}
+
+// ─── MAIN RENDER / ANIMATION LOOP ────────────────────────────────────────────
+let telemetryThrottle = 0;
+let scopeThrottle = 0;
+const TELE_INTERVAL = 250; // ms
+const SCOPE_INTERVAL = 33; // ms
+
+function animate() {
+  requestAnimationFrame(animate);
+
+  const now = performance.now();
+  const delta = now - lastTime;
+  lastTime = now;
+  const time = now * 0.001;
+
+  // FPS counter
+  frameCount++;
+  if (now - fpsTime >= 1000) {
+    document.getElementById('fps-counter').textContent = frameCount + ' FPS';
+    frameCount = 0;
+    fpsTime = now;
+  }
+
+  // Smooth camera orbit
+  updateCameraFromSpherical();
+
+  // Animate LED glows & battery states (every frame, direct material mutation)
+  animateCircuitComponents(time);
+
+  // Update 3D oscilloscope shader (every frame)
+  updateScopeShader();
+
+  // Throttled 2D oscilloscope canvas draw (30 FPS)
+  scopeThrottle += delta;
+  if (scopeThrottle >= SCOPE_INTERVAL) {
+    scopeThrottle = 0;
+    if (document.getElementById('scope-panel').classList.contains('visible')) {
+      drawOscilloscope2D(Array.from(AppState.oscilloscopeSamples));
+    }
+  }
+
+  // Throttled telemetry panel DOM updates (4× per second)
+  telemetryThrottle += delta;
+  if (telemetryThrottle >= TELE_INTERVAL) {
+    telemetryThrottle = 0;
+    updateTelemetryPanel();
+    updateComponentList();
+  }
+
+  renderer.render(scene, camera);
+}
+
+// ─── UI HELPERS ───────────────────────────────────────────────────────────────
+function toggleScope() {
+  document.getElementById('scope-panel').classList.toggle('visible');
+}
+
+function updateSimSpeed(v) {
+  AppState.simSpeed = v;
+  const labels = ['', '1× Real-time', '2× Fast', '3× Turbo', '4×', '5×', '6×', '7×', '8×', '9×', '10× Max'];
+  document.getElementById('sim-speed-label').textContent = labels[v] || v + '×';
+  if (simWorker) simWorker.postMessage({ type: 'SET_DT', payload: { dt: v * 0.0005 } });
+}
+
+function showZoneInfo(zone) {
+  const info = {
+    1: 'Zone 1 — Foundation Labs (Semesters 1 & 2)\nPhysics, Chemistry, Engineering Graphics, C Programming',
+    3: 'Zone 3 — Heavy Machinery (Semesters 5 & 6)\nElectrical Machines, Power Electronics, Industrial Controls'
+  };
+  showToast(`🗺️ ${info[zone]?.split('\n')[0] || 'Zone ' + zone}`, 'info');
+}
+
+function showToast(msg, type = 'info') {
+  const container = document.getElementById('toast-container');
+  const toast = document.createElement('div');
+  toast.className = `toast ${type}`;
+  toast.textContent = msg;
+  container.appendChild(toast);
+  setTimeout(() => { toast.remove(); }, 3000);
+}
+
+function onResize() {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+}
+
+// ─── LOGIC GATES PANEL SYSTEM ────────────────────────────────────────────────
+let logicPanelVisible = false;
+let logicState = { A: 0, B: 0, gate: 'AND' };
+
+function toggleLogicPanel() {
+  logicPanelVisible = !logicPanelVisible;
+  const p = document.getElementById('logic-panel');
+  p.style.display = logicPanelVisible ? 'flex' : 'none';
+  if (logicPanelVisible) {
+    renderGateSymbol();
+    renderTruthTable();
+    evaluateGate();
+  }
+}
+
+function toggleLogicInput(inp) {
+  logicState[inp] = logicState[inp] ? 0 : 1;
+  const btn = document.getElementById(`input${inp}-btn`);
+  const isHigh = logicState[inp] === 1;
+  btn.textContent = `${inp} = ${logicState[inp]}`;
+  btn.style.borderColor = isHigh ? 'rgba(0,255,136,.5)' : 'rgba(255,68,68,.4)';
+  btn.style.background  = isHigh ? 'rgba(0,255,136,.1)' : 'rgba(255,68,68,.08)';
+  btn.style.color       = isHigh ? '#00ff88' : '#ef4444';
+  evaluateGate();
+}
+
+function selectGate(gate) {
+  logicState.gate = gate;
+  document.querySelectorAll('.gate-sel').forEach(b => {
+    b.style.borderColor = 'rgba(255,255,255,.07)';
+    b.style.background  = 'transparent';
+    b.style.color       = '#475569';
+  });
+  event.target.style.borderColor = 'rgba(168,85,247,.4)';
+  event.target.style.background  = 'rgba(168,85,247,.12)';
+  event.target.style.color       = '#a855f7';
+  renderGateSymbol();
+  renderTruthTable();
+  evaluateGate();
+}
+
+function evaluateGate() {
+  const { A, B, gate } = logicState;
+  let Q = 0;
+  const exprs = {
+    AND:  `Q = A AND B`, OR:   `Q = A OR B`,  NOT:  `Q = NOT A`,
+    NAND: `Q = NOT(A AND B)`,  NOR:  `Q = NOT(A OR B)`,  XOR:  `Q = A XOR B`
+  };
+  switch (gate) {
+    case 'AND':  Q = A & B; break;
+    case 'OR':   Q = A | B; break;
+    case 'NOT':  Q = A ? 0 : 1; break;
+    case 'NAND': Q = (A & B) ? 0 : 1; break;
+    case 'NOR':  Q = (A | B) ? 0 : 1; break;
+    case 'XOR':  Q = A ^ B; break;
+  }
+  const outEl = document.getElementById('logic-output');
+  const exprEl = document.getElementById('logic-expr');
+  if (outEl) {
+    outEl.textContent = Q;
+    outEl.style.color = Q ? '#00ff88' : '#475569';
+    outEl.style.textShadow = Q ? '0 0 20px rgba(0,255,136,.6)' : 'none';
+  }
+  if (exprEl) exprEl.textContent = exprs[gate] || '';
+  renderGateSymbol();
+}
+
+function renderGateSymbol() {
+  const canvas = document.getElementById('gate-canvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  ctx.clearRect(0, 0, W, H);
+  ctx.fillStyle = '#010d04';
+  ctx.fillRect(0, 0, W, H);
+
+  const { A, B, gate } = logicState;
+  const Q = evaluateGateValue(A, B, gate);
+
+  // Wire colors
+  const wireA = A ? '#00ff88' : '#ef4444';
+  const wireB = B ? '#00ff88' : '#ef4444';
+  const wireQ = Q ? '#00ff88' : '#ef4444';
+
+  ctx.lineWidth = 2;
+  ctx.strokeStyle = wireA;
+  ctx.beginPath(); ctx.moveTo(10, 35); ctx.lineTo(65, 35); ctx.stroke();
+  if (gate !== 'NOT') {
+    ctx.strokeStyle = wireB;
+    ctx.beginPath(); ctx.moveTo(10, 65); ctx.lineTo(65, 65); ctx.stroke();
+  }
+  ctx.strokeStyle = wireQ;
+  ctx.beginPath(); ctx.moveTo(130, 50); ctx.lineTo(186, 50); ctx.stroke();
+
+  // Labels
+  ctx.font = 'bold 11px JetBrains Mono, monospace';
+  ctx.fillStyle = wireA; ctx.fillText('A=' + A, 4, 32);
+  if (gate !== 'NOT') { ctx.fillStyle = wireB; ctx.fillText('B=' + B, 4, 62); }
+  ctx.fillStyle = wireQ; ctx.fillText('Q=' + Q, 152, 46);
+
+  // Gate body
+  ctx.strokeStyle = '#a855f7';
+  ctx.lineWidth = 2;
+  ctx.fillStyle = 'rgba(168,85,247,.1)';
+
+  const gx = 65, gy = 25, gw = 65, gh = 50;
+  ctx.beginPath();
+  if (gate === 'AND' || gate === 'NAND') {
+    ctx.moveTo(gx, gy); ctx.lineTo(gx + gw * 0.55, gy);
+    ctx.arc(gx + gw * 0.55, gy + gh / 2, gh / 2, -Math.PI / 2, Math.PI / 2);
+    ctx.lineTo(gx, gy + gh); ctx.closePath();
+  } else if (gate === 'OR' || gate === 'NOR' || gate === 'XOR') {
+    ctx.moveTo(gx, gy);
+    ctx.quadraticCurveTo(gx + gw * 0.4, gy + gh / 2, gx, gy + gh);
+    ctx.quadraticCurveTo(gx + gw * 0.6, gy + gh, gx + gw, gy + gh / 2);
+    ctx.quadraticCurveTo(gx + gw * 0.6, gy, gx, gy);
+    if (gate === 'XOR') {
+      ctx.stroke(); ctx.beginPath();
+      ctx.moveTo(gx - 8, gy); ctx.quadraticCurveTo(gx - 8 + gw * 0.4, gy + gh / 2, gx - 8, gy + gh);
+    }
+  } else if (gate === 'NOT') {
+    ctx.moveTo(gx, gy); ctx.lineTo(gx + gw * 0.8, gy + gh / 2);
+    ctx.lineTo(gx, gy + gh); ctx.closePath();
+  }
+  ctx.fill(); ctx.stroke();
+
+  // NOT/NAND/NOR bubble
+  if (['NOT', 'NAND', 'NOR'].includes(gate)) {
+    ctx.beginPath();
+    ctx.arc(gx + gw + (gate === 'NOT' ? -4 : 4), gy + gh / 2, 5, 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(168,85,247,.2)';
+    ctx.fill(); ctx.strokeStyle = '#a855f7'; ctx.stroke();
+  }
+
+  // Gate name
+  ctx.fillStyle = '#a855f7'; ctx.font = 'bold 9px JetBrains Mono, monospace';
+  ctx.textAlign = 'center';
+  ctx.fillText(gate, gx + gw / 2, gy + gh / 2 + 3);
+  ctx.textAlign = 'left';
+}
+
+function evaluateGateValue(A, B, gate) {
+  switch (gate) {
+    case 'AND': return A & B;
+    case 'OR':  return A | B;
+    case 'NOT': return A ? 0 : 1;
+    case 'NAND': return (A & B) ? 0 : 1;
+    case 'NOR':  return (A | B) ? 0 : 1;
+    case 'XOR':  return A ^ B;
+    default: return 0;
+  }
+}
+
+function renderTruthTable() {
+  const gate = logicState.gate;
+  const table = document.getElementById('truth-table');
+  if (!table) return;
+  const isUnary = gate === 'NOT';
+  const tdStyle = 'padding:4px 6px;border:1px solid rgba(255,255,255,.07);text-align:center;';
+  const thStyle = 'padding:4px 6px;border:1px solid rgba(255,255,255,.07);text-align:center;color:#475569;';
+
+  let rows = isUnary
+    ? [[0], [1]]
+    : [[0,0],[0,1],[1,0],[1,1]];
+
+  const header = isUnary
+    ? `<tr><th style="${thStyle}">A</th><th style="${thStyle}">Q</th></tr>`
+    : `<tr><th style="${thStyle}">A</th><th style="${thStyle}">B</th><th style="${thStyle}">Q</th></tr>`;
+
+  const body = rows.map(row => {
+    const A = row[0], B = isUnary ? 0 : row[1];
+    const Q = evaluateGateValue(A, B, gate);
+    const isCurrentRow = logicState.A === A && (isUnary || logicState.B === B);
+    const bg = isCurrentRow ? 'background:rgba(168,85,247,.1);' : '';
+    const qColor = Q ? 'color:#00ff88' : 'color:#ef4444';
+    return isUnary
+      ? `<tr style="${bg}"><td style="${tdStyle}color:${A ? '#00ff88' : '#ef4444'}">${A}</td><td style="${tdStyle}${qColor}">${Q}</td></tr>`
+      : `<tr style="${bg}"><td style="${tdStyle}color:${A ? '#00ff88' : '#ef4444'}">${A}</td><td style="${tdStyle}color:${B ? '#00ff88' : '#ef4444'}">${B}</td><td style="${tdStyle}${qColor}">${Q}</td></tr>`;
+  }).join('');
+
+  table.innerHTML = `<thead>${header}</thead><tbody>${body}</tbody>`;
+}
+
+// ─── 8085 CPU SIMULATOR ───────────────────────────────────────────────────────
+let cpuVisible = false;
+const CPU = {
+  regs: { A: 0x00, B: 0x00, C: 0x00, D: 0x00, E: 0x00, H: 0x00, L: 0x00 },
+  flags: { S: 0, Z: 0, AC: 0, P: 0, CY: 0 },
+  PC: 0x0000, SP: 0xFFFF,
+  instructionCount: 0
+};
+
+function toggleCPU() {
+  cpuVisible = !cpuVisible;
+  const m = document.getElementById('cpu-modal');
+  m.style.display = cpuVisible ? 'flex' : 'none';
+  if (cpuVisible) {
+    renderCPURegisters();
+    drawCPUArchitecture();
+  }
+}
+
+function resetCPU() {
+  Object.keys(CPU.regs).forEach(k => CPU.regs[k] = 0);
+  Object.keys(CPU.flags).forEach(k => CPU.flags[k] = 0);
+  CPU.PC = 0; CPU.SP = 0xFFFF; CPU.instructionCount = 0;
+  renderCPURegisters();
+  drawCPUArchitecture();
+  document.getElementById('cpu-log').textContent = 'CPU reset. All registers cleared.';
+}
+
+function toHex(n, digits = 2) {
+  return n.toString(16).toUpperCase().padStart(digits, '0') + 'H';
+}
+
+function updateFlags(result) {
+  CPU.flags.Z  = (result & 0xFF) === 0 ? 1 : 0;
+  CPU.flags.S  = (result & 0x80) ? 1 : 0;
+  CPU.flags.CY = result > 0xFF ? 1 : 0;
+  const byte = result & 0xFF;
+  let bits = 0;
+  for (let i = 0; i < 8; i++) if (byte & (1 << i)) bits++;
+  CPU.flags.P = (bits % 2 === 0) ? 1 : 0;
+}
+
+function runInstruction(instr) {
+  let log = `[${toHex(CPU.PC, 4)}] ${instr} → `;
+  CPU.instructionCount++;
+
+  if (instr === 'MOV A,B') {
+    CPU.regs.A = CPU.regs.B;
+    log += `A ← ${toHex(CPU.regs.A)} (copied from B)`;
+    CPU.PC += 1;
+  } else if (instr === 'ADD B') {
+    const result = CPU.regs.A + CPU.regs.B;
+    CPU.regs.A = result & 0xFF;
+    updateFlags(result);
+    log += `A = ${toHex(CPU.regs.A)} (A + B, CY=${CPU.flags.CY}, Z=${CPU.flags.Z})`;
+    CPU.PC += 1;
+  } else if (instr === 'INR A') {
+    CPU.regs.A = (CPU.regs.A + 1) & 0xFF;
+    updateFlags(CPU.regs.A);
+    log += `A = ${toHex(CPU.regs.A)} (incremented)`;
+    CPU.PC += 1;
+  } else if (instr === 'DCR B') {
+    CPU.regs.B = (CPU.regs.B - 1 + 256) & 0xFF;
+    updateFlags(CPU.regs.B);
+    log += `B = ${toHex(CPU.regs.B)} (decremented)`;
+    CPU.PC += 1;
+  } else if (instr === 'CMA') {
+    CPU.regs.A = (~CPU.regs.A) & 0xFF;
+    log += `A = ${toHex(CPU.regs.A)} (complement)`;
+    CPU.PC += 1;
+  } else if (instr === 'XRA A') {
+    CPU.regs.A = 0;
+    updateFlags(0);
+    log += `A = 00H (cleared via XRA, Z=1)`;
+    CPU.PC += 1;
+  }
+
+  document.getElementById('cpu-log').textContent = log;
+  document.getElementById('addr-bus').textContent = toHex(CPU.PC, 4);
+  document.getElementById('data-bus').textContent = toHex(CPU.regs.A);
+  document.getElementById('pc-reg').textContent   = toHex(CPU.PC, 4);
+
+  renderCPURegisters();
+  flashCPUArch();
+}
+
+function renderCPURegisters() {
+  const bank = document.getElementById('reg-bank');
+  if (!bank) return;
+
+  const pairs = [
+    { label: 'A (Accumulator)', key: 'A', color: '#00d4ff' },
+    { label: 'B', key: 'B', color: '#a855f7' },
+    { label: 'C', key: 'C', color: '#a855f7' },
+    { label: 'D', key: 'D', color: '#f97316' },
+    { label: 'E', key: 'E', color: '#f97316' },
+    { label: 'H', key: 'H', color: '#00ff88' },
+    { label: 'L', key: 'L', color: '#00ff88' },
+  ];
+
+  bank.innerHTML = pairs.map(r => `
+    <div style="display:flex;align-items:center;justify-content:space-between;
+      padding:6px 10px;border-radius:8px;border:1px solid rgba(255,255,255,.06);
+      background:rgba(255,255,255,.02);">
+      <span style="font-size:9px;font-family:'JetBrains Mono',monospace;color:#475569;">${r.label}</span>
+      <div style="display:flex;gap:6px;align-items:center;">
+        <span style="font-size:10px;font-family:'JetBrains Mono',monospace;color:#475569;">
+          ${CPU.regs[r.key].toString(2).padStart(8,'0')}
+        </span>
+        <span style="font-size:11px;font-family:'JetBrains Mono',monospace;font-weight:600;color:${r.color};
+          min-width:36px;text-align:right;">
+          ${toHex(CPU.regs[r.key])}
+        </span>
+      </div>
+    </div>
+  `).join('');
+
+  // Flags
+  const flagsRow = document.getElementById('flags-row');
+  if (flagsRow) {
+    flagsRow.innerHTML = Object.entries(CPU.flags).map(([name, val]) => `
+      <div style="padding:4px 8px;border-radius:6px;border:1px solid ${val ? 'rgba(0,255,136,.4)' : 'rgba(255,255,255,.07)'};
+        background:${val ? 'rgba(0,255,136,.08)' : 'rgba(255,255,255,.02)'};
+        font-family:'JetBrains Mono',monospace;font-size:9px;
+        color:${val ? '#00ff88' : '#475569'};text-align:center;">
+        <div style="font-weight:700;">${name}</div>
+        <div>${val}</div>
+      </div>
+    `).join('');
+  }
+}
+
+function drawCPUArchitecture() {
+  const canvas = document.getElementById('cpu-arch-canvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  ctx.clearRect(0, 0, W, H);
+  ctx.fillStyle = '#010810';
+  ctx.fillRect(0, 0, W, H);
+
+  const block = (x, y, w, h, label, color, subLabel) => {
+    ctx.fillStyle = color + '18';
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.roundRect(x, y, w, h, 6);
+    ctx.fill(); ctx.stroke();
+    ctx.fillStyle = color;
+    ctx.font = 'bold 9px JetBrains Mono, monospace';
+    ctx.textAlign = 'center';
+    ctx.fillText(label, x + w / 2, y + h / 2 - (subLabel ? 4 : 0));
+    if (subLabel) {
+      ctx.font = '8px JetBrains Mono, monospace';
+      ctx.fillStyle = color + 'aa';
+      ctx.fillText(subLabel, x + w / 2, y + h / 2 + 9);
+    }
+    ctx.textAlign = 'left';
+  };
+
+  const wire = (x1, y1, x2, y2, color) => {
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 1;
+    ctx.setLineDash([3, 3]);
+    ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
+    ctx.setLineDash([]);
+  };
+
+  // Main blocks
+  block(20, 20, 80, 36, 'ALU', '#00d4ff', 'Arithmetic Logic');
+  block(20, 70, 80, 30, 'REGISTERS', '#a855f7', 'A,B,C,D,E,H,L');
+  block(20, 115, 80, 26, 'FLAGS', '#00ff88', 'S,Z,AC,P,CY');
+  block(20, 155, 80, 26, 'TEMP REG', '#f97316', 'W, Z');
+  block(20, 195, 80, 26, 'STACK PTR', '#ffb700', 'SP = ' + toHex(CPU.SP, 4));
+  block(20, 235, 80, 26, 'PROG. CTR', '#ef4444', 'PC = ' + toHex(CPU.PC, 4));
+  block(20, 275, 80, 40, 'INSTR.', '#94a3b8', 'Decoder/Ctrl');
+
+  block(160, 20, 100, 30, 'CONTROL UNIT', '#f97316', 'Timing & Control');
+  block(160, 65, 100, 30, 'INSTRUCTION REG', '#a855f7', '8-bit register');
+  block(160, 110, 100, 30, 'ADDR. BUFFER', '#00d4ff', '16-bit');
+  block(160, 155, 100, 30, 'DATA BUFFER', '#00ff88', '8-bit bidirectional');
+  block(160, 200, 100, 50, 'BUS INTERFACE', '#ffb700', 'Address/Data/Ctrl');
+  block(160, 265, 100, 50, 'SERIAL I/O', '#94a3b8', 'SID/SOD lines');
+
+  // Buses
+  ctx.fillStyle = '#00d4ff22';
+  ctx.fillRect(140, 0, 10, H);
+  ctx.strokeStyle = '#00d4ff44';
+  ctx.lineWidth = 2;
+  ctx.strokeRect(140, 0, 10, H);
+  ctx.fillStyle = '#00d4ff';
+  ctx.font = '8px JetBrains Mono, monospace';
+  ctx.save(); ctx.translate(147, H / 2); ctx.rotate(-Math.PI / 2);
+  ctx.fillText('INTERNAL DATA BUS (8-bit)', -40, 0);
+  ctx.restore();
+
+  // Address/data bus (bottom)
+  ctx.fillStyle = '#00ff8822';
+  ctx.fillRect(0, H - 14, W, 14);
+  ctx.strokeStyle = '#00ff8844';
+  ctx.lineWidth = 1;
+  ctx.strokeRect(0, H - 14, W, 14);
+  ctx.fillStyle = '#00ff88';
+  ctx.font = '8px JetBrains Mono, monospace';
+  ctx.fillText('ADDRESS BUS (16-bit)    DATA BUS (8-bit)', 10, H - 4);
+
+  // Arrows from key blocks
+  wire(100, 38, 160, 35, '#00d4ff');
+  wire(100, 85, 160, 80, '#a855f7');
+  wire(100, 242, 140, 242, '#ef4444');
+  wire(260, 215, 290, 215, '#ffb700');
+}
+
+let flashHandle = null;
+function flashCPUArch() {
+  const canvas = document.getElementById('cpu-arch-canvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  let alpha = 0.5;
+  if (flashHandle) clearInterval(flashHandle);
+  flashHandle = setInterval(() => {
+    drawCPUArchitecture();
+    ctx.fillStyle = `rgba(0, 212, 255, ${alpha})`;
+    ctx.fillRect(20, 20, 80, 36);
+    alpha -= 0.08;
+    if (alpha <= 0) { clearInterval(flashHandle); flashHandle = null; drawCPUArchitecture(); }
+  }, 50);
+}
+
+// Mobile guide toggle
+function toggleMobileGuide() {
+  const guide = document.getElementById('exp-guide') || document.getElementById('experiment-guide');
+  if (guide) guide.classList.toggle('mobile-open');
+}
+// Show mobile guide button on small screens
+if (window.innerWidth <= 768) {
+  const btn = document.getElementById('mobile-guide-btn');
+  if (btn) btn.style.display = 'block';
+}
+</script>
+<script src="gemini-chat.js"></script>
+</body>
+</html>

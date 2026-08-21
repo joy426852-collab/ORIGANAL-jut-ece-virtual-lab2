@@ -1,0 +1,1303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JUT ECE Virtual Labs | Hub</title>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Outfit:wght@300;400;600;800&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #060810;
+            --cyan: #00d4ff;
+            --green: #00ff88;
+            --amber: #f59e0b;
+            --red: #ef4444;
+            --glass-bg: rgba(16, 20, 34, 0.6);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --text-main: #f0f4f8;
+            --text-muted: #94a3b8;
+            --font-display: 'Space Grotesk', sans-serif;
+            --font-body: 'Outfit', sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: var(--font-body);
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        /* Three.js Canvas Container */
+        #canvas-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        /* UI Overlay */
+        #ui-layer {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            pointer-events: none;
+        }
+
+        /* Enable pointer events on interactive elements */
+        #ui-layer > *,
+        .interactive {
+            pointer-events: auto;
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--bg-color);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(0, 212, 255, 0.3);
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(0, 212, 255, 0.6);
+        }
+
+        /* Top Bar */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem 4rem;
+            background: linear-gradient(to bottom, rgba(6, 8, 16, 0.9), transparent);
+            backdrop-filter: blur(5px);
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .logo-container {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .logo {
+            font-family: var(--font-display);
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #fff;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .logo span {
+            color: var(--cyan);
+            text-shadow: 0 0 10px var(--cyan);
+        }
+
+        .subtitle {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-top: 0.2rem;
+        }
+
+        nav {
+            display: flex;
+            gap: 2rem;
+        }
+
+        nav a {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-family: var(--font-display);
+            font-size: 0.9rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: color 0.3s, text-shadow 0.3s;
+        }
+
+        nav a:hover, nav a.active {
+            color: #fff;
+            text-shadow: 0 0 8px rgba(255,255,255,0.5);
+        }
+
+        .login-btn {
+            background: rgba(0, 212, 255, 0.1);
+            border: 1px solid var(--cyan);
+            color: var(--cyan);
+            padding: 0.6rem 1.5rem;
+            border-radius: 4px;
+            font-family: var(--font-display);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 0 15px rgba(0, 212, 255, 0.2) inset;
+        }
+
+        .login-btn:hover {
+            background: var(--cyan);
+            color: #000;
+            box-shadow: 0 0 20px var(--cyan);
+        }
+
+        /* Hero Section */
+        .hero {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            padding: 6rem 2rem 4rem;
+            margin-top: 2rem;
+        }
+
+        .hero h1 {
+            font-family: var(--font-display);
+            font-size: 4.5rem;
+            line-height: 1.1;
+            font-weight: 800;
+            color: #fff;
+            text-shadow: 0 0 20px rgba(255,255,255,0.2);
+            margin-bottom: 1.5rem;
+            max-width: 800px;
+        }
+
+        .hero h2 {
+            font-size: 1.5rem;
+            color: var(--cyan);
+            font-weight: 400;
+            margin-bottom: 0.5rem;
+        }
+
+        .hero h3 {
+            font-size: 1.1rem;
+            color: var(--text-muted);
+            font-weight: 300;
+            letter-spacing: 1px;
+            margin-bottom: 3rem;
+        }
+
+        .cta-group {
+            display: flex;
+            gap: 1.5rem;
+            margin-bottom: 4rem;
+        }
+
+        .btn-primary {
+            background: var(--cyan);
+            color: #000;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 4px;
+            font-family: var(--font-display);
+            font-weight: 700;
+            font-size: 1.1rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 0 20px rgba(0, 212, 255, 0.4);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-decoration: none;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 30px rgba(0, 212, 255, 0.6);
+        }
+
+        .btn-ghost {
+            background: transparent;
+            color: #fff;
+            border: 1px solid rgba(255,255,255,0.3);
+            padding: 1rem 2rem;
+            border-radius: 4px;
+            font-family: var(--font-display);
+            font-weight: 700;
+            font-size: 1.1rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-decoration: none;
+        }
+
+        .btn-ghost:hover {
+            background: rgba(255,255,255,0.1);
+            border-color: #fff;
+            transform: translateY(-2px);
+        }
+
+        .stats-row {
+            display: flex;
+            gap: 3rem;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            padding: 1.5rem 3rem;
+            border-radius: 8px;
+            backdrop-filter: blur(10px);
+        }
+
+        .stat-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .stat-value {
+            font-family: var(--font-mono);
+            font-size: 2rem;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 0.2rem;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Zone Cards */
+        .zones-section {
+            padding: 4rem 4rem;
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .zone-card {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            padding: 2.5rem 2rem;
+            width: 350px;
+            backdrop-filter: blur(10px);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            opacity: 0;
+            transform: translateY(40px);
+        }
+
+        .zone-card.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .zone-card:hover {
+            transform: translateY(-10px);
+            background: rgba(16, 20, 34, 0.8);
+        }
+
+        .zone-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+        }
+
+        .card-1::before { background: var(--amber); box-shadow: 0 0 15px var(--amber); }
+        .card-2::before { background: var(--cyan); box-shadow: 0 0 15px var(--cyan); }
+        .card-3::before { background: var(--red); box-shadow: 0 0 15px var(--red); }
+
+        .zone-card:hover.card-1 { border-color: rgba(245, 158, 11, 0.5); box-shadow: 0 10px 30px rgba(245, 158, 11, 0.1); }
+        .zone-card:hover.card-2 { border-color: rgba(0, 212, 255, 0.5); box-shadow: 0 10px 30px rgba(0, 212, 255, 0.1); }
+        .zone-card:hover.card-3 { border-color: rgba(239, 68, 68, 0.5); box-shadow: 0 10px 30px rgba(239, 68, 68, 0.1); }
+
+        .badge-active {
+            position: absolute;
+            top: 1.5rem;
+            right: 1.5rem;
+            background: rgba(0, 212, 255, 0.15);
+            color: var(--cyan);
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            padding: 0.2rem 0.6rem;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            animation: pulse-glow 2s infinite alternate;
+        }
+
+        @keyframes pulse-glow {
+            0% { box-shadow: 0 0 5px rgba(0, 212, 255, 0.2); }
+            100% { box-shadow: 0 0 15px rgba(0, 212, 255, 0.6); }
+        }
+
+        .zone-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .zone-subtitle {
+            font-family: var(--font-mono);
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
+        }
+
+        .zone-title {
+            font-family: var(--font-display);
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 1.5rem;
+        }
+
+        .subject-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 2rem;
+            flex-grow: 1;
+        }
+
+        .chip {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            padding: 0.4rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            color: var(--text-main);
+            transition: all 0.3s;
+        }
+
+        .zone-card:hover .chip {
+            background: rgba(255,255,255,0.1);
+            border-color: rgba(255,255,255,0.2);
+        }
+
+        .enter-zone-btn {
+            display: inline-block;
+            text-align: center;
+            padding: 0.8rem;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: #fff;
+            text-decoration: none;
+            border-radius: 4px;
+            font-family: var(--font-display);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s;
+            width: 100%;
+        }
+
+        .card-1 .enter-zone-btn:hover { background: var(--amber); color: #000; border-color: var(--amber); }
+        .card-2 .enter-zone-btn:hover { background: var(--cyan); color: #000; border-color: var(--cyan); box-shadow: 0 0 15px rgba(0, 212, 255, 0.4);}
+        .card-3 .enter-zone-btn:hover { background: var(--red); color: #000; border-color: var(--red); }
+
+        /* Syllabus Table Section */
+        .syllabus-section {
+            padding: 6rem 4rem;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s ease;
+        }
+
+        .syllabus-section.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .section-header {
+            margin-bottom: 3rem;
+            text-align: center;
+        }
+
+        .section-header h2 {
+            font-family: var(--font-display);
+            font-size: 2.5rem;
+            color: #fff;
+            margin-bottom: 0.5rem;
+        }
+
+        .section-header p {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+        }
+
+        .table-container {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 8px;
+            backdrop-filter: blur(10px);
+            overflow: hidden;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 1.2rem 1.5rem;
+            text-align: left;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+
+        th {
+            background: rgba(0,0,0,0.3);
+            font-family: var(--font-display);
+            font-weight: 600;
+            color: #fff;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 0.9rem;
+        }
+
+        td {
+            font-size: 0.95rem;
+        }
+
+        .sem-col {
+            font-family: var(--font-mono);
+            color: var(--cyan);
+            font-weight: 700;
+            width: 100px;
+        }
+
+        .credits-col {
+            font-family: var(--font-mono);
+            color: var(--text-muted);
+            width: 100px;
+        }
+
+        .zone-col {
+            width: 150px;
+        }
+
+        .zone-badge {
+            display: inline-block;
+            padding: 0.3rem 0.6rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+        
+        .zone-badge.z1 { background: rgba(245, 158, 11, 0.15); color: var(--amber); border: 1px solid rgba(245, 158, 11, 0.3); }
+        .zone-badge.z2 { background: rgba(0, 212, 255, 0.15); color: var(--cyan); border: 1px solid rgba(0, 212, 255, 0.3); }
+        .zone-badge.z3 { background: rgba(239, 68, 68, 0.15); color: var(--red); border: 1px solid rgba(239, 68, 68, 0.3); }
+
+        tbody tr {
+            transition: background 0.2s;
+        }
+
+        tbody tr:hover {
+            background: rgba(255,255,255,0.03);
+        }
+
+        /* Footer */
+        footer {
+            margin-top: auto;
+            border-top: 1px solid var(--glass-border);
+            padding: 3rem 4rem;
+            background: rgba(6, 8, 16, 0.8);
+            backdrop-filter: blur(5px);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .footer-text {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+        .footer-text span {
+            color: #fff;
+            font-family: var(--font-display);
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 1.5rem;
+        }
+
+        .footer-links a {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: color 0.3s;
+        }
+
+        .footer-links a:hover {
+            color: var(--cyan);
+        }
+
+        /* ============================================================
+           MOBILE RESPONSIVE
+           ============================================================ */
+        @media (max-width: 768px) {
+        
+          /* Navigation */
+          nav .nav-links, 
+          .nav-links,
+          header nav {
+            display: none !important;
+          }
+          .nav-container, 
+          .navbar {
+            padding: 0 14px !important;
+            height: 54px !important;
+          }
+          .nav-logo, .brand-logo {
+            font-size: 14px !important;
+          }
+          .nav-right .login-btn {
+            padding: 6px 12px !important;
+            font-size: 11px !important;
+          }
+        
+          /* Hero section */
+          .hero-section, #hero, [class*='hero'] {
+            padding: 80px 16px 40px !important;
+            text-align: center;
+          }
+          .hero-title, h1 {
+            font-size: clamp(24px, 7vw, 40px) !important;
+            line-height: 1.2 !important;
+          }
+          .hero-subtitle {
+            font-size: 13px !important;
+          }
+          .hero-sub-subtitle {
+            font-size: 11px !important;
+          }
+          .cta-buttons, .hero-buttons {
+            flex-direction: column !important;
+            gap: 10px !important;
+            align-items: center !important;
+          }
+          .cta-btn, .btn-primary, .btn-ghost {
+            width: 100% !important;
+            max-width: 280px !important;
+            justify-content: center !important;
+          }
+          .stats-row, .hero-stats {
+            display: grid !important;
+            grid-template-columns: 1fr 1fr !important;
+            gap: 10px !important;
+          }
+          .stat-item {
+            padding: 10px !important;
+          }
+          .stat-value {
+            font-size: 20px !important;
+          }
+        
+          /* Zone cards — single column */
+          .zones-section, [class*='zones'] {
+            padding: 30px 14px !important;
+          }
+          .zones-grid, .zone-cards, [class*='zone-grid'] {
+            grid-template-columns: 1fr !important;
+            gap: 14px !important;
+          }
+          .zone-card {
+            padding: 20px !important;
+          }
+          .zone-card-title {
+            font-size: 16px !important;
+          }
+          .zone-subjects {
+            flex-wrap: wrap !important;
+          }
+        
+          /* Syllabus section */
+          .syllabus-section {
+            padding: 30px 10px !important;
+          }
+          .section-title, h2 {
+            font-size: clamp(18px, 5vw, 28px) !important;
+          }
+          /* Table horizontal scroll */
+          .syllabus-table-wrapper, .table-wrapper, .table-container {
+            overflow-x: auto !important;
+            -webkit-overflow-scrolling: touch !important;
+          }
+          .syllabus-table, table {
+            min-width: 540px !important;
+            font-size: 11px !important;
+          }
+          .syllabus-table th, .syllabus-table td {
+            padding: 8px 6px !important;
+          }
+          small {
+            display: none !important;
+          }
+        
+          /* Study portal CTA */
+          [style*='max-width:700px'] {
+            padding: 24px 16px !important;
+          }
+        
+          /* Footer */
+          footer {
+            flex-direction: column !important;
+            text-align: center !important;
+            padding: 16px !important;
+            gap: 8px !important;
+          }
+        }
+        
+        @media (max-width: 480px) {
+          .zone-card .enter-btn,
+          .zone-card button,
+          .enter-zone-btn {
+            width: 100% !important;
+          }
+          .stats-row {
+            grid-template-columns: 1fr 1fr !important;
+          }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="canvas-container"></div>
+
+    <div id="ui-layer">
+        
+        <header>
+            <div class="logo-container">
+                <div class="logo"><span>⚡</span> JUT ECE VIRTUAL LABS</div>
+                <div class="subtitle">Jharkhand University of Technology</div>
+            </div>
+            <nav class="interactive">
+                <a href="hub.html" class="active">Home</a>
+                <a href="#zones">Zones</a>
+                <a href="#syllabus">Syllabus</a>
+                <a href="#">Progress</a>
+                <a href="#">About</a>
+            </nav>
+            <button id="ham-btn" onclick="toggleMobileNav()" style="
+              display:none;background:none;border:none;cursor:pointer;
+              flex-direction:column;gap:4px;padding:6px;
+              position:relative;z-index:1001;">
+              <span style="display:block;width:20px;height:2px;background:#00d4ff;border-radius:2px;"></span>
+              <span style="display:block;width:20px;height:2px;background:#00d4ff;border-radius:2px;"></span>
+              <span style="display:block;width:20px;height:2px;background:#00d4ff;border-radius:2px;"></span>
+            </button>
+            <!-- Mobile Nav Drawer -->
+            <div id="mobile-nav" style="
+              display:none;position:fixed;top:0;left:0;right:0;bottom:0;z-index:999;
+              background:rgba(6,8,16,.97);backdrop-filter:blur(20px);
+              flex-direction:column;align-items:center;justify-content:center;gap:24px;">
+              <button onclick="toggleMobileNav()" style="position:absolute;top:16px;right:16px;background:none;border:none;color:#94a3b8;font-size:24px;cursor:pointer;">✕</button>
+              <a href="hub.html" onclick="toggleMobileNav()" style="color:#f0f4f8;text-decoration:none;font-size:20px;font-family:'Space Grotesk',sans-serif;font-weight:600;">Home</a>
+              <a href="zone1.html" onclick="toggleMobileNav()" style="color:#f59e0b;text-decoration:none;font-size:20px;font-family:'Space Grotesk',sans-serif;font-weight:600;">Zone 1</a>
+              <a href="lab.html" onclick="toggleMobileNav()" style="color:#00d4ff;text-decoration:none;font-size:20px;font-family:'Space Grotesk',sans-serif;font-weight:600;">Zone 2</a>
+              <a href="zone3.html" onclick="toggleMobileNav()" style="color:#ef4444;text-decoration:none;font-size:20px;font-family:'Space Grotesk',sans-serif;font-weight:600;">Zone 3</a>
+              <a href="syllabus.html" onclick="toggleMobileNav()" style="color:#a855f7;text-decoration:none;font-size:20px;font-family:'Space Grotesk',sans-serif;font-weight:600;">Study Portal</a>
+            </div>
+            <button class="login-btn interactive">Student Login</button>
+        </header>
+
+        <section class="hero">
+            <h1>JUT ECE<br>Virtual Labs</h1>
+            <h2>Diploma in Electronics & Communication Engineering</h2>
+            <h3>Semesters 1–6 • Zone-based 3D Interactive Learning</h3>
+            
+            <div class="cta-group interactive">
+                <a href="#zones" class="btn-primary">⚡ Enter Labs</a>
+                <a href="#syllabus" class="btn-ghost">📋 View Syllabus</a>
+            </div>
+
+            <div class="stats-row">
+                <div class="stat-item">
+                    <div class="stat-value" data-target="6">0</div>
+                    <div class="stat-label">Semesters</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" data-target="3">0</div>
+                    <div class="stat-label">Zones</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" data-target="18">0</div>
+                    <div class="stat-label">Experiments+</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">MNA</div>
+                    <div class="stat-label">Simulation Engine</div>
+                </div>
+            </div>
+        </section>
+
+        <section id="zones" class="zones-section interactive">
+            
+            <!-- Card 1 -->
+            <div class="zone-card card-1" style="transition-delay: 0.1s;">
+                <div class="zone-icon">🧪</div>
+                <div class="zone-subtitle">ZONE 1 // SEMESTERS 1 & 2</div>
+                <div class="zone-title">Foundation Labs</div>
+                <div class="subject-chips">
+                    <div class="chip">Eng. Physics</div>
+                    <div class="chip">Eng. Chemistry</div>
+                    <div class="chip">C Programming</div>
+                    <div class="chip">Eng. Graphics</div>
+                    <div class="chip">Workshop</div>
+                </div>
+                <a href="zone1.html" class="enter-zone-btn">Enter Zone 1</a>
+            </div>
+
+            <!-- Card 2 -->
+            <div class="zone-card card-2" style="transition-delay: 0.2s;">
+                <div class="badge-active">ACTIVE</div>
+                <div class="zone-icon">⚡</div>
+                <div class="zone-subtitle">ZONE 2 // SEMESTERS 3 & 4</div>
+                <div class="zone-title">Core Circuits & Signals</div>
+                <div class="subject-chips">
+                    <div class="chip">DLS</div>
+                    <div class="chip">Electronic Devices</div>
+                    <div class="chip">Digital Tech</div>
+                    <div class="chip">8085 Microprocessor</div>
+                    <div class="chip">EMT</div>
+                    <div class="chip">Networks</div>
+                </div>
+                <a href="lab.html" class="enter-zone-btn">Enter Zone 2</a>
+            </div>
+
+            <!-- Card 3 -->
+            <div class="zone-card card-3" style="transition-delay: 0.3s;">
+                <div class="zone-icon">⚙️</div>
+                <div class="zone-subtitle">ZONE 3 // SEMESTERS 5 & 6</div>
+                <div class="zone-title">Heavy Machinery & Power</div>
+                <div class="subject-chips">
+                    <div class="chip">Electrical Machines</div>
+                    <div class="chip">Power Electronics</div>
+                    <div class="chip">Industrial Controls</div>
+                    <div class="chip">In-Plant Training</div>
+                </div>
+                <a href="zone3.html" class="enter-zone-btn">Enter Zone 3</a>
+            </div>
+
+        </section>
+
+        <section id="syllabus" class="syllabus-section interactive">
+            <div class="section-header">
+                <h2>Curriculum Mapping</h2>
+                <p>Complete syllabus integration for JUT Diploma ECE</p>
+            </div>
+            <div class="table-container" style="overflow-x:auto;-webkit-overflow-scrolling:touch;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Semester</th>
+                            <th>Subject List</th>
+                            <th>Credits</th>
+                            <th>Zone Mapping</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- SEM 1 -->
+                        <tr style="background:rgba(245,158,11,.04)">
+                            <td class="sem-col" rowspan="6" style="color:#f59e0b;font-weight:700;">SEM 1</td>
+                            <td>Communication Skills I <small style="color:#475569">— Basics of Communication, Grammar & Usage, Reading & Writing</small></td>
+                            <td class="credits-col">4</td>
+                            <td class="zone-col"><span class="zone-badge z1">ZONE 1</span></td>
+                        </tr>
+                        <tr style="background:rgba(245,158,11,.04)">
+                            <td>Engineering Chemistry I <small style="color:#475569">— Atomic Structure, Water Treatment, Electrochemistry</small></td>
+                            <td class="credits-col">4</td>
+                            <td class="zone-col"><span class="zone-badge z1">ZONE 1</span></td>
+                        </tr>
+                        <tr style="background:rgba(245,158,11,.04)">
+                            <td>Engineering Graphics I <small style="color:#475569">— Drawing Tools, Conic Sections, Orthographic Projections</small></td>
+                            <td class="credits-col">4</td>
+                            <td class="zone-col"><span class="zone-badge z1">ZONE 1</span></td>
+                        </tr>
+                        <tr style="background:rgba(245,158,11,.04)">
+                            <td>Engineering Mathematics I <small style="color:#475569">— Complex Numbers, De Moivre's, Differential Calculus</small></td>
+                            <td class="credits-col">4</td>
+                            <td class="zone-col"><span class="zone-badge z1">ZONE 1</span></td>
+                        </tr>
+                        <tr style="background:rgba(245,158,11,.04)">
+                            <td>Engineering Physics I <small style="color:#475569">— Units & Dimensions, Newton's Laws, Properties of Matter</small></td>
+                            <td class="credits-col">4</td>
+                            <td class="zone-col"><span class="zone-badge z1">ZONE 1</span></td>
+                        </tr>
+                        <tr style="background:rgba(245,158,11,.04)">
+                            <td>Fundamentals of Computer <small style="color:#475569">— Hardware, OS (Windows/Linux), Office Suite & Internet</small></td>
+                            <td class="credits-col">4</td>
+                            <td class="zone-col"><span class="zone-badge z1">ZONE 1</span></td>
+                        </tr>
+                        <!-- SEM 2 -->
+                        <tr style="background:rgba(245,158,11,.02)">
+                            <td class="sem-col" rowspan="5" style="color:#f59e0b;font-weight:700;">SEM 2</td>
+                            <td>Communication Skills II <small style="color:#475569">— Technical Report Writing, Spoken English, Group Discussions</small></td>
+                            <td class="credits-col">4</td>
+                            <td class="zone-col"><span class="zone-badge z1">ZONE 1</span></td>
+                        </tr>
+                        <tr style="background:rgba(245,158,11,.02)">
+                            <td>Engineering Chemistry II <small style="color:#475569">— Metals & Alloys, Fuels & Combustion, Polymers & Lubricants</small></td>
+                            <td class="credits-col">4</td>
+                            <td class="zone-col"><span class="zone-badge z1">ZONE 1</span></td>
+                        </tr>
+                        <tr style="background:rgba(245,158,11,.02)">
+                            <td>Engineering Mathematics II <small style="color:#475569">— Integral Calculus, Differential Equations, Vector Algebra</small></td>
+                            <td class="credits-col">4</td>
+                            <td class="zone-col"><span class="zone-badge z1">ZONE 1</span></td>
+                        </tr>
+                        <tr style="background:rgba(245,158,11,.02)">
+                            <td>Engineering Physics II <small style="color:#475569">— Wave Motion, Optics & Lasers, Electrostatics & Magnetism</small></td>
+                            <td class="credits-col">4</td>
+                            <td class="zone-col"><span class="zone-badge z1">ZONE 1</span></td>
+                        </tr>
+                        <tr style="background:rgba(245,158,11,.02)">
+                            <td>Programming in C <small style="color:#475569">— Control Flow, Arrays & Functions, Pointers, Structures & Files</small></td>
+                            <td class="credits-col">4</td>
+                            <td class="zone-col"><span class="zone-badge z1">ZONE 1</span></td>
+                        </tr>
+                        <!-- SEM 3 -->
+                        <tr style="background:rgba(0,212,255,.04)">
+                            <td class="sem-col" rowspan="6" style="color:#00d4ff;font-weight:700;">SEM 3</td>
+                            <td>Development of Life Skills (DLS) <small style="color:#475569">— Self-Awareness, SWOT, Task Management, Emotional Intelligence</small></td>
+                            <td class="credits-col">2</td>
+                            <td class="zone-col"><span class="zone-badge z2">ZONE 2</span></td>
+                        </tr>
+                        <tr style="background:rgba(0,212,255,.04)">
+                            <td>Electrical & Electronic Measurement <small style="color:#475569">— PMMC, Moving Iron, Bridges (Maxwell/Schering), CRO</small></td>
+                            <td class="credits-col">4</td>
+                            <td class="zone-col"><span class="zone-badge z2">ZONE 2</span></td>
+                        </tr>
+                        <tr style="background:rgba(0,212,255,.04)">
+                            <td>Electrical Technology <small style="color:#475569">— DC Networks (KCL/KVL/Thevenin), AC Circuits, Transformers, Induction Motors</small></td>
+                            <td class="credits-col">5</td>
+                            <td class="zone-col"><span class="zone-badge z2">ZONE 2</span></td>
+                        </tr>
+                        <tr style="background:rgba(0,212,255,.04)">
+                            <td>Electromagnetic Field Theory <small style="color:#475569">— Vector Calculus, Maxwell's 4 Equations, Biot-Savart, Gauss's Law</small></td>
+                            <td class="credits-col">5</td>
+                            <td class="zone-col"><span class="zone-badge z2">ZONE 2</span></td>
+                        </tr>
+                        <tr style="background:rgba(0,212,255,.04)">
+                            <td>Electronic Devices and Circuits <small style="color:#475569">— PN Junction, Zener, Rectifiers, BJT, FET, MOSFET, Amplifiers</small></td>
+                            <td class="credits-col">5</td>
+                            <td class="zone-col"><span class="zone-badge z2">ZONE 2</span></td>
+                        </tr>
+                        <tr style="background:rgba(0,212,255,.04)">
+                            <td>Engineering Mathematics III <small style="color:#475569">— Fourier Series, Laplace Transforms, Inverse Transforms</small></td>
+                            <td class="credits-col">4</td>
+                            <td class="zone-col"><span class="zone-badge z2">ZONE 2</span></td>
+                        </tr>
+                        <!-- SEM 4 -->
+                        <tr style="background:rgba(0,212,255,.02)">
+                            <td class="sem-col" rowspan="5" style="color:#00d4ff;font-weight:700;">SEM 4</td>
+                            <td>Digital Technology & Microprocessor <small style="color:#475569">— Logic Gates, Boolean Algebra, K-Map, Flip-Flops, 8085 Architecture</small></td>
+                            <td class="credits-col">6</td>
+                            <td class="zone-col"><span class="zone-badge z2">ZONE 2</span></td>
+                        </tr>
+                        <tr style="background:rgba(0,212,255,.02)">
+                            <td>Computer Hardware & Peripheral <small style="color:#475569">— Motherboard, PCI/PCIe, BIOS/UEFI, HDD/SSD, Diagnostics</small></td>
+                            <td class="credits-col">4</td>
+                            <td class="zone-col"><span class="zone-badge z2">ZONE 2</span></td>
+                        </tr>
+                        <tr style="background:rgba(0,212,255,.02)">
+                            <td>Communication System <small style="color:#475569">— AM/FM/PM Modulation, Superheterodyne Receiver, PAM/PWM/PPM</small></td>
+                            <td class="credits-col">5</td>
+                            <td class="zone-col"><span class="zone-badge z2">ZONE 2</span></td>
+                        </tr>
+                        <tr style="background:rgba(0,212,255,.02)">
+                            <td>Data Communication & Computer Networking <small style="color:#475569">— OSI Model, TCP/IP, IPv4/IPv6, Subnetting, Routing Protocols</small></td>
+                            <td class="credits-col">4</td>
+                            <td class="zone-col"><span class="zone-badge z2">ZONE 2</span></td>
+                        </tr>
+                        <tr style="background:rgba(0,212,255,.02)">
+                            <td>Control System <small style="color:#475569">— Transfer Functions, Block Diagrams, Routh-Hurwitz, Root Locus, Bode Plots</small></td>
+                            <td class="credits-col">5</td>
+                            <td class="zone-col"><span class="zone-badge z2">ZONE 2</span></td>
+                        </tr>
+                        <!-- SEM 5 -->
+                        <tr style="background:rgba(239,68,68,.04)">
+                            <td class="sem-col" rowspan="4" style="color:#ef4444;font-weight:700;">SEM 5</td>
+                            <td>Instrumentation System ECE <small style="color:#475569">— Strain Gauges, LVDT, RTD, Thermocouples, ADC/DAC, DAS</small></td>
+                            <td class="credits-col">5</td>
+                            <td class="zone-col"><span class="zone-badge z3">ZONE 3</span></td>
+                        </tr>
+                        <tr style="background:rgba(239,68,68,.04)">
+                            <td>Electrical Machines II <small style="color:#475569">— Alternators, EMF Equation, Synchronous Motors, Stepper Motors</small></td>
+                            <td class="credits-col">5</td>
+                            <td class="zone-col"><span class="zone-badge z3">ZONE 3</span></td>
+                        </tr>
+                        <tr style="background:rgba(239,68,68,.04)">
+                            <td>Electronics System Design & Maintenance <small style="color:#475569">— PCB Design, Routing, Soldering, Fault Finding in Amplifiers/PSUs</small></td>
+                            <td class="credits-col">5</td>
+                            <td class="zone-col"><span class="zone-badge z3">ZONE 3</span></td>
+                        </tr>
+                        <tr style="background:rgba(239,68,68,.04)">
+                            <td>Electives I & II <small style="color:#475569">— Embedded Systems / VLSI Design / Consumer Electronics (8051, PIC, FPGA)</small></td>
+                            <td class="credits-col">4</td>
+                            <td class="zone-col"><span class="zone-badge z3">ZONE 3</span></td>
+                        </tr>
+                        <!-- SEM 6 -->
+                        <tr style="background:rgba(239,68,68,.02)">
+                            <td class="sem-col" rowspan="5" style="color:#ef4444;font-weight:700;">SEM 6</td>
+                            <td>Industrial Engineering & Management <small style="color:#475569">— Plant Layout, EOQ, TQM, Six Sigma, Work Measurement</small></td>
+                            <td class="credits-col">4</td>
+                            <td class="zone-col"><span class="zone-badge z3">ZONE 3</span></td>
+                        </tr>
+                        <tr style="background:rgba(239,68,68,.02)">
+                            <td>Utilization of Electrical Energy <small style="color:#475569">— Illumination Design, Electric Welding, Induction Heating, Electric Traction</small></td>
+                            <td class="credits-col">4</td>
+                            <td class="zone-col"><span class="zone-badge z3">ZONE 3</span></td>
+                        </tr>
+                        <tr style="background:rgba(239,68,68,.02)">
+                            <td>Power Electronics <small style="color:#475569">— SCR/DIAC/TRIAC, Phase-Controlled Rectifiers, Choppers, Cycloconverters, Inverters</small></td>
+                            <td class="credits-col">5</td>
+                            <td class="zone-col"><span class="zone-badge z3">ZONE 3</span></td>
+                        </tr>
+                        <tr style="background:rgba(239,68,68,.02)">
+                            <td>Electives III & IV <small style="color:#475569">— Mobile Communication (GSM/LTE) / Optical Fiber / Embedded Robotics</small></td>
+                            <td class="credits-col">4</td>
+                            <td class="zone-col"><span class="zone-badge z3">ZONE 3</span></td>
+                        </tr>
+                        <tr style="background:rgba(239,68,68,.02)">
+                            <td><strong>In-Plant Training (6 weeks) + Project Work</strong> <small style="color:#475569">— Industrial site attachment + final capstone project</small></td>
+                            <td class="credits-col">6</td>
+                            <td class="zone-col"><span class="zone-badge z3">ZONE 3</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- STUDY PORTAL CTA -->
+        <section style="padding:40px 24px;text-align:center;">
+            <div style="max-width:700px;margin:0 auto;padding:36px 40px;border-radius:24px;
+                background:rgba(0,212,255,.04);border:1px solid rgba(0,212,255,.2);
+                backdrop-filter:blur(12px);">
+                <div style="font-size:28px;margin-bottom:10px;">📚</div>
+                <h2 style="font-family:'Space Grotesk',sans-serif;font-size:22px;font-weight:700;margin-bottom:8px;color:#00d4ff;">Complete Study Portal</h2>
+                <p style="color:#94a3b8;font-size:14px;line-height:1.6;margin-bottom:20px;"
+                >60+ High-Yield Exam Questions &bull; 20+ Lab Experiments &bull; Viva-Voce Blueprints &bull; Key Formulas Reference &bull; Semester-wise Topic Tracker</p>
+                <a href="syllabus.html" style="display:inline-flex;align-items:center;gap:10px;padding:14px 32px;
+                    background:linear-gradient(135deg,rgba(0,212,255,.15),rgba(0,212,255,.05));
+                    border:1px solid rgba(0,212,255,.4);border-radius:12px;color:#00d4ff;
+                    text-decoration:none;font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:15px;
+                    transition:all .3s;" onmouseover="this.style.background='rgba(0,212,255,.2)'" onmouseout="this.style.background='linear-gradient(135deg,rgba(0,212,255,.15),rgba(0,212,255,.05))'"
+                >📖 Open Study Portal &rarr;</a>
+            </div>
+        </section>
+
+        <footer class="interactive">
+            <div class="footer-text">
+                <span>JUT ECE Virtual Lab</span> &copy; 2025–26 | Built with Three.js + Custom MNA Circuit Engine
+            </div>
+            <div class="footer-links">
+                <a href="#">GitHub</a>
+                <a href="#">Documentation</a>
+                <a href="#">Report Bug</a>
+            </div>
+        </footer>
+
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
+    <script>
+        // --- THREE.JS SCENE SETUP ---
+        const container = document.getElementById('canvas-container');
+        const scene = new THREE.Scene();
+        scene.fog = new THREE.FogExp2(0x060810, 0.0015);
+
+        const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.set(0, 15, 40);
+        camera.lookAt(0, 0, 0);
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        container.appendChild(renderer.domElement);
+
+        // Lights
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.3);
+        scene.add(ambientLight);
+
+        const dirLight = new THREE.DirectionalLight(0x00d4ff, 1);
+        dirLight.position.set(10, 20, 10);
+        scene.add(dirLight);
+
+        const greenLight = new THREE.PointLight(0x00ff88, 2, 50);
+        greenLight.position.set(-15, 5, -15);
+        scene.add(greenLight);
+
+        const amberLight = new THREE.PointLight(0xf59e0b, 2, 50);
+        amberLight.position.set(15, -5, -5);
+        scene.add(amberLight);
+
+        // --- SCENE OBJECTS ---
+        const objectsGroup = new THREE.Group();
+        scene.add(objectsGroup);
+
+        // Center Globe (Earth-like with grid)
+        const globeGeo = new THREE.SphereGeometry(8, 32, 32);
+        const globeMat = new THREE.MeshPhongMaterial({
+            color: 0x0a1128,
+            emissive: 0x002244,
+            wireframe: true,
+            transparent: true,
+            opacity: 0.8
+        });
+        const globe = new THREE.Mesh(globeGeo, globeMat);
+        objectsGroup.add(globe);
+
+        // Floating Electronic Components (Abstract shapes)
+        const componentGeos = [
+            new THREE.BoxGeometry(2, 1, 0.5), // IC
+            new THREE.CylinderGeometry(0.3, 0.3, 2, 16), // Resistor
+            new THREE.CylinderGeometry(0.8, 0.8, 2, 32) // Capacitor
+        ];
+        
+        const componentMats = [
+            new THREE.MeshPhongMaterial({ color: 0x333333, emissive: 0x111111 }),
+            new THREE.MeshPhongMaterial({ color: 0x00d4ff, emissive: 0x0055aa }),
+            new THREE.MeshPhongMaterial({ color: 0xf59e0b, emissive: 0xaa5500 })
+        ];
+
+        const components = [];
+        for(let i=0; i<15; i++) {
+            const geo = componentGeos[Math.floor(Math.random() * componentGeos.length)];
+            const mat = componentMats[Math.floor(Math.random() * componentMats.length)];
+            const mesh = new THREE.Mesh(geo, mat);
+            
+            // Random position in orbit
+            const radius = 12 + Math.random() * 15;
+            const theta = Math.random() * Math.PI * 2;
+            const y = (Math.random() - 0.5) * 15;
+            
+            mesh.position.set(Math.cos(theta)*radius, y, Math.sin(theta)*radius);
+            mesh.rotation.set(Math.random()*Math.PI, Math.random()*Math.PI, Math.random()*Math.PI);
+            
+            objectsGroup.add(mesh);
+            components.push({
+                mesh: mesh,
+                speed: 0.001 + Math.random() * 0.002,
+                rotSpeedX: Math.random() * 0.02,
+                rotSpeedY: Math.random() * 0.02,
+                angle: theta,
+                radius: radius
+            });
+        }
+
+        // Zone Platforms (Islands)
+        const createPlatform = (x, y, z, color) => {
+            const geo = new THREE.CylinderGeometry(4, 3, 1, 6);
+            const mat = new THREE.MeshPhongMaterial({ 
+                color: 0x111111,
+                emissive: new THREE.Color(color).multiplyScalar(0.2),
+                flatShading: true 
+            });
+            const platform = new THREE.Mesh(geo, mat);
+            platform.position.set(x, y, z);
+            
+            // Glow ring
+            const ringGeo = new THREE.RingGeometry(4.5, 5, 32);
+            const ringMat = new THREE.MeshBasicMaterial({ 
+                color: color, 
+                transparent: true, 
+                opacity: 0.5, 
+                side: THREE.DoubleSide 
+            });
+            const ring = new THREE.Mesh(ringGeo, ringMat);
+            ring.rotation.x = Math.PI / 2;
+            ring.position.y = 0.6;
+            platform.add(ring);
+            
+            objectsGroup.add(platform);
+            return platform;
+        };
+
+        const platform1 = createPlatform(-18, -5, 5, 0xf59e0b);
+        const platform2 = createPlatform(0, -8, 15, 0x00d4ff);
+        const platform3 = createPlatform(18, -3, 0, 0xef4444);
+
+        // Particle Field (Electrons)
+        const particleGeo = new THREE.BufferGeometry();
+        const particleCount = window.innerWidth <= 768 ? 1500 : 5000;
+        const posArray = new Float32Array(particleCount * 3);
+
+        for(let i = 0; i < particleCount * 3; i++) {
+            posArray[i] = (Math.random() - 0.5) * 100;
+        }
+        
+        particleGeo.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+        const particleMat = new THREE.PointsMaterial({
+            size: 0.15,
+            color: 0x00d4ff,
+            transparent: true,
+            opacity: 0.6,
+            blending: THREE.AdditiveBlending
+        });
+
+        const particleMesh = new THREE.Points(particleGeo, particleMat);
+        scene.add(particleMesh);
+
+
+        // --- INTERACTION & ANIMATION ---
+        
+        // Mouse Parallax
+        let mouseX = 0;
+        let mouseY = 0;
+        let targetX = 0;
+        let targetY = 0;
+
+        const windowHalfX = window.innerWidth / 2;
+        const windowHalfY = window.innerHeight / 2;
+
+        document.addEventListener('mousemove', (event) => {
+            mouseX = (event.clientX - windowHalfX) * 0.05;
+            mouseY = (event.clientY - windowHalfY) * 0.05;
+        });
+
+        const clock = new THREE.Clock();
+
+        function animate() {
+            requestAnimationFrame(animate);
+            const time = clock.getElapsedTime();
+
+            // Parallax
+            targetX = mouseX * 0.1;
+            targetY = mouseY * 0.1;
+            
+            camera.position.x += (targetX - camera.position.x) * 0.05;
+            camera.position.y += (-targetY - camera.position.y + 15) * 0.05; // Base Y is 15
+            camera.lookAt(0, 0, 0);
+
+            // Rotate main globe
+            globe.rotation.y += 0.002;
+            globe.rotation.x += 0.001;
+
+            // Rotate particle field slowly
+            particleMesh.rotation.y = time * 0.05;
+
+            // Animate components orbiting
+            components.forEach(comp => {
+                comp.angle += comp.speed;
+                comp.mesh.position.x = Math.cos(comp.angle) * comp.radius;
+                comp.mesh.position.z = Math.sin(comp.angle) * comp.radius;
+                
+                comp.mesh.rotation.x += comp.rotSpeedX;
+                comp.mesh.rotation.y += comp.rotSpeedY;
+                
+                // Bobbing up and down
+                comp.mesh.position.y += Math.sin(time * 2 + comp.angle) * 0.02;
+            });
+
+            // Bobbing platforms
+            platform1.position.y = -5 + Math.sin(time * 1.5) * 0.5;
+            platform2.position.y = -8 + Math.sin(time * 1.2 + 1) * 0.5;
+            platform3.position.y = -3 + Math.sin(time * 1.8 + 2) * 0.5;
+
+            renderer.render(scene, camera);
+        }
+
+        animate();
+
+        // Resize handler
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        // --- DOM MANIPULATIONS ---
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Stats count up animation
+            const statValues = document.querySelectorAll('.stat-value[data-target]');
+            
+            const countUp = (el) => {
+                const target = parseInt(el.getAttribute('data-target'));
+                const duration = 2000; // 2 seconds
+                const stepTime = Math.abs(Math.floor(duration / target));
+                
+                let current = 0;
+                const timer = setInterval(() => {
+                    current += 1;
+                    el.textContent = current;
+                    if(current >= target) {
+                        clearInterval(timer);
+                    }
+                }, stepTime);
+            };
+
+            setTimeout(() => {
+                statValues.forEach(el => countUp(el));
+            }, 500);
+
+            // Intersection Observer for scroll animations
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                        
+                        // If it's the zones section, trigger cards stagger
+                        if(entry.target.classList.contains('zones-section')) {
+                            const cards = entry.target.querySelectorAll('.zone-card');
+                            cards.forEach(card => card.classList.add('visible'));
+                        }
+                    }
+                });
+            }, { threshold: 0.1 });
+
+            // Observe elements
+            document.querySelectorAll('.zones-section, .syllabus-section').forEach(el => {
+                observer.observe(el);
+            });
+        });
+
+        function toggleMobileNav() {
+            const nav = document.getElementById('mobile-nav');
+            const btn = document.getElementById('ham-btn');
+            const isOpen = nav.style.display === 'flex';
+            nav.style.display = isOpen ? 'none' : 'flex';
+        }
+        // Show hamburger on mobile
+        if (window.innerWidth <= 768) {
+            const ham = document.getElementById('ham-btn');
+            if (ham) ham.style.display = 'flex';
+        }
+        window.addEventListener('resize', () => {
+            const ham = document.getElementById('ham-btn');
+            if (ham) ham.style.display = window.innerWidth <= 768 ? 'flex' : 'none';
+        });
+
+    </script>
+    <script src="gemini-chat.js"></script>
+</body>
+</html>

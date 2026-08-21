@@ -1,0 +1,42 @@
+{
+  "name": "JUT ECE Virtual Labs",
+  "short_name": "ECE VirtualLab",
+  "description": "Jharkhand University of Technology — 3D Interactive ECE Virtual Labs, Offline Calculators & Simulation Suite",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#060810",
+  "theme_color": "#060810",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect width='192' height='192' fill='%23060810' rx='40'/><path d='M106 24L48 108h42l-8 60 58-84h-42z' fill='%2300d4ff'/></svg>",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' fill='%23060810' rx='100'/><path d='M280 60L130 290h110l-20 162 162-230H272z' fill='%2300d4ff'/></svg>",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["education", "engineering", "utilities"],
+  "shortcuts": [
+    {
+      "name": "3D Circuit Lab",
+      "url": "lab.html",
+      "description": "Interactive Breadboard & Oscilloscope"
+    },
+    {
+      "name": "Offline Calculator",
+      "url": "calculator.html",
+      "description": "Resistor, K-Map, 8085 Debugger"
+    },
+    {
+      "name": "Study Portal",
+      "url": "syllabus.html",
+      "description": "6 Semesters Syllabus & Viva Questions"
+    }
+  ]
+}

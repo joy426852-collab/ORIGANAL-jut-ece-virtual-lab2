@@ -1,0 +1,1400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JUT ECE Complete Study Portal</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&family=Space+Grotesk:wght@400;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #060810;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --accent-cyan: #00d4ff;
+            --accent-green: #00ff88;
+            --accent-amber: #ffb700;
+            --accent-violet: #a855f7;
+            --accent-red: #ef4444;
+            --card-bg: rgba(255, 255, 255, 0.03);
+            --card-border: rgba(255, 255, 255, 0.08);
+            --glass-blur: blur(12px);
+            --font-head: 'Space Grotesk', sans-serif;
+            --font-body: 'Outfit', sans-serif;
+            --font-code: 'JetBrains Mono', monospace;
+            --transition: all 0.3s ease;
+        }
+
+        [data-theme="light"] {
+            --bg-color: #f0f4f8;
+            --text-main: #0f172a;
+            --text-muted: #475569;
+            --card-bg: rgba(255, 255, 255, 0.7);
+            --card-border: rgba(0, 0, 0, 0.1);
+            --accent-cyan: #0096b3;
+            --accent-green: #00b35f;
+            --accent-amber: #d97706;
+            --accent-violet: #7e22ce;
+            --accent-red: #dc2626;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: var(--font-body);
+            line-height: 1.6;
+            overflow-x: hidden;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        h1, h2, h3, h4, h5 { font-family: var(--font-head); }
+        code, .code-font { font-family: var(--font-code); }
+
+        /* Scroll Progress */
+        #scroll-progress {
+            position: fixed;
+            top: 0; left: 0; height: 3px;
+            background: linear-gradient(90deg, var(--accent-cyan), var(--accent-violet));
+            width: 0%;
+            z-index: 1000;
+            box-shadow: 0 0 10px var(--accent-cyan);
+            transition: width 0.1s;
+        }
+
+        /* Navbar */
+        nav {
+            position: fixed;
+            top: 0; width: 100%;
+            background: rgba(6, 8, 16, 0.8);
+            backdrop-filter: var(--glass-blur);
+            border-bottom: 1px solid var(--card-border);
+            z-index: 900;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 2rem;
+        }
+        [data-theme="light"] nav { background: rgba(240, 244, 248, 0.8); }
+
+        .logo { font-family: var(--font-head); font-weight: 700; font-size: 1.5rem; color: var(--accent-cyan); display: flex; align-items: center; gap: 0.5rem; text-shadow: 0 0 10px rgba(0, 212, 255, 0.3); }
+        
+        .nav-links { display: flex; gap: 1.5rem; }
+        .nav-links a { color: var(--text-main); text-decoration: none; font-weight: 600; transition: var(--transition); }
+        .nav-links a:hover { color: var(--accent-cyan); }
+        
+        .nav-actions { display: flex; gap: 1rem; align-items: center; }
+        .nav-actions input {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            color: var(--text-main);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-family: var(--font-body);
+            outline: none;
+            transition: var(--transition);
+        }
+        .nav-actions input:focus { border-color: var(--accent-cyan); box-shadow: 0 0 10px rgba(0, 212, 255, 0.2); }
+        
+        .icon-btn {
+            background: none; border: none; color: var(--text-main); cursor: pointer; font-size: 1.2rem; transition: var(--transition);
+        }
+        .icon-btn:hover { color: var(--accent-amber); }
+        
+        .btn {
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            border: 1px solid var(--accent-violet);
+            background: rgba(168, 85, 247, 0.1);
+            color: var(--text-main);
+            cursor: pointer;
+            font-family: var(--font-head);
+            font-weight: 600;
+            text-decoration: none;
+            transition: var(--transition);
+        }
+        .btn:hover { background: var(--accent-violet); color: #fff; box-shadow: 0 0 15px rgba(168, 85, 247, 0.4); }
+
+        /* Sidebar */
+        aside {
+            position: fixed; right: 0; top: 70px; width: 250px; height: calc(100vh - 70px);
+            background: rgba(6, 8, 16, 0.6);
+            backdrop-filter: var(--glass-blur);
+            border-left: 1px solid var(--card-border);
+            padding: 2rem 1.5rem;
+            display: flex; flex-direction: column; gap: 2rem;
+            z-index: 800;
+            overflow-y: auto;
+        }
+        [data-theme="light"] aside { background: rgba(240, 244, 248, 0.6); }
+        
+        .sidebar-section h3 { font-size: 1.1rem; color: var(--accent-cyan); margin-bottom: 1rem; }
+        .sidebar-links { display: flex; flex-direction: column; gap: 0.8rem; }
+        .sidebar-links a { color: var(--text-muted); text-decoration: none; font-size: 0.95rem; transition: var(--transition); }
+        .sidebar-links a:hover { color: var(--accent-green); }
+        .progress-container { width: 100%; height: 8px; background: var(--card-bg); border-radius: 4px; overflow: hidden; margin-top: 0.5rem; }
+        .progress-bar-fill { height: 100%; background: var(--accent-green); width: 0%; transition: width 0.5s; }
+        
+        /* Main Layout */
+        main { margin-top: 70px; margin-right: 250px; padding: 2rem; max-width: 1200px; }
+
+        /* Hero */
+        .hero { text-align: center; padding: 4rem 0 3rem 0; }
+        .hero h1 { font-size: 3.5rem; background: linear-gradient(to right, var(--accent-cyan), var(--accent-violet)); -webkit-background-clip: text; color: transparent; margin-bottom: 1rem; }
+        .hero p { font-size: 1.2rem; color: var(--text-muted); margin-bottom: 2rem; }
+        .stats-row { display: flex; justify-content: center; gap: 1.5rem; flex-wrap: wrap; margin-bottom: 2rem; }
+        .stat-badge { background: var(--card-bg); border: 1px solid var(--card-border); padding: 0.5rem 1rem; border-radius: 20px; font-family: var(--font-code); font-size: 0.9rem; }
+        .hero-search { width: 100%; max-width: 600px; padding: 1rem 1.5rem; font-size: 1.1rem; border-radius: 30px; background: var(--card-bg); border: 1px solid var(--accent-cyan); color: var(--text-main); font-family: var(--font-body); box-shadow: 0 0 20px rgba(0, 212, 255, 0.1); outline: none; }
+        .hero-search:focus { box-shadow: 0 0 30px rgba(0, 212, 255, 0.3); }
+
+        /* Filters */
+        .filters { display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap; margin-bottom: 3rem; }
+        .filter-pill { padding: 0.5rem 1.5rem; border-radius: 20px; background: var(--card-bg); border: 1px solid var(--card-border); color: var(--text-main); cursor: pointer; transition: var(--transition); font-weight: 600; }
+        .filter-pill.active, .filter-pill:hover { background: rgba(0, 212, 255, 0.1); border-color: var(--accent-cyan); color: var(--accent-cyan); box-shadow: 0 0 10px rgba(0, 212, 255, 0.2); }
+
+        /* Section Styling */
+        section { margin-bottom: 4rem; }
+        .section-title { font-size: 2rem; margin-bottom: 2rem; color: var(--text-main); border-bottom: 2px solid var(--card-border); padding-bottom: 0.5rem; }
+
+        /* Cards & Accordions */
+        .accordion { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 12px; margin-bottom: 1rem; overflow: hidden; backdrop-filter: var(--glass-blur); }
+        .acc-header { padding: 1.5rem; cursor: pointer; display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.2); transition: var(--transition); }
+        .acc-header h3 { font-size: 1.3rem; color: var(--accent-amber); }
+        .acc-header:hover { background: rgba(255, 183, 0, 0.05); }
+        .acc-content { padding: 0; max-height: 0; overflow: hidden; transition: max-height 0.4s ease; }
+        .acc-inner { padding: 1.5rem; display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem; }
+        
+        .subject-card { background: rgba(255,255,255,0.02); border: 1px solid var(--card-border); border-radius: 8px; padding: 1.5rem; position: relative; }
+        .subject-card h4 { font-size: 1.1rem; color: var(--accent-cyan); margin-bottom: 1rem; }
+        .topic-list { list-style: none; }
+        .topic-list li { display: flex; align-items: flex-start; gap: 0.5rem; margin-bottom: 0.8rem; font-size: 0.95rem; color: var(--text-muted); }
+        .topic-list li.match { color: var(--text-main); text-shadow: 0 0 5px rgba(255,255,255,0.2); }
+        
+        .checkbox { appearance: none; width: 18px; height: 18px; border: 1px solid var(--accent-green); border-radius: 4px; cursor: pointer; position: relative; margin-top: 3px; flex-shrink: 0; }
+        .checkbox:checked { background: var(--accent-green); }
+        .checkbox:checked::after { content: '✓'; position: absolute; color: var(--bg-color); font-size: 12px; top: -1px; left: 3px; font-weight: bold; }
+
+        /* Tabs */
+        .tabs { display: flex; gap: 1rem; margin-bottom: 1.5rem; border-bottom: 1px solid var(--card-border); }
+        .tab { padding: 0.8rem 1.5rem; cursor: pointer; color: var(--text-muted); border-bottom: 2px solid transparent; transition: var(--transition); font-family: var(--font-head); font-weight: 600; }
+        .tab.active { color: var(--accent-violet); border-bottom-color: var(--accent-violet); }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; animation: fadeIn 0.5s; }
+
+        /* Question Cards */
+        .q-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 1.5rem; }
+        .q-card { background: var(--card-bg); border: 1px solid var(--card-border); border-left: 3px solid var(--accent-violet); border-radius: 8px; padding: 1.5rem; backdrop-filter: var(--glass-blur); display: flex; flex-direction: column; position: relative; }
+        .q-header { display: flex; justify-content: space-between; margin-bottom: 1rem; align-items: center; }
+        .q-tag { font-size: 0.75rem; background: rgba(168, 85, 247, 0.15); color: var(--accent-violet); padding: 0.2rem 0.6rem; border-radius: 12px; font-family: var(--font-code); }
+        .q-marks { font-size: 0.8rem; font-weight: 600; color: var(--accent-red); background: rgba(239, 68, 68, 0.1); padding: 0.2rem 0.5rem; border-radius: 4px; }
+        .q-text { font-size: 1rem; margin-bottom: 1.5rem; flex-grow: 1; }
+        .q-footer { display: flex; justify-content: space-between; align-items: center; }
+        .bookmark-btn { background: none; border: none; cursor: pointer; color: var(--text-muted); font-size: 1.2rem; transition: var(--transition); }
+        .bookmark-btn.saved { color: var(--accent-amber); text-shadow: 0 0 10px rgba(255, 183, 0, 0.5); }
+        .practice-btn { background: rgba(0, 212, 255, 0.1); border: 1px solid var(--accent-cyan); color: var(--accent-cyan); padding: 0.4rem 1rem; border-radius: 4px; cursor: pointer; font-family: var(--font-code); transition: var(--transition); }
+        .practice-btn:hover { background: var(--accent-cyan); color: #000; }
+        
+        .answer-drawer { display: none; margin-top: 1rem; padding: 1rem; background: rgba(0,0,0,0.3); border-left: 2px solid var(--accent-green); font-size: 0.9rem; color: var(--text-muted); border-radius: 0 4px 4px 0; }
+        .answer-drawer.open { display: block; animation: slideDown 0.3s ease; }
+
+        /* Formulas */
+        .formula-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1rem; }
+        .formula-card { background: var(--card-bg); border: 1px solid var(--card-border); padding: 1.5rem; border-radius: 8px; font-family: var(--font-code); text-align: center; color: var(--accent-cyan); font-size: 1.1rem; box-shadow: inset 0 0 20px rgba(0,0,0,0.5); transition: var(--transition); }
+        .formula-card:hover { transform: translateY(-5px); border-color: var(--accent-cyan); box-shadow: 0 5px 15px rgba(0, 212, 255, 0.1); }
+        .formula-desc { font-family: var(--font-body); font-size: 0.85rem; color: var(--text-muted); margin-top: 0.5rem; }
+
+        /* Utilities & Animations */
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .hidden { display: none !important; }
+        .exam-mode-active .answer-drawer { display: none !important; }
+        .exam-mode-active .practice-btn { display: none !important; }
+        
+        /* Print Styles */
+        @media print {
+            body { background: #fff; color: #000; }
+            nav, aside, .hero-search, .filters, .practice-btn { display: none; }
+            main { margin: 0; padding: 0; }
+            .accordion, .q-card { border: 1px solid #ccc; break-inside: avoid; background: none; }
+            .acc-content { max-height: none !important; }
+            .section-title, .acc-header h3 { color: #000; }
+            .topic-list li { color: #333; }
+            #scroll-progress { display: none; }
+        }
+
+        /* Responsive */
+        @media (max-width: 900px) {
+            aside { display: none; }
+            main { margin-right: 0; }
+            .nav-links { display: none; }
+        }
+        @media (max-width: 600px) {
+            .hero h1 { font-size: 2.2rem; }
+            nav { padding: 1rem; }
+            .logo { font-size: 1.2rem; }
+        }
+
+/* ============================================================
+   MOBILE RESPONSIVE — SYLLABUS PORTAL
+   ============================================================ */
+@media (max-width: 900px) {
+  /* Hide sidebar on mobile */
+  .sidebar, #sidebar, [class*='sidebar'], aside {
+    display: none !important;
+  }
+  /* Main content full width */
+  .main-content, #main-content, .content-area, [class*='main-content'], main {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+  .page-layout, .layout, [class*='layout'] {
+    grid-template-columns: 1fr !important;
+    display: block !important;
+  }
+}
+
+@media (max-width: 768px) {
+
+  /* Top nav */
+  .top-nav, .navbar, nav {
+    padding: 0 12px !important;
+    height: 54px !important;
+    flex-wrap: wrap;
+  }
+  .nav-links, .nav-right a:not(.back-btn) {
+    display: none !important;
+  }
+  .nav-logo, .logo {
+    font-size: 13px !important;
+  }
+  
+  /* Semester filter pills — horizontal scroll */
+  .filter-pills, .sem-pills, [class*='filter'], [class*='pills'], .filters {
+    overflow-x: auto !important;
+    flex-wrap: nowrap !important;
+    gap: 6px !important;
+    padding-bottom: 6px !important;
+    scrollbar-width: none !important;
+    -webkit-overflow-scrolling: touch !important;
+    justify-content: flex-start !important;
+  }
+  .filter-pills::-webkit-scrollbar, .filters::-webkit-scrollbar { display: none; }
+  .pill, .filter-pill {
+    flex-shrink: 0 !important;
+    font-size: 11px !important;
+    padding: 6px 12px !important;
+    white-space: nowrap !important;
+  }
+
+  /* Hero */
+  .hero, .page-hero, [class*='hero'] {
+    padding: 70px 14px 30px !important;
+  }
+  h1, .hero-title { font-size: clamp(20px, 6vw, 32px) !important; }
+  h2 { font-size: clamp(16px, 5vw, 22px) !important; }
+  h3 { font-size: clamp(14px, 4vw, 18px) !important; }
+  .hero-stats, .stats-row {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 8px !important;
+  }
+
+  /* Search bar */
+  .search-container, .search-bar, [class*='search'], .hero-search {
+    margin: 0 12px !important;
+    width: auto !important;
+    max-width: 100% !important;
+  }
+  .search-input, input[type='text'], .hero-search {
+    font-size: 14px !important;
+    padding: 10px 14px !important;
+  }
+
+  /* Semester accordion cards */
+  .semester-card, .accordion-item, [class*='semester'], .accordion {
+    margin: 0 12px 12px !important;
+    border-radius: 12px !important;
+  }
+  .semester-header, .accordion-header, .acc-header {
+    padding: 14px 16px !important;
+    font-size: 13px !important;
+  }
+  .semester-body, .accordion-body, .acc-inner {
+    padding: 12px !important;
+  }
+
+  /* Subject cards — full width */
+  .subjects-grid, .subject-grid, .acc-inner {
+    grid-template-columns: 1fr !important;
+    gap: 10px !important;
+  }
+  .subject-card {
+    padding: 14px !important;
+  }
+  .topic-chips, .chips, .topic-list li {
+    gap: 4px !important;
+    font-size: 12px !important;
+  }
+  .chip {
+    font-size: 9px !important;
+    padding: 3px 8px !important;
+  }
+
+  /* Exam question tabs */
+  .tab-bar, .question-tabs, [class*='tab-bar'], .tabs {
+    overflow-x: auto !important;
+    flex-wrap: nowrap !important;
+    scrollbar-width: none !important;
+  }
+  .tab-bar::-webkit-scrollbar, .tabs::-webkit-scrollbar { display: none; }
+  .tab-btn, .tab {
+    flex-shrink: 0 !important;
+    font-size: 11px !important;
+    padding: 8px 14px !important;
+    white-space: nowrap !important;
+  }
+
+  /* Question cards — full width stack */
+  .questions-grid, .q-grid {
+    grid-template-columns: 1fr !important;
+    gap: 10px !important;
+  }
+  .question-card, .q-card {
+    padding: 14px 16px !important;
+  }
+  .question-text, .q-text {
+    font-size: 13px !important;
+    line-height: 1.5 !important;
+  }
+  .marks-badge, .q-marks, .q-tag {
+    font-size: 9px !important;
+    padding: 3px 8px !important;
+  }
+
+  /* Lab experiments — stack */
+  .lab-grid, .experiments-grid {
+    grid-template-columns: 1fr !important;
+    gap: 10px !important;
+  }
+  .lab-card, .experiment-card {
+    padding: 14px !important;
+  }
+
+  /* Formula grid — single column */
+  .formula-grid, .formulas-grid, [class*='formula-grid'] {
+    grid-template-columns: 1fr !important;
+    gap: 8px !important;
+  }
+  .formula-card {
+    padding: 12px !important;
+  }
+  .formula-text {
+    font-size: 12px !important;
+    overflow-x: auto;
+  }
+
+  /* Viva questions */
+  .viva-card, .viva-item {
+    padding: 12px 14px !important;
+  }
+  .viva-q {
+    font-size: 12px !important;
+  }
+  .viva-a {
+    font-size: 11px !important;
+  }
+
+  /* Tables — horizontal scroll */
+  table {
+    font-size: 11px !important;
+  }
+  .table-wrapper, .table-container {
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+
+  /* Scroll progress bar */
+  #scroll-progress, .scroll-bar {
+    height: 2px !important;
+  }
+
+  /* Hint drawer — full screen on mobile */
+  .hint-drawer, .answer-drawer, [class*='drawer'] {
+    position: fixed !important;
+    inset: 0 !important;
+    border-radius: 0 !important;
+    z-index: 9999 !important;
+    overflow-y: auto !important;
+  }
+  
+  /* Progress sidebar as floating button on mobile */
+  #mobile-progress-fab {
+    display: flex !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .hero-stats, .stats-row {
+    grid-template-columns: 1fr 1fr !important;
+  }
+  .cta-buttons, .action-buttons {
+    flex-direction: column !important;
+    align-items: stretch !important;
+  }
+  .cta-btn, .btn {
+    text-align: center !important;
+    justify-content: center !important;
+  }
+}
+    </style>
+</head>
+<body>
+
+    <div id="scroll-progress"></div>
+
+    <nav>
+        <div class="logo">⚡ JUT ECE PORTAL</div>
+        <div class="nav-links">
+            <a href="#syllabus">Syllabus</a>
+            <a href="#questions">Exam Questions</a>
+            <a href="#labs">Lab Experiments</a>
+            <a href="calculator.html" style="color:var(--accent-cyan);">🧮 Offline Suite</a>
+        </div>
+        <div class="nav-actions">
+            <input type="text" id="nav-search" placeholder="Quick search..." onkeyup="syncSearch(this.value)">
+            <button class="icon-btn" onclick="toggleTheme()" title="Toggle Theme (T)">☀️</button>
+            <button class="icon-btn" onclick="toggleExamMode()" title="Toggle Exam Mode" id="exam-toggle">📝</button>
+            <a href="calculator.html" class="btn" style="border-color:var(--accent-cyan);color:var(--accent-cyan);">🧮 Tools</a>
+            <a href="hub.html" class="btn">Back to Hub</a>
+<!-- Hamburger button (hidden on desktop, shown on mobile via CSS) -->
+<button id="mob-ham" onclick="toggleSyllabusNav()" style="
+  display:none;background:none;border:1px solid rgba(255,255,255,.1);
+  border-radius:8px;padding:6px 10px;cursor:pointer;color:#94a3b8;
+  font-size:18px;line-height:1;">☰</button>
+<div id="mob-menu" style="display:none;position:fixed;inset:0;z-index:9998;
+  background:rgba(6,8,16,.97);backdrop-filter:blur(20px);
+  flex-direction:column;align-items:center;justify-content:center;gap:20px;">
+  <button onclick="toggleSyllabusNav()" style="position:absolute;top:16px;right:16px;
+    background:none;border:none;color:#94a3b8;font-size:24px;cursor:pointer;">✕</button>
+  <a href="hub.html" style="color:#f0f4f8;text-decoration:none;font-size:18px;font-family:'Space Grotesk',sans-serif;font-weight:600;">🏠 Hub</a>
+  <a href="zone1.html" style="color:#f59e0b;text-decoration:none;font-size:18px;font-family:'Space Grotesk',sans-serif;font-weight:600;">🧪 Zone 1</a>
+  <a href="lab.html" style="color:#00d4ff;text-decoration:none;font-size:18px;font-family:'Space Grotesk',sans-serif;font-weight:600;">⚡ Zone 2</a>
+  <a href="zone3.html" style="color:#ef4444;text-decoration:none;font-size:18px;font-family:'Space Grotesk',sans-serif;font-weight:600;">⚙️ Zone 3</a>
+  <a href="calculator.html" style="color:#00ff88;text-decoration:none;font-size:18px;font-family:'Space Grotesk',sans-serif;font-weight:600;">🧮 Offline Suite</a>
+</div>
+        </div>
+    </nav>
+
+    <aside>
+        <div class="sidebar-section">
+            <h3>Your Progress</h3>
+            <div class="progress-info" style="display:flex; justify-content:space-between; color:var(--text-muted); font-size:0.9rem;">
+                <span>Topics Completed</span>
+                <span id="progress-text">0%</span>
+            </div>
+            <div class="progress-container">
+                <div class="progress-bar-fill" id="progress-bar"></div>
+            </div>
+        </div>
+        
+        <div class="sidebar-section">
+            <h3>Quick Jump</h3>
+            <div class="sidebar-links">
+                <a href="#sem1">🎓 Semester 1</a>
+                <a href="#sem2">🎓 Semester 2</a>
+                <a href="#sem3">🎓 Semester 3</a>
+                <a href="#sem4">🎓 Semester 4</a>
+                <a href="#sem5">🎓 Semester 5</a>
+                <a href="#sem6">🎓 Semester 6</a>
+            </div>
+        </div>
+
+        <div class="sidebar-section">
+            <h3>My Bookmarks (<span id="bm-count">0</span>)</h3>
+            <div class="sidebar-links" id="bm-list" style="max-height: 200px; overflow-y: auto;">
+                <!-- Bookmarks injected here -->
+            </div>
+        </div>
+        
+        <div class="sidebar-section">
+            <h3>Lab Zones</h3>
+            <div class="sidebar-links">
+                <a href="#labs">→ Zone 1 Lab</a>
+                <a href="#labs">→ Zone 2 Lab</a>
+                <a href="#labs">→ Zone 3 Lab</a>
+            </div>
+        </div>
+    </aside>
+
+    <main>
+        <section class="hero">
+            <h1>JUT ECE Complete Study Portal</h1>
+            <p>Diploma in Electronics & Communication Engineering — All 6 Semesters</p>
+            <div class="stats-row">
+                <div class="stat-badge">6 Semesters</div>
+                <div class="stat-badge">30+ Subjects</div>
+                <div class="stat-badge">60+ Exam Questions</div>
+                <div class="stat-badge">20+ Lab Experiments</div>
+                <div class="stat-badge">3 Interactive Zones</div>
+            </div>
+            <input type="text" class="hero-search" id="main-search" placeholder="Search any topic, formula, or experiment..." onkeyup="handleSearch(this.value)">
+        </section>
+
+        <div class="filters" id="sem-filters">
+            <div class="filter-pill active" onclick="filterSem('all')">All</div>
+            <div class="filter-pill" onclick="filterSem('sem1')">Sem 1</div>
+            <div class="filter-pill" onclick="filterSem('sem2')">Sem 2</div>
+            <div class="filter-pill" onclick="filterSem('sem3')">Sem 3</div>
+            <div class="filter-pill" onclick="filterSem('sem4')">Sem 4</div>
+            <div class="filter-pill" onclick="filterSem('sem5')">Sem 5</div>
+            <div class="filter-pill" onclick="filterSem('sem6')">Sem 6</div>
+        </div>
+
+        <!-- SECTION 1: SYLLABUS -->
+        <section id="syllabus">
+            <h2 class="section-title">Complete Syllabus</h2>
+            
+            <div id="syllabus-container">
+                <!-- SEM 1 -->
+                <div class="accordion sem-block" data-sem="sem1" id="sem1">
+                    <div class="acc-header" onclick="toggleAcc(this)">
+                        <h3>🎓 SEMESTER 1</h3>
+                        <span>▼</span>
+                    </div>
+                    <div class="acc-content">
+                        <div class="acc-inner">
+                            <div class="subject-card">
+                                <h4>Communication Skills I</h4>
+                                <ul class="topic-list">
+                                    <li><input type="checkbox" class="checkbox" onchange="updateProgress()" data-id="cs1-1"> Basics of Communication: Definition, process, barriers</li>
+                                    <li><input type="checkbox" class="checkbox" onchange="updateProgress()" data-id="cs1-2"> Grammar & Usage: Parts of speech, tenses, voice change</li>
+                                    <li><input type="checkbox" class="checkbox" onchange="updateProgress()" data-id="cs1-3"> Reading & Writing: Comprehension passages, formal letters</li>
+                                </ul>
+                            </div>
+                            <div class="subject-card">
+                                <h4>Engineering Chemistry I</h4>
+                                <ul class="topic-list">
+                                    <li><input type="checkbox" class="checkbox" onchange="updateProgress()" data-id="ec1-1"> Atomic Structure & Chemical Bonding: Bohr's theory, quantum numbers</li>
+                                    <li><input type="checkbox" class="checkbox" onchange="updateProgress()" data-id="ec1-2"> Water Treatment: Hardness of water, EDTA estimation</li>
+                                    <li><input type="checkbox" class="checkbox" onchange="updateProgress()" data-id="ec1-3"> Solutions & Electrochemistry: pH, buffer solutions, Faraday's laws</li>
+                                </ul>
+                            </div>
+                            <div class="subject-card">
+                                <h4>Engineering Graphics I</h4>
+                                <ul class="topic-list">
+                                    <li><input type="checkbox" class="checkbox" onchange="updateProgress()" data-id="eg1-1"> Drawing Instruments & Sheet Layout: Tools, lettering</li>
+                                    <li><input type="checkbox" class="checkbox" onchange="updateProgress()" data-id="eg1-2"> Geometrical Construction: Conic sections, cycloidal curves</li>
+                                    <li><input type="checkbox" class="checkbox" onchange="updateProgress()" data-id="eg1-3"> Orthographic Projection: Points, lines, simple planes</li>
+                                </ul>
+                            </div>
+                            <div class="subject-card">
+                                <h4>Engineering Mathematics I</h4>
+                                <ul class="topic-list">
+                                    <li><input type="checkbox" class="checkbox" onchange="updateProgress()" data-id="em1-1"> Algebra: Complex numbers, De Moivre's theorem, matrices</li>
+                                    <li><input type="checkbox" class="checkbox" onchange="updateProgress()" data-id="em1-2"> Trigonometry: Compound angles, inverse trig</li>
+                                    <li><input type="checkbox" class="checkbox" onchange="updateProgress()" data-id="em1-3"> Differential Calculus: Limits, continuity, differentiation</li>
+                                </ul>
+                            </div>
+                            <div class="subject-card">
+                                <h4>Engineering Physics I</h4>
+                                <ul class="topic-list">
+                                    <li><input type="checkbox" class="checkbox" onchange="updateProgress()" data-id="ep1-1"> Units and Dimensions: SI system, dimensional analysis, errors</li>
+                                    <li><input type="checkbox" class="checkbox" onchange="updateProgress()" data-id="ep1-2"> Force and Motion: Vectors, Newton's laws, projectile</li>
+                                    <li><input type="checkbox" class="checkbox" onchange="updateProgress()" data-id="ep1-3"> Properties of Matter: Elasticity, surface tension, viscosity</li>
+                                </ul>
+                            </div>
+                            <div class="subject-card">
+                                <h4>Fundamentals of Computer</h4>
+                                <ul class="topic-list">
+                                    <li><input type="checkbox" class="checkbox" onchange="updateProgress()" data-id="fc-1"> Hardware & Software: CPU architecture, I/O devices</li>
+                                    <li><input type="checkbox" class="checkbox" onchange="updateProgress()" data-id="fc-2"> Operating Systems: Windows/Linux, file management</li>
+                                    <li><input type="checkbox" class="checkbox" onchange="updateProgress()" data-id="fc-3"> Office Suite & Internet: Word, spreadsheets, presentations</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SEM 2 -->
+                <div class="accordion sem-block" data-sem="sem2" id="sem2">
+                    <div class="acc-header" onclick="toggleAcc(this)">
+                        <h3>🎓 SEMESTER 2</h3>
+                        <span>▼</span>
+                    </div>
+                    <div class="acc-content">
+                        <div class="acc-inner">
+                            <div class="subject-card">
+                                <h4>Communication Skills II</h4>
+                                <ul class="topic-list">
+                                    <li><input type="checkbox" class="checkbox" onchange="updateProgress()" data-id="cs2-1"> Advanced Writing: Technical reports, project proposals, CV</li>
+                                    <li><input type="checkbox" class="checkbox" onchange="updateProgress()" data-id="cs2-2"> Spoken English: GDs, job interviews, oral presentations</li>
+                                </ul>
+                            </div>
+                            <div class="subject-card">
+                                <h4>Engineering Chemistry II</h4>
+                                <ul class="topic-list">
+                                    <li><input type="checkbox" class="checkbox" onchange="updateProgress()" data-id="ec2-1"> Metals & Alloys: Metallurgy of Iron/Copper/Aluminum</li>
+                                    <li><input type="checkbox" class="checkbox" onchange="updateProgress()" data-id="ec2-2"> Fuels & Combustion: Classification, calorific value</li>
+                                    <li><input type="checkbox" class="checkbox" onchange="updateProgress()" data-id="ec2-3"> Polymers, Plastics & Lubricants: Thermoplastics, synthetic rubber</li>
+                                </ul>
+                            </div>
+                            <div class="subject-card">
+                                <h4>Engineering Mathematics II</h4>
+                                <ul class="topic-list">
+                                    <li><input type="checkbox" class="checkbox" onchange="updateProgress()" data-id="em2-1"> Integral Calculus: Integration by parts, substitution, definite integrals</li>
+                                    <li><input type="checkbox" class="checkbox" onchange="updateProgress()" data-id="em2-2"> Differential Equations: First-order ODEs</li>
+                                    <li><input type="checkbox" class="checkbox" onchange="updateProgress()" data-id="em2-3"> Vector Algebra: Dot/cross product, scalar triple product</li>
+                                </ul>
+                            </div>
+                            <div class="subject-card">
+                                <h4>Engineering Physics II</h4>
+                                <ul class="topic-list">
+                                    <li><input type="checkbox" class="checkbox" onchange="updateProgress()" data-id="ep2-1"> Wave Motion & Acoustics: Transverse/longitudinal waves</li>
+                                    <li><input type="checkbox" class="checkbox" onchange="updateProgress()" data-id="ep2-2"> Optics & Lasers: Interference, diffraction, fiber optics, laser</li>
+                                    <li><input type="checkbox" class="checkbox" onchange="updateProgress()" data-id="ep2-3"> Electrostatics & Magnetism: Coulomb's law, Gauss theorem</li>
+                                </ul>
+                            </div>
+                            <div class="subject-card">
+                                <h4>Programming in C</h4>
+                                <ul class="topic-list">
+                                    <li><input type="checkbox" class="checkbox" onchange="updateProgress()" data-id="c-1"> Basics & Control Flows: Data types, if-else, switch, loops</li>
+                                    <li><input type="checkbox" class="checkbox" onchange="updateProgress()" data-id="c-2"> Arrays & Functions: 1D/2D arrays, recursion, scope</li>
+                                    <li><input type="checkbox" class="checkbox" onchange="updateProgress()" data-id="c-3"> Pointers, Structures & Files: Pointer arithmetic, file I/O</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SEM 3 -->
+                <div class="accordion sem-block" data-sem="sem3" id="sem3">
+                    <div class="acc-header" onclick="toggleAcc(this)">
+                        <h3>🎓 SEMESTER 3</h3>
+                        <span>▼</span>
+                    </div>
+                    <div class="acc-content">
+                        <div class="acc-inner">
+                            <div class="subject-card">
+                                <h4>Development of Life Skills</h4>
+                                <ul class="topic-list">
+                                    <li><input type="checkbox" class="checkbox" onchange="updateProgress()" data-id="dls-1"> Self-Awareness: SWOT analysis, goal setting</li>
+                                    <li><input type="checkbox" class="checkbox" onchange="updateProgress()" data-id="dls-2"> Task Management: Time management, stress</li>
+                                </ul>
+                            </div>
+                            <div class="subject-card">
+                                <h4>Electrical & Electronic Measurement</h4>
+                                <ul class="topic-list">
+                                    <li><input type="checkbox" class="checkbox" onchange="updateProgress()" data-id="eem-1"> Instruments: PMMC, moving iron, electrodynamometer</li>
+                                    <li><input type="checkbox" class="checkbox" onchange="updateProgress()" data-id="eem-2"> Bridges & CRO: Maxwell's, Schering's bridges, CRO operations</li>
+                                </ul>
+                            </div>
+                            <div class="subject-card">
+                                <h4>Electrical Technology</h4>
+                                <ul class="topic-list">
+                                    <li><input type="checkbox" class="checkbox" onchange="updateProgress()" data-id="et-1"> DC Circuits: KCL, KVL, Thevenin's, Norton's</li>
+                                    <li><input type="checkbox" class="checkbox" onchange="updateProgress()" data-id="et-2"> AC Circuits & Machines: Resonance, transformers, induction motors</li>
+                                </ul>
+                            </div>
+                            <div class="subject-card">
+                                <h4>Electromagnetic Field Theory</h4>
+                                <ul class="topic-list">
+                                    <li><input type="checkbox" class="checkbox" onchange="updateProgress()" data-id="emft-1"> Vector Calculus: Gradient, divergence, curl</li>
+                                    <li><input type="checkbox" class="checkbox" onchange="updateProgress()" data-id="emft-2"> Static Fields: Coulomb's, Gauss's, Maxwell's equations</li>
+                                </ul>
+                            </div>
+                            <div class="subject-card">
+                                <h4>Electronic Devices and Circuits</h4>
+                                <ul class="topic-list">
+                                    <li><input type="checkbox" class="checkbox" onchange="updateProgress()" data-id="edc-1"> Semiconductor Diodes: PN junction, Zener, rectifiers</li>
+                                    <li><input type="checkbox" class="checkbox" onchange="updateProgress()" data-id="edc-2"> Transistors: BJT biasing, FETs, MOSFETs</li>
+                                </ul>
+                            </div>
+                            <div class="subject-card">
+                                <h4>Engineering Mathematics III</h4>
+                                <ul class="topic-list">
+                                    <li><input type="checkbox" class="checkbox" onchange="updateProgress()" data-id="em3-1"> Fourier Series: Euler's formulas, Fourier expansion</li>
+                                    <li><input type="checkbox" class="checkbox" onchange="updateProgress()" data-id="em3-2"> Laplace Transforms: Standard transforms, inverse</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SEM 4 -->
+                <div class="accordion sem-block" data-sem="sem4" id="sem4">
+                    <div class="acc-header" onclick="toggleAcc(this)">
+                        <h3>🎓 SEMESTER 4</h3>
+                        <span>▼</span>
+                    </div>
+                    <div class="acc-content">
+                        <div class="acc-inner">
+                            <div class="subject-card">
+                                <h4>Digital Technology & Microprocessor</h4>
+                                <ul class="topic-list">
+                                    <li><input type="checkbox" class="checkbox" onchange="updateProgress()" data-id="dtm-1"> Number Systems & Logic Gates: Boolean simplification</li>
+                                    <li><input type="checkbox" class="checkbox" onchange="updateProgress()" data-id="dtm-2"> Combinational & Sequential: Adders, MUX, flip-flops, 8085 architecture</li>
+                                </ul>
+                            </div>
+                            <div class="subject-card">
+                                <h4>Computer Hardware & Peripheral</h4>
+                                <ul class="topic-list">
+                                    <li><input type="checkbox" class="checkbox" onchange="updateProgress()" data-id="chp-1"> Motherboard: Chipsets, BIOS/UEFI, RAM types</li>
+                                    <li><input type="checkbox" class="checkbox" onchange="updateProgress()" data-id="chp-2"> Storage & Peripherals: HDD/SSD, printers, scanners</li>
+                                </ul>
+                            </div>
+                            <div class="subject-card">
+                                <h4>Communication System</h4>
+                                <ul class="topic-list">
+                                    <li><input type="checkbox" class="checkbox" onchange="updateProgress()" data-id="com-1"> Analog Modulation: AM, FM, PM, receivers</li>
+                                    <li><input type="checkbox" class="checkbox" onchange="updateProgress()" data-id="com-2"> Pulse Modulation: PAM, PWM, PPM, sampling theorem</li>
+                                </ul>
+                            </div>
+                            <div class="subject-card">
+                                <h4>Data Communication & Networking</h4>
+                                <ul class="topic-list">
+                                    <li><input type="checkbox" class="checkbox" onchange="updateProgress()" data-id="dcn-1"> Network Models: OSI model, TCP/IP, topologies</li>
+                                    <li><input type="checkbox" class="checkbox" onchange="updateProgress()" data-id="dcn-2"> Routing & IP: IPv4/IPv6, subnetting, routing protocols</li>
+                                </ul>
+                            </div>
+                            <div class="subject-card">
+                                <h4>Control System</h4>
+                                <ul class="topic-list">
+                                    <li><input type="checkbox" class="checkbox" onchange="updateProgress()" data-id="cst-1"> System Modeling: Transfer functions, block diagrams</li>
+                                    <li><input type="checkbox" class="checkbox" onchange="updateProgress()" data-id="cst-2"> Stability Analysis: Routh-Hurwitz, Root Locus, Bode plots</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SEM 5 -->
+                <div class="accordion sem-block" data-sem="sem5" id="sem5">
+                    <div class="acc-header" onclick="toggleAcc(this)">
+                        <h3>🎓 SEMESTER 5</h3>
+                        <span>▼</span>
+                    </div>
+                    <div class="acc-content">
+                        <div class="acc-inner">
+                            <div class="subject-card">
+                                <h4>Instrumentation System ECE</h4>
+                                <ul class="topic-list">
+                                    <li><input type="checkbox" class="checkbox" onchange="updateProgress()" data-id="ins-1"> Transducers: Strain gauges, LVDT, RTD, thermocouples</li>
+                                    <li><input type="checkbox" class="checkbox" onchange="updateProgress()" data-id="ins-2"> Signal Conditioning: Instrumentation amplifiers, ADC/DAC</li>
+                                </ul>
+                            </div>
+                            <div class="subject-card">
+                                <h4>Electrical Machines II</h4>
+                                <ul class="topic-list">
+                                    <li><input type="checkbox" class="checkbox" onchange="updateProgress()" data-id="emac-1"> Synchronous Machines: Alternator, voltage regulation</li>
+                                    <li><input type="checkbox" class="checkbox" onchange="updateProgress()" data-id="emac-2"> Special Motors: Stepper, servomotors, universal motors</li>
+                                </ul>
+                            </div>
+                            <div class="subject-card">
+                                <h4>Electronics System Design</h4>
+                                <ul class="topic-list">
+                                    <li><input type="checkbox" class="checkbox" onchange="updateProgress()" data-id="esd-1"> PCB Design: Schematic capture, layout, soldering</li>
+                                    <li><input type="checkbox" class="checkbox" onchange="updateProgress()" data-id="esd-2"> Troubleshooting: Diagnostics, fault finding</li>
+                                </ul>
+                            </div>
+                            <div class="subject-card">
+                                <h4>Electives I & II</h4>
+                                <ul class="topic-list">
+                                    <li><input type="checkbox" class="checkbox" onchange="updateProgress()" data-id="el1-1"> Embedded Systems / VLSI Design / Consumer Electronics</li>
+                                    <li><input type="checkbox" class="checkbox" onchange="updateProgress()" data-id="el1-2"> 8051/PIC microcontrollers, FPGA, television</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SEM 6 -->
+                <div class="accordion sem-block" data-sem="sem6" id="sem6">
+                    <div class="acc-header" onclick="toggleAcc(this)">
+                        <h3>🎓 SEMESTER 6</h3>
+                        <span>▼</span>
+                    </div>
+                    <div class="acc-content">
+                        <div class="acc-inner">
+                            <div class="subject-card">
+                                <h4>Industrial Engineering & Management</h4>
+                                <ul class="topic-list">
+                                    <li><input type="checkbox" class="checkbox" onchange="updateProgress()" data-id="iem-1"> Plant Layout & Productivity: Material handling, work measurement</li>
+                                    <li><input type="checkbox" class="checkbox" onchange="updateProgress()" data-id="iem-2"> Management: EOQ, TQM, Six Sigma, financial costing</li>
+                                </ul>
+                            </div>
+                            <div class="subject-card">
+                                <h4>Utilization of Electrical Energy</h4>
+                                <ul class="topic-list">
+                                    <li><input type="checkbox" class="checkbox" onchange="updateProgress()" data-id="uee-1"> Illumination & Heating: Lighting design, induction heating</li>
+                                    <li><input type="checkbox" class="checkbox" onchange="updateProgress()" data-id="uee-2"> Electric Traction: Track electrification, speed-time curves</li>
+                                </ul>
+                            </div>
+                            <div class="subject-card">
+                                <h4>Power Electronics</h4>
+                                <ul class="topic-list">
+                                    <li><input type="checkbox" class="checkbox" onchange="updateProgress()" data-id="pe-1"> Thyristors: SCR, DIAC, TRIAC characteristics</li>
+                                    <li><input type="checkbox" class="checkbox" onchange="updateProgress()" data-id="pe-2"> Converters & Inverters: Phase-controlled rectifiers, choppers</li>
+                                </ul>
+                            </div>
+                            <div class="subject-card">
+                                <h4>Electives III & IV</h4>
+                                <ul class="topic-list">
+                                    <li><input type="checkbox" class="checkbox" onchange="updateProgress()" data-id="el2-1"> Mobile Communication / Optical Fiber / Robotics</li>
+                                    <li><input type="checkbox" class="checkbox" onchange="updateProgress()" data-id="el2-2"> GSM/LTE cellular, optical link budgets</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- SECTION 2: EXAM QUESTIONS -->
+        <section id="questions">
+            <h2 class="section-title">High-Yield Exam Questions</h2>
+            
+            <div class="tabs">
+                <div class="tab active" onclick="switchTab(this, 'foundation')">Foundation (Sem 1-2)</div>
+                <div class="tab" onclick="switchTab(this, 'core')">Core ECE (Sem 3-4)</div>
+                <div class="tab" onclick="switchTab(this, 'advanced')">Advanced (Sem 5-6)</div>
+            </div>
+
+            <!-- Tab: Foundation -->
+            <div class="tab-content active" id="foundation">
+                <div class="q-grid">
+                    <!-- Eng Math -->
+                    <div class="q-card">
+                        <div class="q-header">
+                            <span class="q-tag">Eng Math</span>
+                            <span class="q-marks">10M</span>
+                        </div>
+                        <div class="q-text">State and prove De Moivre's Theorem. Apply it to find the nth roots of unity.</div>
+                        <div class="q-footer">
+                            <button class="practice-btn" onclick="toggleAnswer(this)">Practice / Hint</button>
+                            <button class="bookmark-btn" onclick="toggleBookmark(this, 'De Moivre Theorem')" data-id="q1">⭐</button>
+                        </div>
+                        <div class="answer-drawer">Hint: (cosθ + i sinθ)^n = cos(nθ) + i sin(nθ). For roots, use θ + 2kπ and set n as fraction.</div>
+                    </div>
+                    <div class="q-card">
+                        <div class="q-header"><span class="q-tag">Eng Math</span><span class="q-marks">10M</span></div>
+                        <div class="q-text">Solve a system of linear equations using Cramer's Rule and Matrix Inversion Method.</div>
+                        <div class="q-footer">
+                            <button class="practice-btn" onclick="toggleAnswer(this)">Practice / Hint</button>
+                            <button class="bookmark-btn" onclick="toggleBookmark(this, 'Cramers Rule')" data-id="q2">⭐</button>
+                        </div>
+                        <div class="answer-drawer">Hint: Cramer's: x = Dx/D, y = Dy/D. Inversion: X = A^(-1)B where A^(-1) = adj(A)/|A|.</div>
+                    </div>
+                    <div class="q-card">
+                        <div class="q-header"><span class="q-tag">Eng Physics</span><span class="q-marks">10M</span></div>
+                        <div class="q-text">Explain principle, construction, and working of He-Ne Laser with energy level diagram.</div>
+                        <div class="q-footer">
+                            <button class="practice-btn" onclick="toggleAnswer(this)">Practice / Hint</button>
+                            <button class="bookmark-btn" onclick="toggleBookmark(this, 'He-Ne Laser')" data-id="q3">⭐</button>
+                        </div>
+                        <div class="answer-drawer">Hint: Ratio 10:1 (He:Ne). Excitation of He, energy transfer to Ne via collision, population inversion in Ne, emission at 632.8 nm.</div>
+                    </div>
+                    <div class="q-card">
+                        <div class="q-header"><span class="q-tag">Eng Chem</span><span class="q-marks">10M</span></div>
+                        <div class="q-text">Explain EDTA method for determining total hardness of water with chemical equations.</div>
+                        <div class="q-footer">
+                            <button class="practice-btn" onclick="toggleAnswer(this)">Practice / Hint</button>
+                            <button class="bookmark-btn" onclick="toggleBookmark(this, 'EDTA Hardness')" data-id="q4">⭐</button>
+                        </div>
+                        <div class="answer-drawer">Hint: EBT indicator forms wine red complex with Ca/Mg. Titration with EDTA replaces EBT, turning solution blue. pH ~10 maintained by buffer.</div>
+                    </div>
+                    <div class="q-card">
+                        <div class="q-header"><span class="q-tag">C Prog</span><span class="q-marks">10M</span></div>
+                        <div class="q-text">Write a C program to multiply two 3×3 matrices with input validation.</div>
+                        <div class="q-footer">
+                            <button class="practice-btn" onclick="toggleAnswer(this)">Practice / Hint</button>
+                            <button class="bookmark-btn" onclick="toggleBookmark(this, 'Matrix Multiply C')" data-id="q5">⭐</button>
+                        </div>
+                        <div class="answer-drawer">Hint: Use 3 nested loops (i, j, k). c[i][j] += a[i][k] * b[k][j]. Initialize result matrix to 0.</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab: Core ECE -->
+            <div class="tab-content" id="core">
+                <div class="q-grid">
+                    <div class="q-card">
+                        <div class="q-header"><span class="q-tag">EDC</span><span class="q-marks">10M</span></div>
+                        <div class="q-text">Explain Full Wave Bridge Rectifier. Derive efficiency and ripple factor expressions.</div>
+                        <div class="q-footer">
+                            <button class="practice-btn" onclick="toggleAnswer(this)">Practice / Hint</button>
+                            <button class="bookmark-btn" onclick="toggleBookmark(this, 'Bridge Rectifier')" data-id="q6">⭐</button>
+                        </div>
+                        <div class="answer-drawer">Hint: Uses 4 diodes. Efficiency = 81.2%. Ripple factor = 0.482. Vdc = 2Vm/π.</div>
+                    </div>
+                    <div class="q-card">
+                        <div class="q-header"><span class="q-tag">Elec Tech</span><span class="q-marks">10M</span></div>
+                        <div class="q-text">State and prove Maximum Power Transfer Theorem for AC circuits.</div>
+                        <div class="q-footer">
+                            <button class="practice-btn" onclick="toggleAnswer(this)">Practice / Hint</button>
+                            <button class="bookmark-btn" onclick="toggleBookmark(this, 'Max Power Transfer')" data-id="q7">⭐</button>
+                        </div>
+                        <div class="answer-drawer">Hint: Z_load must be the complex conjugate of Z_thevenin (R_L = R_th, X_L = -X_th). P_max = V_th^2 / 4R_th.</div>
+                    </div>
+                    <div class="q-card">
+                        <div class="q-header"><span class="q-tag">Digital</span><span class="q-marks">10M</span></div>
+                        <div class="q-text">Draw and explain internal architecture of 8085 Microprocessor.</div>
+                        <div class="q-footer">
+                            <button class="practice-btn" onclick="toggleAnswer(this)">Practice / Hint</button>
+                            <button class="bookmark-btn" onclick="toggleBookmark(this, '8085 Arch')" data-id="q8">⭐</button>
+                        </div>
+                        <div class="answer-drawer">Hint: ALU, Accumulator, General purpose registers (B,C,D,E,H,L), Program Counter, Stack Pointer, Instruction Decoder, Timing & Control.</div>
+                    </div>
+                    <div class="q-card">
+                        <div class="q-header"><span class="q-tag">Comm Sys</span><span class="q-marks">10M</span></div>
+                        <div class="q-text">State and prove Sampling Theorem. Explain aliasing and prevention.</div>
+                        <div class="q-footer">
+                            <button class="practice-btn" onclick="toggleAnswer(this)">Practice / Hint</button>
+                            <button class="bookmark-btn" onclick="toggleBookmark(this, 'Sampling Theorem')" data-id="q9">⭐</button>
+                        </div>
+                        <div class="answer-drawer">Hint: fs ≥ 2fm. Aliasing occurs if fs < 2fm, causing spectral overlap. Prevent with anti-aliasing low-pass filter before sampling.</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab: Advanced -->
+            <div class="tab-content" id="advanced">
+                <div class="q-grid">
+                    <div class="q-card">
+                        <div class="q-header"><span class="q-tag">Control Sys</span><span class="q-marks">10M</span></div>
+                        <div class="q-text">Determine stability using Routh-Hurwitz criterion for a given characteristic equation.</div>
+                        <div class="q-footer">
+                            <button class="practice-btn" onclick="toggleAnswer(this)">Practice / Hint</button>
+                            <button class="bookmark-btn" onclick="toggleBookmark(this, 'Routh-Hurwitz')" data-id="q10">⭐</button>
+                        </div>
+                        <div class="answer-drawer">Hint: Form Routh array. System is stable if all elements in the first column have the same sign. Sign changes = roots in RHS.</div>
+                    </div>
+                    <div class="q-card">
+                        <div class="q-header"><span class="q-tag">Power Elec</span><span class="q-marks">10M</span></div>
+                        <div class="q-text">Explain construction, working, V-I characteristics of SCR. Define latching/holding current.</div>
+                        <div class="q-footer">
+                            <button class="practice-btn" onclick="toggleAnswer(this)">Practice / Hint</button>
+                            <button class="bookmark-btn" onclick="toggleBookmark(this, 'SCR Characteristics')" data-id="q11">⭐</button>
+                        </div>
+                        <div class="answer-drawer">Hint: 4-layer PNPN device. 3 junctions. Forward blocking, forward conduction (avalanche at V_BO or via gate pulse), reverse blocking. Latching > Holding.</div>
+                    </div>
+                    <div class="q-card">
+                        <div class="q-header"><span class="q-tag">Power Elec</span><span class="q-marks">10M</span></div>
+                        <div class="q-text">What is a chopper? Explain Step-up and Step-down choppers with output voltage derivations.</div>
+                        <div class="q-footer">
+                            <button class="practice-btn" onclick="toggleAnswer(this)">Practice / Hint</button>
+                            <button class="bookmark-btn" onclick="toggleBookmark(this, 'Choppers')" data-id="q12">⭐</button>
+                        </div>
+                        <div class="answer-drawer">Hint: DC-DC converter. Step-down: Vo = D*Vs. Step-up: Vo = Vs / (1-D). Where D = duty cycle = Ton/T.</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 3: LABS -->
+        <section id="labs">
+            <h2 class="section-title">Lab Experiments & Viva-Voce</h2>
+            
+            <div class="accordion">
+                <div class="acc-header" onclick="toggleAcc(this)">
+                    <h3>🧑💻 C Programming Lab</h3>
+                    <span>▼</span>
+                </div>
+                <div class="acc-content">
+                    <div class="acc-inner" style="display: block;">
+                        <h4 style="color:var(--accent-cyan); margin-bottom: 0.5rem;">Core Experiments:</h4>
+                        <ul class="topic-list" style="margin-bottom: 1.5rem;">
+                            <li>Reverse a string and check palindromes without library functions</li>
+                            <li>Implement sequential and binary search algorithms</li>
+                            <li>Read/write external text file using file pointers</li>
+                        </ul>
+                        <h4 style="color:var(--accent-amber); margin-bottom: 0.5rem;">Viva Questions:</h4>
+                        <div style="background:var(--card-bg); padding:1rem; border-radius:8px; border-left:3px solid var(--accent-amber); margin-bottom:1rem;">
+                            <strong>Q: Difference between structure and union in memory allocation?</strong><br>
+                            <span style="color:var(--text-muted)">A: Structure allocates separate memory for each member. Union allocates memory equal to largest member — all share same location.</span>
+                        </div>
+                        <div style="background:var(--card-bg); padding:1rem; border-radius:8px; border-left:3px solid var(--accent-amber);">
+                            <strong>Q: Why is dangling pointer dangerous and how to avoid it?</strong><br>
+                            <span style="color:var(--text-muted)">A: After free(), pointer still points to deallocated memory. Set pointer = NULL immediately after free().</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="accordion">
+                <div class="acc-header" onclick="toggleAcc(this)">
+                    <h3>🔲 Digital & Microprocessor Lab</h3>
+                    <span>▼</span>
+                </div>
+                <div class="acc-content">
+                    <div class="acc-inner" style="display: block;">
+                        <h4 style="color:var(--accent-cyan); margin-bottom: 0.5rem;">Core Experiments:</h4>
+                        <ul class="topic-list" style="margin-bottom: 1.5rem;">
+                            <li>Verify truth tables for all basic and universal logic gates</li>
+                            <li>Design Half Adder and Full Adder using logic gates</li>
+                            <li>Interface 8255 PPI with 8085 kit to blink LEDs</li>
+                        </ul>
+                        <h4 style="color:var(--accent-amber); margin-bottom: 0.5rem;">Viva Questions:</h4>
+                        <div style="background:var(--card-bg); padding:1rem; border-radius:8px; border-left:3px solid var(--accent-amber); margin-bottom:1rem;">
+                            <strong>Q: Why are NAND and NOR gates called universal gates?</strong><br>
+                            <span style="color:var(--text-muted)">A: Any Boolean function can be implemented using only NAND or only NOR gates.</span>
+                        </div>
+                        <div style="background:var(--card-bg); padding:1rem; border-radius:8px; border-left:3px solid var(--accent-amber);">
+                            <strong>Q: Function of ALE (Address Latch Enable) pin in 8085?</strong><br>
+                            <span style="color:var(--text-muted)">A: ALE goes HIGH to indicate that AD0–AD7 carry lower 8 bits of address, allowing external latch to save it.</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="accordion">
+                <div class="acc-header" onclick="toggleAcc(this)">
+                    <h3>📡 Communication System Lab</h3>
+                    <span>▼</span>
+                </div>
+                <div class="acc-content">
+                    <div class="acc-inner" style="display: block;">
+                        <h4 style="color:var(--accent-cyan); margin-bottom: 0.5rem;">Core Experiments:</h4>
+                        <ul class="topic-list" style="margin-bottom: 1.5rem;">
+                            <li>Observe and calculate modulation index of AM signal using Oscilloscope</li>
+                            <li>Generate and demodulate FM signal using ICs</li>
+                            <li>Study PAM and PWM signal generation</li>
+                        </ul>
+                        <h4 style="color:var(--accent-amber); margin-bottom: 0.5rem;">Viva Questions:</h4>
+                        <div style="background:var(--card-bg); padding:1rem; border-radius:8px; border-left:3px solid var(--accent-amber); margin-bottom:1rem;">
+                            <strong>Q: What happens if AM modulation index exceeds 1 (overmodulation)?</strong><br>
+                            <span style="color:var(--text-muted)">A: Causes envelope distortion and clipping of carrier, leading to bandwidth spreading and severe distortion at receiver.</span>
+                        </div>
+                        <div style="background:var(--card-bg); padding:1rem; border-radius:8px; border-left:3px solid var(--accent-amber);">
+                            <strong>Q: Standard Intermediate Frequency for AM and FM receivers?</strong><br>
+                            <span style="color:var(--text-muted)">A: AM IF = 455 kHz. FM IF = 10.7 MHz.</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="accordion">
+                <div class="acc-header" onclick="toggleAcc(this)">
+                    <h3>⚙️ Control System Lab & ⚡ Power Electronics Lab</h3>
+                    <span>▼</span>
+                </div>
+                <div class="acc-content">
+                    <div class="acc-inner" style="display: block;">
+                        <h4 style="color:var(--accent-cyan); margin-bottom: 0.5rem;">Control Systems Viva:</h4>
+                        <div style="background:var(--card-bg); padding:1rem; border-radius:8px; border-left:3px solid var(--accent-amber); margin-bottom:1rem;">
+                            <strong>Q: Physical significance of damping ratio in second-order system?</strong><br>
+                            <span style="color:var(--text-muted)">A: Determines response shape. ζ=0: undamped. 0&lt;ζ&lt;1: underdamped. ζ=1: critically damped. ζ&gt;1: overdamped.</span>
+                        </div>
+                        <h4 style="color:var(--accent-cyan); margin-bottom: 0.5rem; margin-top: 1.5rem;">Power Electronics Viva:</h4>
+                        <div style="background:var(--card-bg); padding:1rem; border-radius:8px; border-left:3px solid var(--accent-amber); margin-bottom:1rem;">
+                            <strong>Q: Methods to turn off (commutate) an SCR?</strong><br>
+                            <span style="color:var(--text-muted)">A: Natural Commutation (AC reversal) and Forced Commutation (LC circuits, Class A-D).</span>
+                        </div>
+                        <div style="background:var(--card-bg); padding:1rem; border-radius:8px; border-left:3px solid var(--accent-amber);">
+                            <strong>Q: Why is DIAC connected to TRIAC gate in dimmer circuits?</strong><br>
+                            <span style="color:var(--text-muted)">A: DIAC provides a sharp triggering pulse regardless of polarity, ensuring symmetrical firing in both half cycles.</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 4: FORMULAS -->
+        <section id="formulas">
+            <h2 class="section-title">Key Formulas Quick Reference</h2>
+            <div class="formula-grid">
+                <div class="formula-card">
+                    v(t) = A<sub>c</sub>[1 + m·cos(ω<sub>m</sub>t)]·cos(ω<sub>c</sub>t)
+                    <div class="formula-desc">AM Wave Equation (m = modulation index)</div>
+                </div>
+                <div class="formula-card">
+                    P<sub>T</sub> = P<sub>c</sub>[1 + m²/2]
+                    <div class="formula-desc">AM Total Power</div>
+                </div>
+                <div class="formula-card">
+                    η = P<sub>dc</sub> / P<sub>ac</sub> = 81.2%
+                    <div class="formula-desc">Full-Wave Rectifier Efficiency</div>
+                </div>
+                <div class="formula-card">
+                    γ = √[(V<sub>rms</sub>/V<sub>dc</sub>)² - 1] = 0.482
+                    <div class="formula-desc">Full-Wave Ripple Factor</div>
+                </div>
+                <div class="formula-card">
+                    L{f(t)} = ∫₀^∞ f(t)e<sup>-st</sup>dt
+                    <div class="formula-desc">Laplace Transform</div>
+                </div>
+                <div class="formula-card">
+                    dB = μ₀I·dl×r̂ / (4π·r²)
+                    <div class="formula-desc">Biot-Savart Law</div>
+                </div>
+                <div class="formula-card">
+                    G(s) = C(s)/R(s)
+                    <div class="formula-desc">Transfer Function</div>
+                </div>
+                <div class="formula-card">
+                    Hardness = (V_EDTA × M × 100000) / V_sample
+                    <div class="formula-desc">Water Hardness (ppm)</div>
+                </div>
+                <div class="formula-card">
+                    (cosθ + i·sinθ)<sup>n</sup> = cos(nθ) + i·sin(nθ)
+                    <div class="formula-desc">De Moivre's Theorem</div>
+                </div>
+                <div class="formula-card">
+                    NA = √(n₁² - n₂²)
+                    <div class="formula-desc">Numerical Aperture</div>
+                </div>
+            </div>
+        </section>
+        
+        <footer style="text-align: center; padding: 2rem; color: var(--text-muted); border-top: 1px solid var(--card-border); margin-top: 4rem;">
+            <p>JUT ECE Complete Study Portal &copy; 2026</p>
+        </footer>
+    </main>
+
+    <script>
+        // Smooth scroll for nav links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+
+        // Scroll Progress Bar
+        window.addEventListener('scroll', () => {
+            const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+            const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+            const scrolled = (winScroll / height) * 100;
+            document.getElementById('scroll-progress').style.width = scrolled + '%';
+        });
+
+        // Theme Toggle
+        function toggleTheme() {
+            const body = document.body;
+            if(body.getAttribute('data-theme') === 'light') {
+                body.removeAttribute('data-theme');
+                localStorage.setItem('theme', 'dark');
+            } else {
+                body.setAttribute('data-theme', 'light');
+                localStorage.setItem('theme', 'light');
+            }
+        }
+        if(localStorage.getItem('theme') === 'light') document.body.setAttribute('data-theme', 'light');
+        
+        // Keyboard shortcut for theme
+        document.addEventListener('keydown', (e) => {
+            if(e.key.toLowerCase() === 't' && e.target.tagName !== 'INPUT') {
+                toggleTheme();
+            }
+        });
+
+        // Accordion Toggle
+        function toggleAcc(el) {
+            const content = el.nextElementSibling;
+            const icon = el.querySelector('span');
+            if (content.style.maxHeight) {
+                content.style.maxHeight = null;
+                icon.textContent = '▼';
+            } else {
+                content.style.maxHeight = content.scrollHeight + "px";
+                icon.textContent = '▲';
+            }
+        }
+
+        // Tab Switching
+        function switchTab(el, targetId) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            el.classList.add('active');
+            document.getElementById(targetId).classList.add('active');
+        }
+
+        // Drawer Toggle
+        function toggleAnswer(btn) {
+            const drawer = btn.parentElement.nextElementSibling;
+            drawer.classList.toggle('open');
+        }
+
+        // Exam Mode
+        function toggleExamMode() {
+            document.body.classList.toggle('exam-mode-active');
+            const btn = document.getElementById('exam-toggle');
+            if(document.body.classList.contains('exam-mode-active')) {
+                btn.style.color = 'var(--accent-red)';
+                alert("Exam Mode Activated: Answers and hints hidden.");
+            } else {
+                btn.style.color = '';
+            }
+        }
+
+        // Filtering Semesters
+        function filterSem(sem) {
+            document.querySelectorAll('.filter-pill').forEach(p => p.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            document.querySelectorAll('.sem-block').forEach(block => {
+                if(sem === 'all' || block.getAttribute('data-sem') === sem) {
+                    block.style.display = 'block';
+                } else {
+                    block.style.display = 'none';
+                }
+            });
+        }
+
+        // Live Search
+        function syncSearch(val) {
+            document.getElementById('main-search').value = val;
+            handleSearch(val);
+        }
+
+        function handleSearch(query) {
+            query = query.toLowerCase();
+            
+            // Search syllabus topics
+            document.querySelectorAll('.topic-list li').forEach(li => {
+                const text = li.textContent.toLowerCase();
+                if(text.includes(query) && query !== '') {
+                    li.classList.add('match');
+                    // auto open accordion
+                    let accContent = li.closest('.acc-content');
+                    if(accContent && !accContent.style.maxHeight) {
+                        accContent.style.maxHeight = accContent.scrollHeight + "px";
+                        accContent.previousElementSibling.querySelector('span').textContent = '▲';
+                    }
+                } else {
+                    li.classList.remove('match');
+                }
+                
+                if(query === '') return;
+                
+                // Dim non-matching subject cards slightly
+                let card = li.closest('.subject-card');
+                if(card) {
+                    let hasMatch = Array.from(card.querySelectorAll('li')).some(l => l.textContent.toLowerCase().includes(query));
+                    card.style.opacity = hasMatch ? '1' : '0.3';
+                }
+            });
+            if(query === '') {
+                document.querySelectorAll('.subject-card').forEach(c => c.style.opacity = '1');
+            }
+
+            // Search Questions
+            document.querySelectorAll('.q-card').forEach(card => {
+                const text = card.textContent.toLowerCase();
+                if(text.includes(query)) {
+                    card.style.display = 'flex';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+
+        // Progress Tracking
+        function updateProgress() {
+            const checkboxes = document.querySelectorAll('.checkbox');
+            let checked = 0;
+            const progressData = {};
+            
+            checkboxes.forEach(cb => {
+                if(cb.checked) checked++;
+                progressData[cb.getAttribute('data-id')] = cb.checked;
+            });
+            
+            const total = checkboxes.length;
+            const percentage = total === 0 ? 0 : Math.round((checked / total) * 100);
+            
+            document.getElementById('progress-text').textContent = percentage + '%';
+            document.getElementById('progress-bar').style.width = percentage + '%';
+            
+            localStorage.setItem('jut_progress', JSON.stringify(progressData));
+        }
+
+        // Bookmarks
+        let bookmarks = JSON.parse(localStorage.getItem('jut_bookmarks')) || {};
+
+        function toggleBookmark(btn, title) {
+            const id = btn.getAttribute('data-id');
+            if(bookmarks[id]) {
+                delete bookmarks[id];
+                btn.classList.remove('saved');
+            } else {
+                bookmarks[id] = title;
+                btn.classList.add('saved');
+            }
+            localStorage.setItem('jut_bookmarks', JSON.stringify(bookmarks));
+            renderBookmarks();
+        }
+
+        function renderBookmarks() {
+            const list = document.getElementById('bm-list');
+            list.innerHTML = '';
+            const keys = Object.keys(bookmarks);
+            document.getElementById('bm-count').textContent = keys.length;
+            
+            keys.forEach(id => {
+                const a = document.createElement('a');
+                a.href = '#questions';
+                a.textContent = '⭐ ' + bookmarks[id];
+                list.appendChild(a);
+            });
+
+            // Sync button states
+            document.querySelectorAll('.bookmark-btn').forEach(btn => {
+                const id = btn.getAttribute('data-id');
+                if(bookmarks[id]) {
+                    btn.classList.add('saved');
+                } else {
+                    btn.classList.remove('saved');
+                }
+            });
+        }
+
+        // Init on load
+        window.onload = () => {
+            // Load Progress
+            const savedProgress = JSON.parse(localStorage.getItem('jut_progress'));
+            if(savedProgress) {
+                document.querySelectorAll('.checkbox').forEach(cb => {
+                    if(savedProgress[cb.getAttribute('data-id')]) {
+                        cb.checked = true;
+                    }
+                });
+            }
+            updateProgress();
+            
+            // Load Bookmarks
+            renderBookmarks();
+        };
+
+        function toggleSyllabusNav() {
+          const m = document.getElementById('mob-menu');
+          m.style.display = m.style.display === 'flex' ? 'none' : 'flex';
+        }
+        if (window.innerWidth <= 768) {
+          const h = document.getElementById('mob-ham');
+          if(h) h.style.display = 'block';
+        }
+    </script>
+<!-- Mobile floating progress button -->
+<div id="mobile-progress-fab" style="
+  display:none;position:fixed;bottom:20px;right:16px;z-index:500;
+  background:linear-gradient(135deg,rgba(0,212,255,.2),rgba(168,85,247,.2));
+  border:1px solid rgba(0,212,255,.4);border-radius:50px;
+  padding:10px 16px;backdrop-filter:blur(12px);
+  font-family:'JetBrains Mono',monospace;font-size:10px;color:#00d4ff;
+  box-shadow:0 4px 20px rgba(0,0,0,.4);
+  cursor:pointer;align-items:center;gap:8px;"
+  onclick="document.querySelector('.sidebar, #sidebar, [id*=sidebar], aside') && (document.querySelector('.sidebar, #sidebar, aside').style.display = 'block')">
+  📊 <span id="fab-progress-text">Progress</span>
+</div>
+<script src="gemini-chat.js"></script>
+</body>
+</html>

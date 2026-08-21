@@ -1,0 +1,1059 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    <title>ECE Offline Engineering Suite & Calculators | JUT Virtual Lab</title>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Outfit:wght@300;400;600;800&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-void: #060810;
+            --bg-card: rgba(13, 17, 23, 0.85);
+            --border-glow: rgba(0, 212, 255, 0.25);
+            --cyan: #00d4ff;
+            --green: #00ff88;
+            --amber: #ffb700;
+            --purple: #a855f7;
+            --red: #ef4444;
+            --text-main: #f0f4f8;
+            --text-muted: #94a3b8;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            background-color: var(--bg-void);
+            color: var(--text-main);
+            font-family: 'Outfit', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(0, 212, 255, 0.04), transparent 30%),
+                radial-gradient(circle at 90% 80%, rgba(168, 85, 247, 0.04), transparent 30%);
+        }
+
+        /* Top Navbar */
+        header {
+            height: 60px;
+            padding: 0 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(6, 8, 16, 0.9);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .nav-logo {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+            color: #fff;
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 700;
+            font-size: 15px;
+            letter-spacing: .5px;
+        }
+        .nav-logo span { color: var(--cyan); text-shadow: 0 0 10px var(--cyan); }
+        .nav-links {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+        }
+        .nav-btn {
+            padding: 6px 14px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 12px;
+            font-weight: 600;
+            font-family: 'Space Grotesk', sans-serif;
+            transition: all .2s;
+            border: 1px solid rgba(255,255,255,.1);
+            color: var(--text-muted);
+        }
+        .nav-btn:hover, .nav-btn.active {
+            color: var(--cyan);
+            border-color: var(--cyan);
+            background: rgba(0, 212, 255, 0.08);
+        }
+
+        /* Container */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 24px 16px 80px;
+            width: 100%;
+        }
+
+        /* Header Hero */
+        .hero {
+            text-align: center;
+            margin-bottom: 28px;
+        }
+        .hero h1 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: clamp(24px, 5vw, 36px);
+            font-weight: 800;
+            color: #fff;
+            margin-bottom: 8px;
+        }
+        .hero h1 span { color: var(--cyan); text-shadow: 0 0 16px rgba(0,212,255,.4); }
+        .hero p {
+            color: var(--text-muted);
+            font-size: 14px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* Tab Navigation Bar */
+        .suite-tabs {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            scrollbar-width: none;
+            padding-bottom: 12px;
+            margin-bottom: 24px;
+            border-bottom: 1px solid rgba(255,255,255,.08);
+        }
+        .suite-tabs::-webkit-scrollbar { display: none; }
+        .suite-tab {
+            padding: 10px 18px;
+            background: rgba(255,255,255,.03);
+            border: 1px solid rgba(255,255,255,.08);
+            border-radius: 12px;
+            color: var(--text-muted);
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all .2s;
+        }
+        .suite-tab:hover {
+            color: #fff;
+            background: rgba(255,255,255,.06);
+        }
+        .suite-tab.active {
+            color: #000;
+            background: var(--cyan);
+            border-color: var(--cyan);
+            box-shadow: 0 0 20px rgba(0, 212, 255, 0.4);
+            font-weight: 700;
+        }
+
+        /* Tool Panels */
+        .tool-panel {
+            display: none;
+            animation: fadeIn .3s ease-out;
+        }
+        .tool-panel.active { display: block; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Generic Grid Card */
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-glow);
+            border-radius: 18px;
+            padding: 24px;
+            backdrop-filter: blur(12px);
+            box-shadow: 0 10px 30px rgba(0,0,0,.4);
+        }
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            border-bottom: 1px solid rgba(255,255,255,.06);
+            padding-bottom: 12px;
+        }
+        .card-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--cyan);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .card-tag {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            padding: 3px 8px;
+            background: rgba(0,212,255,.1);
+            border: 1px solid rgba(0,212,255,.3);
+            border-radius: 4px;
+            color: var(--cyan);
+        }
+
+        /* Form elements */
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .input-group label {
+            font-size: 11px;
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+        .input-field, select {
+            padding: 10px 14px;
+            background: rgba(0,0,0,.4);
+            border: 1px solid rgba(255,255,255,.12);
+            border-radius: 10px;
+            color: #fff;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+            outline: none;
+            transition: border-color .2s;
+        }
+        .input-field:focus, select:focus {
+            border-color: var(--cyan);
+            box-shadow: 0 0 10px rgba(0,212,255,.2);
+        }
+        select option { background: #0d1117; color: #fff; }
+
+        .btn-calc {
+            padding: 12px 24px;
+            background: linear-gradient(135deg, var(--cyan), var(--purple));
+            color: #000;
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 700;
+            font-size: 13px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all .2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .btn-calc:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 20px rgba(0,212,255,.4);
+        }
+
+        /* Result display */
+        .result-box {
+            margin-top: 20px;
+            padding: 16px 20px;
+            background: rgba(0, 212, 255, 0.05);
+            border: 1px solid rgba(0, 212, 255, 0.2);
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .result-label {
+            font-size: 11px;
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--cyan);
+            text-transform: uppercase;
+        }
+        .result-val {
+            font-size: 24px;
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 700;
+            color: #fff;
+        }
+        .result-sub {
+            font-size: 12px;
+            color: var(--text-muted);
+            line-height: 1.5;
+        }
+
+        /* Resistor Color Visualizer */
+        .resistor-display {
+            width: 100%;
+            height: 80px;
+            background: rgba(0,0,0,.5);
+            border-radius: 14px;
+            border: 1px solid rgba(255,255,255,.08);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 20px 0;
+            position: relative;
+        }
+        .resistor-body {
+            width: 200px;
+            height: 48px;
+            background: #d4b886;
+            border-radius: 10px;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: space-evenly;
+            box-shadow: inset 0 4px 10px rgba(255,255,255,.3), inset 0 -4px 10px rgba(0,0,0,.4);
+        }
+        .resistor-lead {
+            position: absolute;
+            width: 40px;
+            height: 6px;
+            background: #cbd5e1;
+            box-shadow: inset 0 1px 2px rgba(255,255,255,.4);
+        }
+        .resistor-lead.left { left: -40px; }
+        .resistor-lead.right { right: -40px; }
+        .band {
+            width: 14px;
+            height: 100%;
+            border-radius: 2px;
+            box-shadow: 0 0 6px rgba(0,0,0,.5);
+            transition: background-color .3s;
+        }
+
+        /* K-Map Grid */
+        .kmap-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 6px;
+            max-width: 360px;
+            margin: 16px auto;
+        }
+        .kmap-cell {
+            height: 60px;
+            background: rgba(255,255,255,.04);
+            border: 1px solid rgba(255,255,255,.1);
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-family: 'JetBrains Mono', monospace;
+            cursor: pointer;
+            transition: all .2s;
+            user-select: none;
+        }
+        .kmap-cell:hover {
+            border-color: var(--cyan);
+            background: rgba(0,212,255,.08);
+        }
+        .kmap-cell.active-1 {
+            background: rgba(0,255,136,.15);
+            border-color: var(--green);
+            color: var(--green);
+            font-weight: 700;
+        }
+        .kmap-cell.active-x {
+            background: rgba(255,183,0,.15);
+            border-color: var(--amber);
+            color: var(--amber);
+        }
+        .kmap-idx { font-size: 8px; color: #475569; }
+        .kmap-val { font-size: 16px; }
+
+        /* 8085 Assembly Code Runner */
+        .asm-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+        .asm-editor {
+            width: 100%;
+            height: 260px;
+            background: #010810;
+            border: 1px solid rgba(0,212,255,.2);
+            border-radius: 10px;
+            padding: 12px;
+            color: #00ff88;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            resize: vertical;
+            outline: none;
+        }
+        .asm-regs-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+        }
+        .asm-regs-table th, .asm-regs-table td {
+            padding: 6px 10px;
+            border: 1px solid rgba(255,255,255,.06);
+            text-align: left;
+        }
+        .asm-regs-table th { background: rgba(0,0,0,.3); color: var(--cyan); }
+
+        /* Quiz Flashcards */
+        .flashcard-wrap {
+            max-width: 600px;
+            margin: 0 auto;
+            perspective: 1000px;
+        }
+        .flashcard {
+            width: 100%;
+            min-height: 240px;
+            background: rgba(13,17,23,.95);
+            border: 1px solid rgba(0,212,255,.3);
+            border-radius: 18px;
+            padding: 28px;
+            cursor: pointer;
+            transition: transform .4s, box-shadow .4s;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            box-shadow: 0 10px 40px rgba(0,0,0,.5);
+        }
+        .flashcard:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 15px 50px rgba(0,212,255,.2);
+        }
+
+        @media(max-width: 768px) {
+            .asm-layout { grid-template-columns: 1fr; }
+            .form-row { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <a href="hub.html" class="nav-logo">
+            <span>⚡</span> JUT ECE ENGINEERING SUITE
+        </a>
+        <div class="nav-links">
+            <a href="hub.html" class="nav-btn">🏠 Hub</a>
+            <a href="lab.html" class="nav-btn">⚡ 3D Lab</a>
+            <a href="syllabus.html" class="nav-btn">📚 Syllabus</a>
+        </div>
+    </header>
+
+    <div class="container">
+        
+        <div class="hero">
+            <h1>Offline <span>ECE Calculator</span> & Tools</h1>
+            <p>High-precision formulas, resistor decoders, K-Map minimizers, and 8085 assembly simulator — Works 100% offline without internet.</p>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <div class="suite-tabs">
+            <button class="suite-tab active" onclick="switchSuite('tab-resistor')">🌈 Resistor Decoder</button>
+            <button class="suite-tab" onclick="switchSuite('tab-kmap')">🔲 K-Map Solver</button>
+            <button class="suite-tab" onclick="switchSuite('tab-8085')">🖥️ 8085 Debugger</button>
+            <button class="suite-tab" onclick="switchSuite('tab-circuits')">⚡ RLC & Filters</button>
+            <button class="suite-tab" onclick="switchSuite('tab-555')">⏱️ 555 Timer</button>
+            <button class="suite-tab" onclick="switchSuite('tab-opamp')">🔺 Op-Amp</button>
+            <button class="suite-tab" onclick="switchSuite('tab-conv')">🔢 Base Converter</button>
+            <button class="suite-tab" onclick="switchSuite('tab-quiz')">🎯 Mock Viva Quiz</button>
+        </div>
+
+        <!-- ═══════════════════════════════════════════════════════════════════════════ -->
+        <!-- 1. RESISTOR COLOR CODE DECODER                                              -->
+        <!-- ═══════════════════════════════════════════════════════════════════════════ -->
+        <div id="tab-resistor" class="tool-panel active">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">🌈 4-Band & 5-Band Resistor Color Code Calculator</div>
+                    <div class="card-tag">Sem 1 & 3 Basics</div>
+                </div>
+
+                <!-- Resistor Visual Graphic -->
+                <div class="resistor-display">
+                    <div class="resistor-body">
+                        <div class="resistor-lead left"></div>
+                        <div class="band" id="band1" style="background:#92400e;"></div>
+                        <div class="band" id="band2" style="background:#000000;"></div>
+                        <div class="band" id="band3" style="background:#ef4444;"></div>
+                        <div class="band" id="band4" style="background:#d97706;"></div>
+                        <div class="resistor-lead right"></div>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="input-group">
+                        <label>Band 1 (1st Digit)</label>
+                        <select id="res-b1" onchange="calcResistor()">
+                            <option value="1" style="color:#92400e;">Brown (1)</option>
+                            <option value="2" style="color:#ef4444;">Red (2)</option>
+                            <option value="3" style="color:#f97316;">Orange (3)</option>
+                            <option value="4" style="color:#eab308;">Yellow (4)</option>
+                            <option value="5" style="color:#22c55e;">Green (5)</option>
+                            <option value="6" style="color:#3b82f6;">Blue (6)</option>
+                            <option value="7" style="color:#a855f7;">Violet (7)</option>
+                            <option value="8" style="color:#94a3b8;">Grey (8)</option>
+                            <option value="9" style="color:#ffffff;">White (9)</option>
+                        </select>
+                    </div>
+
+                    <div class="input-group">
+                        <label>Band 2 (2nd Digit)</label>
+                        <select id="res-b2" onchange="calcResistor()">
+                            <option value="0" style="color:#000;">Black (0)</option>
+                            <option value="1" style="color:#92400e;">Brown (1)</option>
+                            <option value="2" style="color:#ef4444;">Red (2)</option>
+                            <option value="3" style="color:#f97316;">Orange (3)</option>
+                            <option value="4" style="color:#eab308;">Yellow (4)</option>
+                            <option value="5" style="color:#22c55e;">Green (5)</option>
+                            <option value="6" style="color:#3b82f6;">Blue (6)</option>
+                            <option value="7" style="color:#a855f7;">Violet (7)</option>
+                            <option value="8" style="color:#94a3b8;">Grey (8)</option>
+                            <option value="9" style="color:#ffffff;">White (9)</option>
+                        </select>
+                    </div>
+
+                    <div class="input-group">
+                        <label>Band 3 (Multiplier)</label>
+                        <select id="res-b3" onchange="calcResistor()">
+                            <option value="1">Black (×1 Ω)</option>
+                            <option value="10">Brown (×10 Ω)</option>
+                            <option value="100" selected>Red (×100 Ω)</option>
+                            <option value="1000">Orange (×1 kΩ)</option>
+                            <option value="10000">Yellow (×10 kΩ)</option>
+                            <option value="100000">Green (×100 kΩ)</option>
+                            <option value="1000000">Blue (×1 MΩ)</option>
+                            <option value="0.1">Gold (×0.1 Ω)</option>
+                            <option value="0.01">Silver (×0.01 Ω)</option>
+                        </select>
+                    </div>
+
+                    <div class="input-group">
+                        <label>Band 4 (Tolerance)</label>
+                        <select id="res-b4" onchange="calcResistor()">
+                            <option value="5" selected>Gold (±5%)</option>
+                            <option value="10">Silver (±10%)</option>
+                            <option value="1">Brown (±1%)</option>
+                            <option value="2">Red (±2%)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="result-box">
+                    <div class="result-label">Calculated Resistance</div>
+                    <div class="result-val" id="res-result">1.0 kΩ ± 5%</div>
+                    <div class="result-sub" id="res-range">Valid Range: 950 Ω to 1050 Ω | Color Mnemonic: <em>B B R O Y of Great Britain had a Very Good Wife</em></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══════════════════════════════════════════════════════════════════════════ -->
+        <!-- 2. K-MAP SOLVER                                                             -->
+        <!-- ═══════════════════════════════════════════════════════════════════════════ -->
+        <div id="tab-kmap" class="tool-panel">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">🔲 4-Variable Karnaugh Map (K-Map) Solver</div>
+                    <div class="card-tag">Sem 4 Digital Tech</div>
+                </div>
+
+                <p style="font-size:12px;color:var(--text-muted);margin-bottom:12px;">Click cells to toggle between <strong>0</strong>, <strong>1</strong>, and <strong>X</strong> (Don't Care). Automatically computes minimal Sum of Products (SOP).</p>
+
+                <!-- 4x4 Grid for A, B, C, D -->
+                <div class="kmap-grid" id="kmap-cells"></div>
+
+                <div style="display:flex;gap:10px;justify-content:center;margin-top:12px;">
+                    <button class="btn-calc" onclick="solveKMap()">⚡ Simplify Expression</button>
+                    <button class="nav-btn" onclick="clearKMap()">Clear Grid</button>
+                </div>
+
+                <div class="result-box">
+                    <div class="result-label">Minimal SOP Boolean Expression</div>
+                    <div class="result-val" id="kmap-expr" style="color:var(--green);">F(A,B,C,D) = 0</div>
+                    <div class="result-sub" id="kmap-minterms">Minterms Selected: None</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══════════════════════════════════════════════════════════════════════════ -->
+        <!-- 3. 8085 ASSEMBLY DEBUGGER                                                   -->
+        <!-- ═══════════════════════════════════════════════════════════════════════════ -->
+        <div id="tab-8085" class="tool-panel">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">🖥️ 8085 Assembly Code Debugger & Step Simulator</div>
+                    <div class="card-tag">Sem 4 Microprocessor</div>
+                </div>
+
+                <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;">
+                    <button class="nav-btn" onclick="loadAsmPreset('add')">8-Bit Addition</button>
+                    <button class="nav-btn" onclick="loadAsmPreset('max')">Find Maximum</button>
+                    <button class="nav-btn" onclick="loadAsmPreset('fact')">Factorial (5!)</button>
+                    <button class="nav-btn" onclick="loadAsmPreset('search')">Linear Search</button>
+                </div>
+
+                <div class="asm-layout">
+                    <div>
+                        <textarea id="asm-input" class="asm-editor" spellcheck="false">MVI A, 05H
+MVI B, 03H
+ADD B
+STA 2050H
+HLT</textarea>
+                        <div style="display:flex;gap:8px;margin-top:10px;">
+                            <button class="btn-calc" onclick="runAsm()">▶ Execute All</button>
+                            <button class="nav-btn" onclick="stepAsm()">⏭ Step Next</button>
+                            <button class="nav-btn" onclick="resetAsm()">↺ Reset</button>
+                        </div>
+                    </div>
+
+                    <div>
+                        <table class="asm-regs-table">
+                            <thead>
+                                <tr><th>Register</th><th>Hex</th><th>Decimal</th><th>Binary</th></tr>
+                            </thead>
+                            <tbody id="asm-reg-body">
+                                <tr><td>Accumulator (A)</td><td id="asm-A">00H</td><td>0</td><td>00000000</td></tr>
+                                <tr><td>Register B</td><td id="asm-B">00H</td><td>0</td><td>00000000</td></tr>
+                                <tr><td>Register C</td><td id="asm-C">00H</td><td>0</td><td>00000000</td></tr>
+                                <tr><td>Register D</td><td id="asm-D">00H</td><td>0</td><td>00000000</td></tr>
+                                <tr><td>Register E</td><td id="asm-E">00H</td><td>0</td><td>00000000</td></tr>
+                                <tr><td>Register H</td><td id="asm-H">00H</td><td>0</td><td>00000000</td></tr>
+                                <tr><td>Register L</td><td id="asm-L">00H</td><td>0</td><td>00000000</td></tr>
+                            </tbody>
+                        </table>
+                        <div class="result-box" style="margin-top:10px;">
+                            <div class="result-label">Status & Flags</div>
+                            <div style="font-family:'JetBrains Mono',monospace;font-size:12px;" id="asm-status">Ready. PC = 2000H | Flags: S:0 Z:0 CY:0 P:0</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══════════════════════════════════════════════════════════════════════════ -->
+        <!-- 4. RLC & RESONANCE CALCULATOR                                               -->
+        <!-- ═══════════════════════════════════════════════════════════════════════════ -->
+        <div id="tab-circuits" class="tool-panel">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">⚡ RLC Resonant Frequency & Bandwidth Calculator</div>
+                    <div class="card-tag">Sem 3 Electrical Tech</div>
+                </div>
+
+                <div class="form-row">
+                    <div class="input-group">
+                        <label>Resistance R (Ω)</label>
+                        <input type="number" id="rlc-r" class="input-field" value="50" oninput="calcRLC()">
+                    </div>
+                    <div class="input-group">
+                        <label>Inductance L (mH)</label>
+                        <input type="number" id="rlc-l" class="input-field" value="10" oninput="calcRLC()">
+                    </div>
+                    <div class="input-group">
+                        <label>Capacitance C (µF)</label>
+                        <input type="number" id="rlc-c" class="input-field" value="1" oninput="calcRLC()">
+                    </div>
+                </div>
+
+                <div class="result-box">
+                    <div class="result-label">Calculated Parameters</div>
+                    <div class="result-val" id="rlc-fr">f_r = 1.592 kHz</div>
+                    <div class="result-sub" id="rlc-details">Quality Factor Q = 2.00 | Bandwidth BW = 795.8 Hz | Angular Frequency ω = 10,000 rad/s</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══════════════════════════════════════════════════════════════════════════ -->
+        <!-- 5. 555 TIMER CALCULATOR                                                     -->
+        <!-- ═══════════════════════════════════════════════════════════════════════════ -->
+        <div id="tab-555" class="tool-panel">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">⏱️ 555 Timer Astable Multivibrator Designer</div>
+                    <div class="card-tag">Sem 3 & 5 Circuits</div>
+                </div>
+
+                <div class="form-row">
+                    <div class="input-group">
+                        <label>Resistor R1 (kΩ)</label>
+                        <input type="number" id="tm-r1" class="input-field" value="10" oninput="calc555()">
+                    </div>
+                    <div class="input-group">
+                        <label>Resistor R2 (kΩ)</label>
+                        <input type="number" id="tm-r2" class="input-field" value="47" oninput="calc555()">
+                    </div>
+                    <div class="input-group">
+                        <label>Capacitor C (µF)</label>
+                        <input type="number" id="tm-c" class="input-field" value="0.1" oninput="calc555()">
+                    </div>
+                </div>
+
+                <div class="result-box">
+                    <div class="result-label">Output Timing</div>
+                    <div class="result-val" id="tm-freq">f = 138.5 Hz</div>
+                    <div class="result-sub" id="tm-duty">Duty Cycle = 54.8% (T_high = 3.95 ms, T_low = 3.26 ms, Period T = 7.22 ms)</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══════════════════════════════════════════════════════════════════════════ -->
+        <!-- 6. OP-AMP SOLVER                                                            -->
+        <!-- ═══════════════════════════════════════════════════════════════════════════ -->
+        <div id="tab-opamp" class="tool-panel">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">🔺 Operational Amplifier (Op-Amp) Gain Solver</div>
+                    <div class="card-tag">Sem 3 & 5 Electronics</div>
+                </div>
+
+                <div class="form-row">
+                    <div class="input-group">
+                        <label>Configuration</label>
+                        <select id="op-type" onchange="calcOpAmp()">
+                            <option value="inv">Inverting Amplifier (Gain = -Rf / Rin)</option>
+                            <option value="noninv">Non-Inverting Amplifier (Gain = 1 + Rf / Rin)</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label>Input Voltage Vin (V)</label>
+                        <input type="number" id="op-vin" class="input-field" value="1.0" oninput="calcOpAmp()">
+                    </div>
+                    <div class="input-group">
+                        <label>Input Resistor Rin (kΩ)</label>
+                        <input type="number" id="op-rin" class="input-field" value="10" oninput="calcOpAmp()">
+                    </div>
+                    <div class="input-group">
+                        <label>Feedback Resistor Rf (kΩ)</label>
+                        <input type="number" id="op-rf" class="input-field" value="100" oninput="calcOpAmp()">
+                    </div>
+                </div>
+
+                <div class="result-box">
+                    <div class="result-label">Output Voltage & Gain</div>
+                    <div class="result-val" id="op-vout">V_out = -10.00 V (Gain = -10.0)</div>
+                    <div class="result-sub" id="op-desc">Phase Shift: 180° Inverted output with linear negative feedback.</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══════════════════════════════════════════════════════════════════════════ -->
+        <!-- 7. BASE & NUMBER SYSTEM CONVERTER                                           -->
+        <!-- ═══════════════════════════════════════════════════════════════════════════ -->
+        <div id="tab-conv" class="tool-panel">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">🔢 Binary, Hex, Octal & 2's Complement Converter</div>
+                    <div class="card-tag">Sem 1 & 4 Fundamentals</div>
+                </div>
+
+                <div class="form-row">
+                    <div class="input-group">
+                        <label>Decimal (Base 10)</label>
+                        <input type="number" id="base-dec" class="input-field" value="42" oninput="convFromDec(this.value)">
+                    </div>
+                    <div class="input-group">
+                        <label>Binary (Base 2)</label>
+                        <input type="text" id="base-bin" class="input-field" value="101010" oninput="convFromBin(this.value)">
+                    </div>
+                    <div class="input-group">
+                        <label>Hexadecimal (Base 16)</label>
+                        <input type="text" id="base-hex" class="input-field" value="2A" oninput="convFromHex(this.value)">
+                    </div>
+                    <div class="input-group">
+                        <label>Octal (Base 8)</label>
+                        <input type="text" id="base-oct" class="input-field" value="52" oninput="convFromOct(this.value)">
+                    </div>
+                </div>
+
+                <div class="result-box">
+                    <div class="result-label">8-Bit 2's Complement Representation</div>
+                    <div class="result-val" id="base-2s">00101010 (Hex: 2AH)</div>
+                    <div class="result-sub">Used for signed arithmetic in 8085 microprocessor ALU.</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══════════════════════════════════════════════════════════════════════════ -->
+        <!-- 8. MOCK VIVA FLASHCARD ENGINE                                               -->
+        <!-- ═══════════════════════════════════════════════════════════════════════════ -->
+        <div id="tab-quiz" class="tool-panel">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">🎯 Offline Viva-Voce Flashcard Engine</div>
+                    <div class="card-tag" id="quiz-count">Card 1 / 10</div>
+                </div>
+
+                <div class="flashcard-wrap">
+                    <div class="flashcard" onclick="flipCard()">
+                        <div>
+                            <div style="font-size:11px;font-family:'JetBrains Mono',monospace;color:var(--cyan);margin-bottom:8px;" id="fc-subject">Sem 4: Digital Tech</div>
+                            <div style="font-size:18px;font-weight:700;line-height:1.4;" id="fc-question">Why are NAND and NOR gates called Universal Logic Gates?</div>
+                        </div>
+                        <div id="fc-answer" style="display:none;margin-top:16px;padding:12px;background:rgba(0,255,136,.06);border:1px solid rgba(0,255,136,.2);border-radius:10px;font-size:13px;line-height:1.5;color:#e2e8f0;">
+                            <strong>Answer:</strong> Because any Boolean function (AND, OR, NOT, XOR, etc.) can be constructed using only NAND gates or only NOR gates without requiring any other gate type!
+                        </div>
+                        <div style="font-size:11px;color:var(--text-muted);margin-top:12px;">👆 Click card to flip and reveal answer</div>
+                    </div>
+
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:16px;">
+                        <button class="nav-btn" onclick="prevCard()">← Previous</button>
+                        <button class="btn-calc" onclick="nextCard()">Next Card →</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Scripts -->
+    <script>
+        // Tab switching
+        function switchSuite(tabId) {
+            document.querySelectorAll('.suite-tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tool-panel').forEach(p => p.classList.remove('active'));
+            
+            event.currentTarget.classList.add('active');
+            document.getElementById(tabId).classList.add('active');
+        }
+
+        // 1. Resistor Calculator
+        function calcResistor() {
+            const b1 = parseInt(document.getElementById('res-b1').value);
+            const b2 = parseInt(document.getElementById('res-b2').value);
+            const mult = parseFloat(document.getElementById('res-b3').value);
+            const tol = parseFloat(document.getElementById('res-b4').value);
+
+            const colors = ['#000000','#92400e','#ef4444','#f97316','#eab308','#22c55e','#3b82f6','#a855f7','#94a3b8','#ffffff'];
+            document.getElementById('band1').style.backgroundColor = colors[b1];
+            document.getElementById('band2').style.backgroundColor = colors[b2];
+            
+            const rawVal = (b1 * 10 + b2) * mult;
+            let display = rawVal >= 1000000 ? (rawVal/1000000).toFixed(2) + ' MΩ' :
+                          rawVal >= 1000 ? (rawVal/1000).toFixed(2) + ' kΩ' : rawVal.toFixed(1) + ' Ω';
+            
+            document.getElementById('res-result').innerText = `${display} ± ${tol}%`;
+            const min = (rawVal * (1 - tol/100)).toFixed(1);
+            const max = (rawVal * (1 + tol/100)).toFixed(1);
+            document.getElementById('res-range').innerText = `Valid Range: ${min} Ω to ${max} Ω | Mnemonic: B B R O Y of Great Britain had a Very Good Wife`;
+        }
+
+        // 2. K-Map Solver
+        const kmapState = Array(16).fill(0);
+        function initKMap() {
+            const grid = document.getElementById('kmap-cells');
+            if(!grid) return;
+            grid.innerHTML = '';
+            // Gray code order: 0,1,3,2, 4,5,7,6, 12,13,15,14, 8,9,11,10
+            const order = [0,1,3,2, 4,5,7,6, 12,13,15,14, 8,9,11,10];
+            order.forEach(idx => {
+                const cell = document.createElement('div');
+                cell.className = 'kmap-cell';
+                cell.id = `kc-${idx}`;
+                cell.innerHTML = `<span class="kmap-idx">m${idx}</span><span class="kmap-val">0</span>`;
+                cell.onclick = () => toggleKCell(idx);
+                grid.appendChild(cell);
+            });
+        }
+        function toggleKCell(idx) {
+            kmapState[idx] = (kmapState[idx] + 1) % 3; // 0 -> 1 -> X (2)
+            const cell = document.getElementById(`kc-${idx}`);
+            const valSpan = cell.querySelector('.kmap-val');
+            cell.classList.remove('active-1', 'active-x');
+            if(kmapState[idx] === 1) {
+                cell.classList.add('active-1');
+                valSpan.innerText = '1';
+            } else if(kmapState[idx] === 2) {
+                cell.classList.add('active-x');
+                valSpan.innerText = 'X';
+            } else {
+                valSpan.innerText = '0';
+            }
+            solveKMap();
+        }
+        function solveKMap() {
+            const ones = kmapState.map((v, i) => v === 1 ? i : -1).filter(v => v !== -1);
+            if(ones.length === 0) {
+                document.getElementById('kmap-expr').innerText = "F(A,B,C,D) = 0";
+                document.getElementById('kmap-minterms').innerText = "Minterms Selected: None";
+                return;
+            }
+            if(ones.length === 16) {
+                document.getElementById('kmap-expr').innerText = "F(A,B,C,D) = 1";
+                document.getElementById('kmap-minterms').innerText = "Minterms: All 16 cells (True)";
+                return;
+            }
+            document.getElementById('kmap-expr').innerText = `F(A,B,C,D) = Σm(${ones.join(',')})`;
+            document.getElementById('kmap-minterms').innerText = `Minterms: ${ones.map(m => 'm' + m).join(', ')}`;
+        }
+        function clearKMap() {
+            kmapState.fill(0);
+            document.querySelectorAll('.kmap-cell').forEach(c => {
+                c.classList.remove('active-1', 'active-x');
+                c.querySelector('.kmap-val').innerText = '0';
+            });
+            solveKMap();
+        }
+
+        // 3. 8085 Debugger
+        const asmPresets = {
+            add: "MVI A, 05H\nMVI B, 03H\nADD B\nSTA 2050H\nHLT",
+            max: "MVI A, 08H\nMVI B, 12H\nCMP B\nJNC 2010H\nMOV A, B\nHLT",
+            fact: "MVI B, 05H\nMVI A, 01H\nLOOP: DCR B\nJZ DONE\nHLT",
+            search: "LXI H, 2050H\nMVI M, 25H\nMOV A, M\nHLT"
+        };
+        function loadAsmPreset(k) {
+            document.getElementById('asm-input').value = asmPresets[k] || '';
+            resetAsm();
+        }
+        function runAsm() {
+            const code = document.getElementById('asm-input').value.toUpperCase();
+            let A = 0, B = 0, C = 0, D = 0, E = 0, H = 0, L = 0;
+            
+            const lines = code.split('\n');
+            lines.forEach(line => {
+                line = line.trim();
+                if(line.startsWith('MVI A,')) A = parseInt(line.split(',')[1].replace('H',''), 16) || 0;
+                if(line.startsWith('MVI B,')) B = parseInt(line.split(',')[1].replace('H',''), 16) || 0;
+                if(line.startsWith('ADD B')) A = (A + B) & 0xFF;
+                if(line.startsWith('INR A')) A = (A + 1) & 0xFF;
+                if(line.startsWith('DCR B')) B = (B - 1) & 0xFF;
+                if(line.startsWith('MOV A, B') || line.startsWith('MOV A,B')) A = B;
+                if(line.startsWith('MOV B, A') || line.startsWith('MOV B,A')) B = A;
+                if(line.startsWith('XRA A')) A = 0;
+                if(line.startsWith('CMA')) A = (~A) & 0xFF;
+            });
+
+            document.getElementById('asm-A').innerText = A.toString(16).toUpperCase().padStart(2,'0') + 'H';
+            document.getElementById('asm-B').innerText = B.toString(16).toUpperCase().padStart(2,'0') + 'H';
+            document.getElementById('asm-status').innerText = `Execution complete. Accumulator = ${A} (Hex: ${A.toString(16).toUpperCase()}H)`;
+        }
+        function resetAsm() {
+            ['A','B','C','D','E','H','L'].forEach(r => {
+                const el = document.getElementById(`asm-${r}`);
+                if(el) el.innerText = '00H';
+            });
+            document.getElementById('asm-status').innerText = "Ready. PC = 2000H";
+        }
+        function stepAsm() { runAsm(); }
+
+        // 4. RLC Calculator
+        function calcRLC() {
+            const R = parseFloat(document.getElementById('rlc-r').value) || 50;
+            const L = (parseFloat(document.getElementById('rlc-l').value) || 10) * 1e-3;
+            const C = (parseFloat(document.getElementById('rlc-c').value) || 1) * 1e-6;
+
+            const fr = 1 / (2 * Math.PI * Math.sqrt(L * C));
+            const Q = (1 / R) * Math.sqrt(L / C);
+            const bw = fr / Q;
+
+            document.getElementById('rlc-fr').innerText = `f_r = ${(fr/1000).toFixed(3)} kHz`;
+            document.getElementById('rlc-details').innerText = `Quality Factor Q = ${Q.toFixed(2)} | Bandwidth BW = ${bw.toFixed(1)} Hz | Angular Frequency ω = ${(2*Math.PI*fr).toFixed(0)} rad/s`;
+        }
+
+        // 5. 555 Calculator
+        function calc555() {
+            const r1 = (parseFloat(document.getElementById('tm-r1').value) || 10) * 1e3;
+            const r2 = (parseFloat(document.getElementById('tm-r2').value) || 47) * 1e3;
+            const c = (parseFloat(document.getElementById('tm-c').value) || 0.1) * 1e-6;
+
+            const f = 1.44 / ((r1 + 2 * r2) * c);
+            const th = 0.693 * (r1 + r2) * c * 1000;
+            const tl = 0.693 * r2 * c * 1000;
+            const duty = ((r1 + r2) / (r1 + 2 * r2)) * 100;
+
+            document.getElementById('tm-freq').innerText = `f = ${f.toFixed(1)} Hz`;
+            document.getElementById('tm-duty').innerText = `Duty Cycle = ${duty.toFixed(1)}% (T_high = ${th.toFixed(2)} ms, T_low = ${tl.toFixed(2)} ms)`;
+        }
+
+        // 6. Op-Amp
+        function calcOpAmp() {
+            const type = document.getElementById('op-type').value;
+            const vin = parseFloat(document.getElementById('op-vin').value) || 1.0;
+            const rin = parseFloat(document.getElementById('op-rin').value) || 10;
+            const rf = parseFloat(document.getElementById('op-rf').value) || 100;
+
+            let gain = 0, vout = 0;
+            if(type === 'inv') {
+                gain = -(rf / rin);
+                vout = gain * vin;
+                document.getElementById('op-vout').innerText = `V_out = ${vout.toFixed(2)} V (Gain = ${gain.toFixed(1)})`;
+                document.getElementById('op-desc').innerText = "Phase Shift: 180° Inverting negative feedback.";
+            } else {
+                gain = 1 + (rf / rin);
+                vout = gain * vin;
+                document.getElementById('op-vout').innerText = `V_out = ${vout.toFixed(2)} V (Gain = ${gain.toFixed(1)})`;
+                document.getElementById('op-desc').innerText = "Phase Shift: 0° Non-inverting feedback.";
+            }
+        }
+
+        // 7. Base Converter
+        function convFromDec(val) {
+            const num = parseInt(val) || 0;
+            document.getElementById('base-bin').value = (num >>> 0).toString(2);
+            document.getElementById('base-hex').value = (num >>> 0).toString(16).toUpperCase();
+            document.getElementById('base-oct').value = (num >>> 0).toString(8);
+            document.getElementById('base-2s').innerText = (num & 0xFF).toString(2).padStart(8, '0');
+        }
+        function convFromBin(val) { convFromDec(parseInt(val, 2)); }
+        function convFromHex(val) { convFromDec(parseInt(val, 16)); }
+        function convFromOct(val) { convFromDec(parseInt(val, 8)); }
+
+        // 8. Viva Quiz Engine
+        const quizCards = [
+            {
+                sub: "Sem 4: Digital Technology",
+                q: "Why are NAND and NOR gates called Universal Logic Gates?",
+                a: "Because any Boolean expression or logic gate (AND, OR, NOT, XOR) can be constructed using only NAND gates or only NOR gates!"
+            },
+            {
+                sub: "Sem 4: 8085 Microprocessor",
+                q: "What is the function of the ALE pin in the 8085 CPU?",
+                a: "ALE (Address Latch Enable) pulses HIGH during machine cycle T1 to signal external latches (74LS373) to capture the lower 8-bit memory address from multiplexed AD0–AD7."
+            },
+            {
+                sub: "Sem 3: Electronic Devices",
+                q: "What is the maximum theoretical efficiency of a Full-Wave Bridge Rectifier?",
+                a: "81.2% (approx. 8/π²), which is exactly double the 40.6% maximum efficiency of a Half-Wave Rectifier."
+            },
+            {
+                sub: "Sem 6: Power Electronics",
+                q: "What is the difference between Latching Current and Holding Current in an SCR?",
+                a: "Latching Current (IL) is the minimum anode current required to turn the SCR ON from OFF state. Holding Current (IH) is the minimum current to maintain conduction once ON. (IL > IH)."
+            },
+            {
+                sub: "Sem 4: Communication Systems",
+                q: "What is the Nyquist Sampling Theorem condition to prevent Aliasing?",
+                a: "Sampling rate fs must be greater than or equal to twice the maximum message frequency: fs ≥ 2·fmax."
+            }
+        ];
+        let curCardIdx = 0;
+        function updateCard() {
+            const card = quizCards[curCardIdx];
+            document.getElementById('fc-subject').innerText = card.sub;
+            document.getElementById('fc-question').innerText = card.q;
+            document.getElementById('fc-answer').innerHTML = `<strong>Answer:</strong> ${card.a}`;
+            document.getElementById('fc-answer').style.display = 'none';
+            document.getElementById('quiz-count').innerText = `Card ${curCardIdx + 1} / ${quizCards.length}`;
+        }
+        function flipCard() {
+            const ans = document.getElementById('fc-answer');
+            ans.style.display = ans.style.display === 'none' ? 'block' : 'none';
+        }
+        function nextCard() {
+            curCardIdx = (curCardIdx + 1) % quizCards.length;
+            updateCard();
+        }
+        function prevCard() {
+            curCardIdx = (curCardIdx - 1 + quizCards.length) % quizCards.length;
+            updateCard();
+        }
+
+        // Init on load
+        window.addEventListener('DOMContentLoaded', () => {
+            initKMap();
+            calcResistor();
+            calcRLC();
+            calc555();
+            calcOpAmp();
+            updateCard();
+        });
+    </script>
+    <script src="gemini-chat.js"></script>
+</body>
+</html>

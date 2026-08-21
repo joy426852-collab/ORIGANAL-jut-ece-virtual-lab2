@@ -1,0 +1,1581 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    <title>Zone 1: Foundation Labs - JUT ECE Virtual Lab</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Outfit:wght@300;500;700&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
+
+    <!-- Three.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.134.0/examples/js/controls/OrbitControls.js"></script>
+
+    <style>
+        :root {
+            --bg-color: #060810;
+            --panel-bg: rgba(20, 24, 40, 0.6);
+            --primary-amber: #ffb700;
+            --primary-orange: #f97316;
+            --text-main: #e2e8f0;
+            --text-muted: #94a3b8;
+            --neon-glow: 0 0 10px rgba(255, 183, 0, 0.5), 0 0 20px rgba(249, 115, 22, 0.3);
+            --glass-border: 1px solid rgba(255, 255, 255, 0.08);
+            --terminal-green: #22c55e;
+            --terminal-bg: #0d1117;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: 'Outfit', sans-serif;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            background-image: 
+                radial-gradient(circle at 15% 50%, rgba(249, 115, 22, 0.05), transparent 25%),
+                radial-gradient(circle at 85% 30%, rgba(255, 183, 0, 0.05), transparent 25%);
+        }
+
+        /* --- Navbar --- */
+        .navbar {
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 20px;
+            background: rgba(10, 12, 20, 0.8);
+            backdrop-filter: blur(12px);
+            border-bottom: var(--glass-border);
+            z-index: 100;
+        }
+
+        .nav-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .back-btn {
+            color: var(--primary-amber);
+            text-decoration: none;
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 600;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: text-shadow 0.3s ease;
+        }
+
+        .back-btn:hover {
+            text-shadow: var(--neon-glow);
+        }
+
+        .zone-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.2rem;
+            color: white;
+            border-left: 2px solid var(--text-muted);
+            padding-left: 15px;
+        }
+
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .badge {
+            background: rgba(255, 183, 0, 0.1);
+            border: 1px solid var(--primary-amber);
+            color: var(--primary-amber);
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-family: 'JetBrains Mono', monospace;
+            box-shadow: 0 0 10px rgba(255, 183, 0, 0.2);
+        }
+
+        .credits-container {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 700;
+            color: var(--primary-orange);
+            font-size: 1.1rem;
+            background: rgba(249, 115, 22, 0.1);
+            padding: 5px 15px;
+            border-radius: 8px;
+            border: 1px solid rgba(249, 115, 22, 0.3);
+        }
+
+        .credit-pop {
+            animation: pop 0.4s ease-out;
+        }
+
+        @keyframes pop {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.3); color: white; }
+            100% { transform: scale(1); }
+        }
+
+        /* --- Main Layout --- */
+        .app-container {
+            display: flex;
+            flex: 1;
+            height: calc(100vh - 60px);
+        }
+
+        .sidebar {
+            width: 300px;
+            background: var(--panel-bg);
+            backdrop-filter: blur(10px);
+            border-right: var(--glass-border);
+            border-left: var(--glass-border);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            overflow-y: auto;
+        }
+
+        .sidebar h3 {
+            font-family: 'Space Grotesk', sans-serif;
+            color: var(--primary-amber);
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-bottom: 1px solid rgba(255,183,0,0.2);
+            padding-bottom: 5px;
+        }
+
+        .guide-step {
+            background: rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.05);
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin-bottom: 10px;
+            transition: all 0.3s;
+        }
+
+        .guide-step.active {
+            border-color: var(--primary-amber);
+            color: white;
+            box-shadow: 0 0 10px rgba(255, 183, 0, 0.1);
+        }
+
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        /* --- Tabs --- */
+        .tab-bar {
+            display: flex;
+            background: rgba(0, 0, 0, 0.4);
+            border-bottom: var(--glass-border);
+            padding: 0 20px;
+        }
+
+        .tab-btn {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            padding: 15px 25px;
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .tab-btn:hover {
+            color: white;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .tab-btn.active {
+            color: var(--primary-amber);
+            font-weight: 700;
+        }
+
+        .tab-btn.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: var(--primary-amber);
+            box-shadow: var(--neon-glow);
+        }
+
+        .tab-content {
+            flex: 1;
+            display: none;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* --- UI Elements --- */
+        select, button, input {
+            font-family: 'Outfit', sans-serif;
+            background: rgba(0,0,0,0.5);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 6px;
+            outline: none;
+            transition: 0.3s;
+        }
+
+        button {
+            cursor: pointer;
+            background: rgba(255, 183, 0, 0.1);
+            border-color: var(--primary-amber);
+            color: var(--primary-amber);
+            font-weight: 600;
+            text-transform: uppercase;
+            font-family: 'Space Grotesk', sans-serif;
+            letter-spacing: 1px;
+            font-size: 0.85rem;
+        }
+
+        button:hover {
+            background: var(--primary-amber);
+            color: black;
+            box-shadow: var(--neon-glow);
+        }
+
+        /* --- Tab 1: C Terminal --- */
+        #tab-c-terminal .scene-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+
+        .terminal-overlay {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 600px;
+            height: 450px;
+            background: var(--terminal-bg);
+            border: 2px solid #333;
+            border-radius: 8px;
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.8), 0 0 30px rgba(34, 197, 94, 0.1);
+            overflow: hidden;
+        }
+
+        .term-header {
+            background: #1a1e24;
+            padding: 8px 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #333;
+        }
+
+        .term-title {
+            color: var(--text-muted);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+        }
+
+        .term-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .term-actions button.run-btn {
+            background: rgba(34, 197, 94, 0.1);
+            color: var(--terminal-green);
+            border-color: var(--terminal-green);
+        }
+        .term-actions button.run-btn:hover {
+            background: var(--terminal-green);
+            color: black;
+            box-shadow: 0 0 10px rgba(34, 197, 94, 0.5);
+        }
+
+        .editor-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .code-input {
+            flex: 1;
+            width: 100%;
+            background: transparent;
+            border: none;
+            color: #a5d6ff;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.95rem;
+            padding: 15px;
+            resize: none;
+            outline: none;
+            line-height: 1.5;
+        }
+
+        .term-output {
+            height: 120px;
+            background: #010409;
+            border-top: 1px solid #333;
+            padding: 10px 15px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            color: var(--terminal-green);
+            overflow-y: auto;
+        }
+
+        .led-panel {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            padding: 15px;
+            background: #111;
+            border-top: 1px solid #333;
+        }
+
+        .led {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #333;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);
+            transition: all 0.2s;
+        }
+        .led.on {
+            background: var(--terminal-green);
+            box-shadow: 0 0 10px var(--terminal-green), inset 0 0 5px white;
+        }
+        .led-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+        }
+        .led-label {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.7rem;
+            color: #666;
+        }
+
+        /* --- Tab 2: Physics / Chem --- */
+        .sub-tabs {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            padding: 15px;
+            background: rgba(0,0,0,0.2);
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 10;
+        }
+        
+        .sub-tab-btn {
+            background: transparent;
+            border: 1px solid rgba(255,255,255,0.2);
+            color: var(--text-muted);
+            border-radius: 20px;
+        }
+        
+        .sub-tab-btn.active {
+            background: rgba(255, 183, 0, 0.1);
+            border-color: var(--primary-amber);
+            color: var(--primary-amber);
+        }
+
+        .sim-container {
+            position: absolute;
+            top: 60px;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        .sim-container.active {
+            display: flex;
+        }
+
+        canvas.sim-canvas {
+            background: rgba(0,0,0,0.4);
+            border: var(--glass-border);
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        .controls-panel {
+            margin-top: 20px;
+            display: flex;
+            gap: 20px;
+            background: var(--panel-bg);
+            padding: 15px 25px;
+            border-radius: 12px;
+            border: var(--glass-border);
+        }
+        
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .control-group label {
+            font-size: 0.85rem;
+            color: var(--primary-amber);
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        input[type=range] {
+            accent-color: var(--primary-orange);
+        }
+
+        #atom-3d-container {
+            width: 600px;
+            height: 400px;
+            background: radial-gradient(circle, #1a1e30 0%, #060810 100%);
+            border-radius: 12px;
+            border: var(--glass-border);
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* --- Tab 3: Eng Graphics --- */
+        .graphics-layout {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            padding: 20px;
+            gap: 20px;
+        }
+
+        .graphics-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--panel-bg);
+            padding: 10px 20px;
+            border-radius: 8px;
+            border: var(--glass-border);
+        }
+
+        .solid-selector {
+            display: flex;
+            gap: 10px;
+        }
+
+        .graphics-main {
+            flex: 1;
+            display: flex;
+            gap: 20px;
+        }
+
+        .graphics-3d-view {
+            flex: 2;
+            background: rgba(0,0,0,0.5);
+            border: var(--glass-border);
+            border-radius: 12px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .graphics-2d-views {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .ortho-view {
+            flex: 1;
+            background: rgba(255,255,255,0.02);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 8px;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+        
+        .ortho-view canvas {
+            max-width: 100%;
+            max-height: 100%;
+        }
+
+        .ortho-label {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: rgba(249, 115, 22, 0.2);
+            color: var(--primary-orange);
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-family: 'Space Grotesk', sans-serif;
+            border: 1px solid rgba(249, 115, 22, 0.4);
+        }
+
+/* ============================================================
+   ZONE 1 — MOBILE RESPONSIVE
+   ============================================================ */
+@media (max-width: 768px) {
+
+  /* Top navbar */
+  .topbar, .navbar, header, #topbar {
+    padding: 0 10px !important;
+    height: 52px !important;
+  }
+  .topbar-title span, .nav-subtitle { display: none !important; }
+  .topbar-zone-tabs, .zone-tabs {
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    scrollbar-width: none;
+    gap: 4px !important;
+  }
+  .topbar-zone-tabs::-webkit-scrollbar { display: none; }
+  .zone-tab {
+    font-size: 10px !important;
+    padding: 4px 10px !important;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  /* Tab bar */
+  .tab-bar, .lab-tabs {
+    overflow-x: auto !important;
+    flex-wrap: nowrap !important;
+    scrollbar-width: none !important;
+    gap: 4px !important;
+  }
+  .tab-bar::-webkit-scrollbar { display: none; }
+  .tab-btn {
+    flex-shrink: 0 !important;
+    font-size: 10px !important;
+    padding: 8px 12px !important;
+    white-space: nowrap !important;
+  }
+
+  /* Main content area */
+  .main-area, .lab-content, .content {
+    padding: 8px !important;
+    flex-direction: column !important;
+  }
+
+  /* Sidebars — hide on mobile, show as toggle */
+  .left-sidebar, .right-sidebar, .guide-panel, .info-panel {
+    display: none !important;
+  }
+
+  /* Three.js canvas container */
+  #canvas-container, canvas {
+    width: 100% !important;
+    height: 30vh !important;
+    min-height: 200px;
+  }
+
+  /* C Terminal */
+  .terminal, #c-terminal, .code-editor {
+    height: 35vh !important;
+    min-height: 200px;
+    font-size: 12px !important;
+  }
+  .terminal-output {
+    max-height: 25vh !important;
+    font-size: 11px !important;
+  }
+  .led-grid {
+    gap: 6px !important;
+  }
+  .led {
+    width: 22px !important;
+    height: 22px !important;
+  }
+  .editor-controls {
+    flex-wrap: wrap !important;
+    gap: 6px !important;
+  }
+  .compile-btn, .run-btn {
+    width: 100% !important;
+    font-size: 11px !important;
+  }
+  .program-selector {
+    width: 100% !important;
+  }
+
+  /* Physics sims */
+  .sim-canvas, .physics-canvas {
+    width: 100% !important;
+    height: auto !important;
+    max-height: 40vh;
+  }
+  .sim-controls, .controls-panel {
+    padding: 8px !important;
+  }
+  .slider-group {
+    gap: 6px !important;
+  }
+  .slider-label {
+    font-size: 10px !important;
+  }
+  .sub-tabs, .mini-tabs {
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    scrollbar-width: none;
+  }
+
+  /* Engineering graphics */
+  .projections-grid {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 6px !important;
+  }
+  .projection-canvas {
+    height: 80px !important;
+  }
+  .solid-selector {
+    flex-wrap: wrap !important;
+    gap: 4px !important;
+  }
+  .solid-btn {
+    font-size: 9px !important;
+    padding: 4px 8px !important;
+  }
+
+  /* Credits badge */
+  .credits-badge {
+    font-size: 10px !important;
+    padding: 4px 10px !important;
+  }
+
+  /* Bottom HUD */
+  .bottom-hud, #bottom-hud {
+    height: 48px !important;
+    font-size: 9px !important;
+    overflow-x: auto;
+    scrollbar-width: none;
+    gap: 4px !important;
+    padding: 0 8px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .projections-grid {
+    grid-template-columns: 1fr !important;
+  }
+  .stats-display {
+    grid-template-columns: 1fr 1fr !important;
+    font-size: 9px !important;
+  }
+}
+    </style>
+</head>
+<body>
+
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="nav-left">
+            <a href="hub.html" class="back-btn">← HUB</a>
+            <div class="zone-title">ZONE 1: FOUNDATION LABS</div>
+        </div>
+        <div class="nav-right">
+            <a href="calculator.html" style="text-decoration:none;color:#ffb700;font-size:12px;font-weight:700;font-family:'Space Grotesk',sans-serif;margin-right:8px;padding:4px 10px;border:1px solid rgba(255,183,0,.3);border-radius:6px;background:rgba(255,183,0,.08);">🧮 Tools</a>
+            <div class="badge">Semesters 1 & 2</div>
+            <div class="credits-container">
+                Lab Credits: <span id="credit-score">0</span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- App Container -->
+    <div class="app-container">
+        
+        <!-- Left Sidebar -->
+        <aside class="sidebar" id="left-sidebar">
+            <h3>Experiment Guide</h3>
+            <div id="guide-content">
+                <!-- Populated via JS based on active tab -->
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            
+            <!-- Tab Bar -->
+            <div class="tab-bar">
+                <button class="tab-btn active" onclick="switchTab('c-terminal')">🖥️ C Terminal</button>
+                <button class="tab-btn" onclick="switchTab('physics-chem')">⚛️ Physics Lab</button>
+                <button class="tab-btn" onclick="switchTab('graphics')">📐 Eng. Graphics</button>
+            </div>
+
+            <!-- TAB 1: C Terminal -->
+            <div id="tab-c-terminal" class="tab-content active">
+                <div id="c-scene-container" class="scene-container"></div>
+                <div class="terminal-overlay">
+                    <div class="term-header">
+                        <div class="term-title">jut-terminal ~ /labs/c_prog</div>
+                        <div class="term-actions">
+                            <select id="c-examples" onchange="loadCExample()">
+                                <option value="hello">Hello World</option>
+                                <option value="sum">Sum of Two Numbers</option>
+                                <option value="led">LED Blink</option>
+                            </select>
+                            <button class="run-btn" onclick="runCCode()">Compile & Run</button>
+                        </div>
+                    </div>
+                    <div class="editor-area">
+                        <textarea id="c-editor" class="code-input" spellcheck="false">
+#include <stdio.h>
+
+int main() {
+    int a = 5, b = 3;
+    printf("Sum = %d\n", a + b);
+    return 0;
+}</textarea>
+                    </div>
+                    <div class="term-output" id="c-output">
+                        Ready. Waiting for execution...
+                    </div>
+                    <div class="led-panel">
+                        <!-- Generated via JS -->
+                        <div class="led-container"><div class="led" id="led-1"></div><span class="led-label">1</span></div>
+                        <div class="led-container"><div class="led" id="led-2"></div><span class="led-label">2</span></div>
+                        <div class="led-container"><div class="led" id="led-3"></div><span class="led-label">3</span></div>
+                        <div class="led-container"><div class="led" id="led-4"></div><span class="led-label">4</span></div>
+                        <div class="led-container"><div class="led" id="led-5"></div><span class="led-label">5</span></div>
+                        <div class="led-container"><div class="led" id="led-6"></div><span class="led-label">6</span></div>
+                        <div class="led-container"><div class="led" id="led-7"></div><span class="led-label">7</span></div>
+                        <div class="led-container"><div class="led" id="led-8"></div><span class="led-label">8</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 2: Physics / Chem -->
+            <div id="tab-physics-chem" class="tab-content">
+                <div class="sub-tabs">
+                    <button class="sub-tab-btn active" onclick="switchSubTab('pendulum')">Simple Harmonic Motion</button>
+                    <button class="sub-tab-btn" onclick="switchSubTab('optics')">Optics (Refraction)</button>
+                    <button class="sub-tab-btn" onclick="switchSubTab('atom')">Atomic Structure</button>
+                </div>
+
+                <!-- Sub 1: Pendulum -->
+                <div id="sim-pendulum" class="sim-container active">
+                    <canvas id="canvas-pendulum" class="sim-canvas" width="600" height="400"></canvas>
+                    <div class="controls-panel">
+                        <div class="control-group">
+                            <label>String Length (L) : <span id="val-l">200</span></label>
+                            <input type="range" id="slider-l" min="100" max="300" value="200" oninput="updatePendulum()">
+                        </div>
+                        <div class="control-group">
+                            <label>Gravity (g) : <span id="val-g">9.8</span></label>
+                            <input type="range" id="slider-g" min="2" max="20" step="0.1" value="9.8" oninput="updatePendulum()">
+                        </div>
+                        <div class="control-group" style="justify-content: center;">
+                            <button onclick="resetPendulum()">Drop / Reset</button>
+                        </div>
+                        <div class="control-group">
+                            <label style="color:var(--terminal-green)">Period (T) = <span id="val-t">0.00</span>s</label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sub 2: Optics -->
+                <div id="sim-optics" class="sim-container">
+                    <canvas id="canvas-optics" class="sim-canvas" width="600" height="400"></canvas>
+                    <div class="controls-panel">
+                        <div class="control-group">
+                            <label>Angle of Incidence (θ₁) : <span id="val-theta1">45</span>°</label>
+                            <input type="range" id="slider-theta1" min="0" max="89" value="45" oninput="updateOptics()">
+                        </div>
+                        <div class="control-group">
+                            <label>Media</label>
+                            <select id="optics-media" onchange="updateOptics()">
+                                <option value="1,1.5">Air → Glass</option>
+                                <option value="1,1.33">Air → Water</option>
+                                <option value="1.5,1.33">Glass → Water</option>
+                                <option value="1.33,1">Water → Air</option>
+                            </select>
+                        </div>
+                        <div class="control-group">
+                            <label style="color:var(--terminal-green)">Refracted (θ₂) = <span id="val-theta2">0.00</span>°</label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sub 3: Atom -->
+                <div id="sim-atom" class="sim-container">
+                    <div id="atom-3d-container"></div>
+                    <div class="controls-panel">
+                        <div class="control-group">
+                            <label>Element</label>
+                            <select id="atom-element" onchange="updateAtom()">
+                                <option value="1">Hydrogen (H)</option>
+                                <option value="2">Helium (He)</option>
+                                <option value="3">Lithium (Li)</option>
+                                <option value="6" selected>Carbon (C)</option>
+                                <option value="8">Oxygen (O)</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 3: Eng Graphics -->
+            <div id="tab-graphics" class="tab-content">
+                <div class="graphics-layout">
+                    <div class="graphics-top">
+                        <div class="solid-selector">
+                            <button onclick="setGraphicsSolid('cube')">Cube</button>
+                            <button onclick="setGraphicsSolid('cylinder')">Cylinder</button>
+                            <button onclick="setGraphicsSolid('cone')">Cone</button>
+                            <button onclick="setGraphicsSolid('lbracket')">L-Bracket</button>
+                        </div>
+                        <div style="color:var(--primary-amber); font-size:0.9rem;">
+                            Drag 3D object to rotate and view live projections
+                        </div>
+                    </div>
+                    <div class="graphics-main">
+                        <div class="graphics-3d-view" id="graphics-3d-container">
+                            <!-- Main 3D View -->
+                        </div>
+                        <div class="graphics-2d-views">
+                            <div class="ortho-view">
+                                <div class="ortho-label">FRONT VIEW</div>
+                                <canvas id="ortho-front"></canvas>
+                            </div>
+                            <div class="ortho-view">
+                                <div class="ortho-label">TOP VIEW</div>
+                                <canvas id="ortho-top"></canvas>
+                            </div>
+                            <div class="ortho-view">
+                                <div class="ortho-label">SIDE VIEW</div>
+                                <canvas id="ortho-side"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+
+        <!-- Right Sidebar -->
+        <aside class="sidebar" id="right-sidebar">
+            <h3>Subject Info</h3>
+            <div style="font-family:'Space Grotesk'; font-size:1.1rem; color:white; margin-bottom:10px;">
+                <span id="subject-code" style="color:var(--primary-orange);">C101</span><br>
+                <span id="subject-name">Programming in C</span>
+            </div>
+            <div style="font-size:0.9rem; color:var(--text-muted); line-height:1.5;">
+                <strong>JUT Syllabus Credits:</strong> 3<br>
+                <strong>Max Marks:</strong> 100 (Ext 80, Int 20)<br>
+            </div>
+            <hr style="border:0; border-top:1px solid rgba(255,255,255,0.1); margin:15px 0;">
+            <button onclick="addCredits(5)" style="width:100%; padding:10px;">Claim Bonus Credits</button>
+        </aside>
+
+    </div>
+
+    <!-- MAIN JAVASCRIPT -->
+    <script>
+        // --- Gamification ---
+        let credits = parseInt(localStorage.getItem('jut_lab_credits') || '0');
+        const creditDisplay = document.getElementById('credit-score');
+        creditDisplay.innerText = credits;
+
+        function addCredits(amount) {
+            credits += amount;
+            localStorage.setItem('jut_lab_credits', credits);
+            creditDisplay.innerText = credits;
+            
+            // Animation
+            creditDisplay.classList.remove('credit-pop');
+            void creditDisplay.offsetWidth; // trigger reflow
+            creditDisplay.classList.add('credit-pop');
+        }
+
+        // --- Data for Sidebars ---
+        const tabData = {
+            'c-terminal': {
+                code: 'C101',
+                name: 'Programming in C',
+                guide: [
+                    'Write or load a basic C program.',
+                    'Use printf to output results.',
+                    'Use LED_ON(x) and LED_OFF(x) where x is 1-8 to toggle hardware LEDs.',
+                    'Click Compile & Run to execute.'
+                ]
+            },
+            'physics-chem': {
+                code: 'P101 / CH101',
+                name: 'Applied Physics & Chem',
+                guide: [
+                    'Select a sub-experiment from the top tabs.',
+                    'Adjust sliders to change physical parameters.',
+                    'Observe the real-time changes in formulas.',
+                    'Match theory with virtual outcomes.'
+                ]
+            },
+            'graphics': {
+                code: 'EG101',
+                name: 'Engineering Graphics',
+                guide: [
+                    'Select a 3D solid from the top bar.',
+                    'Click and drag the main 3D view to rotate.',
+                    'Observe how orthographic projections update in real-time.',
+                    'Understand First/Third angle projection concepts.'
+                ]
+            }
+        };
+
+        // --- Tab Switching ---
+        function switchTab(tabId) {
+            // Update buttons
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            event.currentTarget.classList.add('active');
+
+            // Update content
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            document.getElementById('tab-' + tabId).classList.add('active');
+
+            // Update Sidebars
+            const data = tabData[tabId];
+            document.getElementById('subject-code').innerText = data.code;
+            document.getElementById('subject-name').innerText = data.name;
+            
+            const guideContainer = document.getElementById('guide-content');
+            guideContainer.innerHTML = data.guide.map((step, i) => 
+                `<div class="guide-step ${i===0?'active':''}">${i+1}. ${step}</div>`
+            ).join('');
+
+            // Trigger resizes/re-renders if necessary
+            if(tabId === 'graphics') {
+                window.dispatchEvent(new Event('resize'));
+            }
+        }
+
+        // Initialize default tab guide
+        switchTab('c-terminal');
+        // Hack to set first button active manually since event.currentTarget isn't valid on init
+        document.querySelector('.tab-btn').classList.add('active');
+
+        // --- TAB 1: C TERMINAL LOGIC ---
+        const cExamples = {
+            'hello': `#include <stdio.h>\n\nint main() {\n    printf("Hello, JUT Virtual Lab!\\n");\n    return 0;\n}`,
+            'sum': `#include <stdio.h>\n\nint main() {\n    int a = 15, b = 25;\n    int sum = a + b;\n    printf("Sum of %d and %d is %d\\n", a, b, sum);\n    return 0;\n}`,
+            'led': `#include <stdio.h>\n\nint main() {\n    printf("Initializing LEDs...\\n");\n    LED_ON(1);\n    LED_ON(3);\n    LED_ON(5);\n    LED_ON(7);\n    printf("Odd LEDs activated.\\n");\n    return 0;\n}`
+        };
+
+        function loadCExample() {
+            const val = document.getElementById('c-examples').value;
+            document.getElementById('c-editor').value = cExamples[val];
+        }
+
+        function runCCode() {
+            const code = document.getElementById('c-editor').value;
+            const output = document.getElementById('c-output');
+            
+            // Reset LEDs
+            for(let i=1; i<=8; i++) {
+                document.getElementById('led-'+i).classList.remove('on');
+            }
+
+            output.innerHTML = "<span style='color:#666'>Compiling...</span><br>";
+            
+            setTimeout(() => {
+                try {
+                    let outStr = "";
+                    
+                    // Super basic C simulation parsing (Regex based for demo safety)
+                    let lines = code.split('\n');
+                    let jsCode = "";
+                    
+                    for(let line of lines) {
+                        if(line.includes('#include')) continue;
+                        if(line.includes('int main')) { jsCode += "function main() {\n"; continue; }
+                        
+                        // Parse printf
+                        if(line.includes('printf')) {
+                            let match = line.match(/printf\s*\(\s*"([^"]*)"\s*(?:,\s*(.*))?\)\s*;/);
+                            if(match) {
+                                let str = match[1];
+                                let vars = match[2] ? match[2].split(',').map(v=>v.trim()) : [];
+                                // simple replacement for %d, %s
+                                let parsedStr = str;
+                                vars.forEach(v => {
+                                    parsedStr = parsedStr.replace(/%[dsf]/, `\$\{${v}\}`);
+                                });
+                                jsCode += `outStr += \`${parsedStr}\`.replace(/\\\\n/g, '<br>');\n`;
+                            }
+                            continue;
+                        }
+
+                        // Parse LED_ON / OFF
+                        if(line.includes('LED_ON')) {
+                            let match = line.match(/LED_ON\s*\(\s*(\d+)\s*\)\s*;/);
+                            if(match) jsCode += `document.getElementById('led-${match[1]}').classList.add('on');\n`;
+                            continue;
+                        }
+                        if(line.includes('LED_OFF')) {
+                            let match = line.match(/LED_OFF\s*\(\s*(\d+)\s*\)\s*;/);
+                            if(match) jsCode += `document.getElementById('led-${match[1]}').classList.remove('on');\n`;
+                            continue;
+                        }
+
+                        // Basic declarations
+                        line = line.replace(/int /g, 'let ').replace(/float /g, 'let ').replace(/char /g, 'let ');
+                        jsCode += line + "\n";
+                    }
+
+                    // execute safely-ish in local context
+                    eval(jsCode + "\nmain();");
+                    
+                    output.innerHTML += outStr + "<br><br><span style='color:var(--text-muted)'>Compilation time: 0.12s | Exit code: 0</span>";
+                    addCredits(10);
+                } catch(e) {
+                    output.innerHTML += `<span style="color:#ef4444">Error during execution: Syntax Error or Unsupported C feature in simulation.</span><br><span style="color:#ef4444">${e.message}</span>`;
+                }
+            }, 600);
+        }
+
+        // --- C Terminal 3D Background ---
+        function initCScene() {
+            const container = document.getElementById('c-scene-container');
+            const scene = new THREE.Scene();
+            const camera = new THREE.PerspectiveCamera(50, container.clientWidth / container.clientHeight, 0.1, 1000);
+            const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+            renderer.setSize(container.clientWidth, container.clientHeight);
+            container.appendChild(renderer.domElement);
+
+            // Simple CRT Monitor representation
+            const group = new THREE.Group();
+            
+            const crtGeo = new THREE.BoxGeometry(4, 3, 3);
+            const crtMat = new THREE.MeshPhongMaterial({ color: 0x111111, shininess: 100 });
+            const crt = new THREE.Mesh(crtGeo, crtMat);
+            group.add(crt);
+
+            const screenGeo = new THREE.PlaneGeometry(3.5, 2.5);
+            const screenMat = new THREE.MeshBasicMaterial({ color: 0x0a192f }); // Inner glow base
+            const screen = new THREE.Mesh(screenGeo, screenMat);
+            screen.position.z = 1.51;
+            group.add(screen);
+
+            group.rotation.y = Math.PI / 12;
+            scene.add(group);
+
+            // Particles for matrix effect
+            const particlesGeo = new THREE.BufferGeometry();
+            const particlesCount = 200;
+            const posArray = new Float32Array(particlesCount * 3);
+            for(let i=0; i<particlesCount*3; i++) {
+                posArray[i] = (Math.random() - 0.5) * 15;
+            }
+            particlesGeo.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+            const particlesMat = new THREE.PointsMaterial({ size: 0.05, color: 0x22c55e });
+            const particlesMesh = new THREE.Points(particlesGeo, particlesMat);
+            scene.add(particlesMesh);
+
+            const light = new THREE.PointLight(0x22c55e, 2, 100);
+            light.position.set(2, 2, 5);
+            scene.add(light);
+            scene.add(new THREE.AmbientLight(0x404040));
+
+            camera.position.z = 8;
+
+            function animate() {
+                requestAnimationFrame(animate);
+                group.rotation.y = Math.sin(Date.now() * 0.0005) * 0.1;
+                group.rotation.x = Math.sin(Date.now() * 0.0003) * 0.05;
+                particlesMesh.position.y += 0.01;
+                if(particlesMesh.position.y > 5) particlesMesh.position.y = -5;
+                renderer.render(scene, camera);
+            }
+            animate();
+        }
+        initCScene();
+
+        // --- TAB 2: PHYSICS & CHEM ---
+        function switchSubTab(sub) {
+            document.querySelectorAll('.sub-tab-btn').forEach(btn => btn.classList.remove('active'));
+            event.currentTarget.classList.add('active');
+            
+            document.querySelectorAll('.sim-container').forEach(cont => cont.classList.remove('active'));
+            document.getElementById('sim-' + sub).classList.add('active');
+        }
+
+        // Pendulum
+        const penCanvas = document.getElementById('canvas-pendulum');
+        const penCtx = penCanvas.getContext('2d');
+        let penTheta = Math.PI / 4;
+        let penOmega = 0;
+        
+        function updatePendulum() {
+            // just UI update
+            const L = parseFloat(document.getElementById('slider-l').value);
+            const g = parseFloat(document.getElementById('slider-g').value);
+            document.getElementById('val-l').innerText = L;
+            document.getElementById('val-g').innerText = g.toFixed(1);
+            
+            const T = 2 * Math.PI * Math.sqrt(L / (g * 100)); // scaled roughly
+            document.getElementById('val-t').innerText = T.toFixed(2);
+        }
+        
+        function resetPendulum() {
+            penTheta = Math.PI / 4;
+            penOmega = 0;
+            addCredits(5);
+        }
+
+        function drawPendulum() {
+            const L = parseFloat(document.getElementById('slider-l').value);
+            const g = parseFloat(document.getElementById('slider-g').value) * 10; // scale gravity for visual speed
+            
+            // physics update
+            const alpha = -(g / L) * Math.sin(penTheta);
+            penOmega += alpha * 0.016; // approx 60fps dt
+            penOmega *= 0.999; // slight damping
+            penTheta += penOmega;
+
+            penCtx.clearRect(0, 0, penCanvas.width, penCanvas.height);
+            
+            const originX = penCanvas.width / 2;
+            const originY = 50;
+            const bobX = originX + L * Math.sin(penTheta);
+            const bobY = originY + L * Math.cos(penTheta);
+
+            // draw pivot
+            penCtx.beginPath();
+            penCtx.moveTo(originX - 30, originY);
+            penCtx.lineTo(originX + 30, originY);
+            penCtx.strokeStyle = '#fff';
+            penCtx.lineWidth = 4;
+            penCtx.stroke();
+
+            // draw string
+            penCtx.beginPath();
+            penCtx.moveTo(originX, originY);
+            penCtx.lineTo(bobX, bobY);
+            penCtx.strokeStyle = '#94a3b8';
+            penCtx.lineWidth = 2;
+            penCtx.stroke();
+
+            // draw bob
+            penCtx.beginPath();
+            penCtx.arc(bobX, bobY, 20, 0, Math.PI * 2);
+            penCtx.fillStyle = '#f97316';
+            penCtx.fill();
+            penCtx.shadowBlur = 15;
+            penCtx.shadowColor = '#f97316';
+            penCtx.stroke();
+            penCtx.shadowBlur = 0;
+
+            requestAnimationFrame(drawPendulum);
+        }
+        updatePendulum();
+        drawPendulum();
+
+        // Optics
+        const optCanvas = document.getElementById('canvas-optics');
+        const optCtx = optCanvas.getContext('2d');
+        
+        function updateOptics() {
+            let theta1Deg = parseFloat(document.getElementById('slider-theta1').value);
+            document.getElementById('val-theta1').innerText = theta1Deg;
+            
+            let media = document.getElementById('optics-media').value.split(',');
+            let n1 = parseFloat(media[0]);
+            let n2 = parseFloat(media[1]);
+
+            let theta1Rad = theta1Deg * Math.PI / 180;
+            let sinTheta2 = (n1 / n2) * Math.sin(theta1Rad);
+            
+            optCtx.clearRect(0, 0, optCanvas.width, optCanvas.height);
+            
+            const cx = optCanvas.width / 2;
+            const cy = optCanvas.height / 2;
+
+            // Draw media boundary
+            optCtx.fillStyle = 'rgba(255,255,255,0.05)';
+            optCtx.fillRect(0, cy, optCanvas.width, cy);
+            
+            optCtx.beginPath();
+            optCtx.moveTo(0, cy);
+            optCtx.lineTo(optCanvas.width, cy);
+            optCtx.strokeStyle = '#fff';
+            optCtx.lineWidth = 2;
+            optCtx.stroke();
+
+            // Draw normal
+            optCtx.beginPath();
+            optCtx.setLineDash([5, 5]);
+            optCtx.moveTo(cx, 0);
+            optCtx.lineTo(cx, optCanvas.height);
+            optCtx.strokeStyle = '#666';
+            optCtx.stroke();
+            optCtx.setLineDash([]);
+
+            // Draw incident ray
+            optCtx.beginPath();
+            let ix = cx - 200 * Math.sin(theta1Rad);
+            let iy = cy - 200 * Math.cos(theta1Rad);
+            optCtx.moveTo(ix, iy);
+            optCtx.lineTo(cx, cy);
+            optCtx.strokeStyle = '#ffb700';
+            optCtx.lineWidth = 3;
+            optCtx.shadowBlur = 10;
+            optCtx.shadowColor = '#ffb700';
+            optCtx.stroke();
+
+            // Calculate refracted/reflected
+            if(sinTheta2 > 1 || sinTheta2 < -1) {
+                // Total Internal Reflection
+                document.getElementById('val-theta2').innerText = 'TIR';
+                optCtx.beginPath();
+                let rx = cx + 200 * Math.sin(theta1Rad);
+                let ry = cy - 200 * Math.cos(theta1Rad);
+                optCtx.moveTo(cx, cy);
+                optCtx.lineTo(rx, ry);
+                optCtx.strokeStyle = '#ef4444';
+                optCtx.stroke();
+            } else {
+                let theta2Rad = Math.asin(sinTheta2);
+                let theta2Deg = theta2Rad * 180 / Math.PI;
+                document.getElementById('val-theta2').innerText = theta2Deg.toFixed(1);
+                
+                optCtx.beginPath();
+                let rx = cx + 200 * Math.sin(theta2Rad);
+                let ry = cy + 200 * Math.cos(theta2Rad);
+                optCtx.moveTo(cx, cy);
+                optCtx.lineTo(rx, ry);
+                optCtx.strokeStyle = '#22c55e';
+                optCtx.shadowColor = '#22c55e';
+                optCtx.stroke();
+            }
+            optCtx.shadowBlur = 0;
+        }
+        updateOptics(); // Initial draw
+
+        // Atom 3D
+        let atomScene, atomCamera, atomRenderer, atomGroup;
+        function initAtomScene() {
+            const container = document.getElementById('atom-3d-container');
+            atomScene = new THREE.Scene();
+            atomCamera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 100);
+            atomCamera.position.z = 20;
+
+            atomRenderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+            atomRenderer.setSize(container.clientWidth, container.clientHeight);
+            container.appendChild(atomRenderer.domElement);
+
+            const controls = new THREE.OrbitControls(atomCamera, atomRenderer.domElement);
+            controls.enablePan = false;
+
+            atomScene.add(new THREE.AmbientLight(0xffffff, 0.5));
+            const pLight = new THREE.PointLight(0xffffff, 1);
+            pLight.position.set(10, 10, 10);
+            atomScene.add(pLight);
+
+            atomGroup = new THREE.Group();
+            atomScene.add(atomGroup);
+
+            updateAtom();
+
+            function render() {
+                requestAnimationFrame(render);
+                if(atomGroup) {
+                    atomGroup.children.forEach(child => {
+                        if(child.userData.isElectronRing) {
+                            child.rotation.y += child.userData.speed;
+                            child.rotation.x += child.userData.speed * 0.5;
+                        }
+                    });
+                }
+                atomRenderer.render(atomScene, atomCamera);
+            }
+            render();
+        }
+
+        function updateAtom() {
+            if(!atomGroup) return;
+            // clear old
+            while(atomGroup.children.length > 0){ 
+                atomGroup.remove(atomGroup.children[0]); 
+            }
+
+            const atomicNumber = parseInt(document.getElementById('atom-element').value);
+            
+            // Nucleus
+            const nucGroup = new THREE.Group();
+            const nucGeo = new THREE.SphereGeometry(0.3, 16, 16);
+            const protonMat = new THREE.MeshPhongMaterial({ color: 0xef4444 });
+            const neutronMat = new THREE.MeshPhongMaterial({ color: 0x3b82f6 });
+            
+            for(let i=0; i<atomicNumber*2; i++) {
+                let mesh = new THREE.Mesh(nucGeo, i%2===0 ? protonMat : neutronMat);
+                mesh.position.set((Math.random()-0.5)*1.5, (Math.random()-0.5)*1.5, (Math.random()-0.5)*1.5);
+                nucGroup.add(mesh);
+            }
+            atomGroup.add(nucGroup);
+
+            // Electrons (simplified shells 2, 8, ...)
+            const shells = [2, 8, 18];
+            let eLeft = atomicNumber;
+            let radius = 4;
+
+            const eGeo = new THREE.SphereGeometry(0.2, 16, 16);
+            const eMat = new THREE.MeshPhongMaterial({ color: 0xffb700, emissive: 0xffb700, emissiveIntensity: 0.5 });
+            const trackMat = new THREE.LineBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.1 });
+
+            for(let s=0; s<shells.length; s++) {
+                if(eLeft <= 0) break;
+                let eInShell = Math.min(eLeft, shells[s]);
+                
+                const ringGroup = new THREE.Group();
+                ringGroup.userData = { isElectronRing: true, speed: 0.01 + Math.random()*0.02 };
+                
+                // Track
+                const trackGeo = new THREE.BufferGeometry();
+                const trackPts = [];
+                for(let i=0; i<=64; i++) {
+                    trackPts.push(new THREE.Vector3(Math.cos(i/64 * Math.PI*2)*radius, 0, Math.sin(i/64 * Math.PI*2)*radius));
+                }
+                trackGeo.setFromPoints(trackPts);
+                ringGroup.add(new THREE.Line(trackGeo, trackMat));
+
+                // Electrons
+                for(let e=0; e<eInShell; e++) {
+                    let angle = (e / eInShell) * Math.PI * 2;
+                    let emesh = new THREE.Mesh(eGeo, eMat);
+                    emesh.position.set(Math.cos(angle)*radius, 0, Math.sin(angle)*radius);
+                    ringGroup.add(emesh);
+                }
+
+                // Random tilt
+                ringGroup.rotation.x = Math.random() * Math.PI;
+                ringGroup.rotation.y = Math.random() * Math.PI;
+
+                atomGroup.add(ringGroup);
+
+                radius += 2.5;
+                eLeft -= eInShell;
+            }
+        }
+        setTimeout(initAtomScene, 100); // delay to ensure layout
+
+        // --- TAB 3: ENGINEERING GRAPHICS ---
+        let egScene, egCamera, egRenderer, egControls, currentSolid;
+        let orthoCameras = {}, orthoCanvases = {};
+
+        function initGraphicsScene() {
+            const container = document.getElementById('graphics-3d-container');
+            if(!container) return;
+            
+            egScene = new THREE.Scene();
+            egScene.background = new THREE.Color(0x1a1e24);
+
+            egCamera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 100);
+            egCamera.position.set(15, 15, 15);
+
+            egRenderer = new THREE.WebGLRenderer({ antialias: true });
+            egRenderer.setSize(container.clientWidth, container.clientHeight);
+            container.appendChild(egRenderer.domElement);
+
+            egControls = new THREE.OrbitControls(egCamera, egRenderer.domElement);
+            egControls.enableDamping = true;
+
+            // Lights
+            egScene.add(new THREE.AmbientLight(0xffffff, 0.6));
+            const dl = new THREE.DirectionalLight(0xffffff, 0.8);
+            dl.position.set(10, 20, 10);
+            egScene.add(dl);
+
+            // Grid & Axes
+            const gridHelper = new THREE.GridHelper(20, 20, 0x444444, 0x222222);
+            egScene.add(gridHelper);
+            const axesHelper = new THREE.AxesHelper(10);
+            egScene.add(axesHelper);
+
+            // Setup Ortho Cameras for Projections
+            const d = 10;
+            orthoCameras.front = new THREE.OrthographicCamera(-d, d, d, -d, 1, 100);
+            orthoCameras.front.position.set(0, 0, 20);
+            orthoCameras.front.lookAt(0,0,0);
+
+            orthoCameras.top = new THREE.OrthographicCamera(-d, d, d, -d, 1, 100);
+            orthoCameras.top.position.set(0, 20, 0);
+            orthoCameras.top.lookAt(0,0,0);
+
+            orthoCameras.side = new THREE.OrthographicCamera(-d, d, d, -d, 1, 100);
+            orthoCameras.side.position.set(20, 0, 0);
+            orthoCameras.side.lookAt(0,0,0);
+
+            // Setup 2D canvases for output
+            ['front', 'top', 'side'].forEach(view => {
+                const cvs = document.getElementById(`ortho-${view}`);
+                cvs.width = cvs.parentElement.clientWidth;
+                cvs.height = cvs.parentElement.clientHeight;
+                orthoCanvases[view] = cvs.getContext('2d');
+            });
+
+            setGraphicsSolid('cube');
+
+            function render() {
+                requestAnimationFrame(render);
+                egControls.update();
+                
+                // Render main view
+                egRenderer.render(egScene, egCamera);
+
+                // Render Ortho Views manually by swapping canvas data (simplest way without multiple renderers)
+                renderOrthoView('front');
+                renderOrthoView('top');
+                renderOrthoView('side');
+            }
+            render();
+        }
+
+        function renderOrthoView(viewName) {
+            const cam = orthoCameras[viewName];
+            const ctx = orthoCanvases[viewName];
+            if(!cam || !ctx) return;
+
+            // Render to main WebGL context briefly with ortho camera
+            // to extract pixels. (A bit hacky but works for demo).
+            // Actually, better: render to main canvas, then drawImage to 2D canvas.
+            
+            // hide grid/axes in 2D views
+            egScene.children.forEach(c => {
+                if(c.type === 'GridHelper' || c.type === 'AxesHelper') c.visible = false;
+            });
+
+            // Adjust aspect ratio for ortho camera based on destination canvas
+            const aspect = ctx.canvas.width / ctx.canvas.height;
+            const d = 8;
+            cam.left = -d * aspect;
+            cam.right = d * aspect;
+            cam.top = d;
+            cam.bottom = -d;
+            cam.updateProjectionMatrix();
+
+            egRenderer.render(egScene, cam);
+            ctx.drawImage(egRenderer.domElement, 0, 0, ctx.canvas.width, ctx.canvas.height);
+
+            // restore
+            egScene.children.forEach(c => {
+                if(c.type === 'GridHelper' || c.type === 'AxesHelper') c.visible = true;
+            });
+        }
+
+        function setGraphicsSolid(type) {
+            if(currentSolid) egScene.remove(currentSolid);
+
+            let geo;
+            const mat = new THREE.MeshStandardMaterial({ 
+                color: 0x0ea5e9, 
+                roughness: 0.4, 
+                metalness: 0.1,
+                polygonOffset: true,
+                polygonOffsetFactor: 1, 
+                polygonOffsetUnits: 1
+            });
+
+            // Add wireframe to see edges clearly in projections
+            const wfMat = new THREE.LineBasicMaterial({ color: 0xffffff, linewidth: 2 });
+
+            if(type === 'cube') geo = new THREE.BoxGeometry(6, 6, 6);
+            if(type === 'cylinder') geo = new THREE.CylinderGeometry(3, 3, 8, 32);
+            if(type === 'cone') geo = new THREE.ConeGeometry(4, 8, 32);
+            if(type === 'lbracket') {
+                const shape = new THREE.Shape();
+                shape.moveTo(0, 0);
+                shape.lineTo(6, 0);
+                shape.lineTo(6, 2);
+                shape.lineTo(2, 2);
+                shape.lineTo(2, 8);
+                shape.lineTo(0, 8);
+                shape.lineTo(0, 0);
+                geo = new THREE.ExtrudeGeometry(shape, { depth: 4, bevelEnabled: false });
+                geo.translate(-3, -4, -2); // center it
+            }
+
+            currentSolid = new THREE.Mesh(geo, mat);
+            
+            const edges = new THREE.EdgesGeometry(geo);
+            const line = new THREE.LineSegments(edges, wfMat);
+            currentSolid.add(line);
+
+            currentSolid.position.y = (type==='lbracket') ? 4 : 4; 
+            egScene.add(currentSolid);
+            
+            addCredits(5);
+        }
+
+        setTimeout(initGraphicsScene, 500);
+
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            // C Terminal
+            const cCont = document.getElementById('c-scene-container');
+            // Atom
+            const aCont = document.getElementById('atom-3d-container');
+            if(aCont && atomRenderer) {
+                atomCamera.aspect = aCont.clientWidth / aCont.clientHeight;
+                atomCamera.updateProjectionMatrix();
+                atomRenderer.setSize(aCont.clientWidth, aCont.clientHeight);
+            }
+            // Graphics
+            const gCont = document.getElementById('graphics-3d-container');
+            if(gCont && egRenderer) {
+                egCamera.aspect = gCont.clientWidth / gCont.clientHeight;
+                egCamera.updateProjectionMatrix();
+                egRenderer.setSize(gCont.clientWidth, gCont.clientHeight);
+
+                ['front', 'top', 'side'].forEach(view => {
+                    const cvs = document.getElementById(`ortho-${view}`);
+                    cvs.width = cvs.parentElement.clientWidth;
+                    cvs.height = cvs.parentElement.clientHeight;
+                });
+            }
+        });
+
+    </script>
+<script src="gemini-chat.js"></script>
+</body>
+</html>
