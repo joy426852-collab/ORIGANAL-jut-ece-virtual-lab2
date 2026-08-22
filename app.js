@@ -1148,14 +1148,27 @@ function saveOrdersData() {
 // 8. PRODUCT CATALOG RENDERING & FILTERING
 // ==========================================
 function renderDepartmentCounts() {
+  let countVeg = 0, countDairy = 0, countMeat = 0, countPantry = 0, countElec = 0, countFashion = 0, countGen = 0;
+
+  for (let i = 0; i < PRODUCTS_DATA.length; i++) {
+    const category = PRODUCTS_DATA[i].category;
+    if (category === 'fruits-veg') countVeg++;
+    else if (category === 'dairy-eggs') countDairy++;
+    else if (category === 'meat-seafood') countMeat++;
+    else if (category === 'bakery-pantry') countPantry++;
+    else if (category === 'electronics') countElec++;
+    else if (category === 'fashion') countFashion++;
+    else if (category === 'general-merchandise') countGen++;
+  }
+
   document.getElementById('countAll').innerText = PRODUCTS_DATA.length;
-  document.getElementById('countVeg').innerText = PRODUCTS_DATA.filter(p => p.category === 'fruits-veg').length;
-  document.getElementById('countDairy').innerText = PRODUCTS_DATA.filter(p => p.category === 'dairy-eggs').length;
-  document.getElementById('countMeat').innerText = PRODUCTS_DATA.filter(p => p.category === 'meat-seafood').length;
-  document.getElementById('countPantry').innerText = PRODUCTS_DATA.filter(p => p.category === 'bakery-pantry').length;
-  document.getElementById('countElec').innerText = PRODUCTS_DATA.filter(p => p.category === 'electronics').length;
-  document.getElementById('countFashion').innerText = PRODUCTS_DATA.filter(p => p.category === 'fashion').length;
-  document.getElementById('countGen').innerText = PRODUCTS_DATA.filter(p => p.category === 'general-merchandise').length;
+  document.getElementById('countVeg').innerText = countVeg;
+  document.getElementById('countDairy').innerText = countDairy;
+  document.getElementById('countMeat').innerText = countMeat;
+  document.getElementById('countPantry').innerText = countPantry;
+  document.getElementById('countElec').innerText = countElec;
+  document.getElementById('countFashion').innerText = countFashion;
+  document.getElementById('countGen').innerText = countGen;
 }
 
 function renderProductCatalog() {
