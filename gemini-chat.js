@@ -1001,12 +1001,12 @@ If $f_s < 2 f_{max}$ (under-sampling), high-frequency spectral components fold i
     let bestMatch = null;
     let maxScore = 0;
 
+    const words = q.split(/\s+/);
     for (const item of OFFLINE_KB) {
       let score = 0;
       for (const kw of item.keywords) {
         if (q.includes(kw.toLowerCase())) score += 3;
       }
-      const words = q.split(/\\s+/);
       for (const w of words) {
         if (w.length > 2 && item.content.toLowerCase().includes(w)) score += 1;
       }
