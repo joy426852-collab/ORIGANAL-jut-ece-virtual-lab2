@@ -58,12 +58,7 @@ BEHAVIOR RULES:
   // ─── State ───────────────────────────────────────────────────────────────────
   let isOpen = false;
   let isLoading = false;
-  const DEFAULT_KEY = 'AIzaSyA8jRXyiD92yw0mymp1vgPP9oLzYVTNEh8';
-  let apiKey = localStorage.getItem('jut_gemini_key') || DEFAULT_KEY;
-  // Auto-save default key to localStorage on first load
-  if (!localStorage.getItem('jut_gemini_key')) {
-    localStorage.setItem('jut_gemini_key', DEFAULT_KEY);
-  }
+  let apiKey = localStorage.getItem('jut_gemini_key') || '';
   let conversationHistory = [];
   let currentPageContext = detectPageContext();
 
