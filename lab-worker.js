@@ -8,6 +8,9 @@
 
 // ─── Simulation State ──────────────────────────────────────────────────────────
 let components = [];
+let batteries = [];
+let resistors = [];
+let leds = [];
 let wires = [];
 let nodeVoltages = { GND: 0.0 };
 let branchCurrents = {};
@@ -44,6 +47,9 @@ self.onmessage = function(e) {
       break;
     case 'TOPOLOGY_UPDATE':
       components = payload.components || [];
+      batteries = components.filter(c => c.type === 'BATTERY_9V');
+      resistors = components.filter(c => c.type === 'RESISTOR');
+      leds = components.filter(c => c.type === 'LED');
       wires = payload.wires || [];
       rebuildNetMap();
       break;
@@ -123,46 +129,43 @@ function solveCircuitStep() {
   const currents = {};
 
   // Step 1 — Battery/Voltage source injection
-  components.forEach(comp => {
-    if (comp.type === 'BATTERY_9V') {
-      const posNet = pinToNet[comp.terminals?.pos] || `SRC_POS_${comp.id}`;
-      const negNet = pinToNet[comp.terminals?.neg] || 'GND';
-      voltages[negNet] = 0.0;
-      voltages[posNet] = comp.properties?.voltage ?? 9.0;
-    }
-  });
+  for (let i = 0, len = batteries.length; i < len; i++) {
+    const comp = batteries[i];
+    const posNet = pinToNet[comp.terminals?.pos] || `SRC_POS_${comp.id}`;
+    const negNet = pinToNet[comp.terminals?.neg] || 'GND';
+    voltages[negNet] = 0.0;
+    voltages[posNet] = comp.properties?.voltage ?? 9.0;
+  }
 
   // Step 2 — Resistor voltage divider propagation
-  components.forEach(comp => {
-    if (comp.type === 'RESISTOR') {
-      const netA = pinToNet[comp.terminals?.pinA] || 'GND';
-      const netB = pinToNet[comp.terminals?.pinB] || 'GND';
-      const R = comp.properties?.resistance ?? 220;
-      const vA = voltages[netA] ?? 0.0;
-      const vB = voltages[netB] ?? 0.0;
-      const I = (vA - vB) / R;
-      currents[comp.id] = I;
-    }
-  });
+  for (let i = 0, len = resistors.length; i < len; i++) {
+    const comp = resistors[i];
+    const netA = pinToNet[comp.terminals?.pinA] || 'GND';
+    const netB = pinToNet[comp.terminals?.pinB] || 'GND';
+    const R = comp.properties?.resistance ?? 220;
+    const vA = voltages[netA] ?? 0.0;
+    const vB = voltages[netB] ?? 0.0;
+    const I = (vA - vB) / R;
+    currents[comp.id] = I;
+  }
 
   // Step 3 — LED diode model (piecewise linear: Vf = 2.0V, Rs = 68Ω)
-  components.forEach(comp => {
-    if (comp.type === 'LED') {
-      const anodeNet = pinToNet[comp.terminals?.anode] || 'GND';
-      const cathodeNet = pinToNet[comp.terminals?.cathode] || 'GND';
-      const vA = voltages[anodeNet] ?? 0.0;
-      const vK = voltages[cathodeNet] ?? 0.0;
-      const vForward = comp.properties?.forwardVoltage ?? 2.0;
-      const vDrop = vA - vK;
+  for (let i = 0, len = leds.length; i < len; i++) {
+    const comp = leds[i];
+    const anodeNet = pinToNet[comp.terminals?.anode] || 'GND';
+    const cathodeNet = pinToNet[comp.terminals?.cathode] || 'GND';
+    const vA = voltages[anodeNet] ?? 0.0;
+    const vK = voltages[cathodeNet] ?? 0.0;
+    const vForward = comp.properties?.forwardVoltage ?? 2.0;
+    const vDrop = vA - vK;
 
-      if (vDrop > vForward) {
-        const I = (vDrop - vForward) / 68.0; // 68Ω series resistance
-        currents[comp.id] = Math.min(I, 0.025); // Clamp at 25mA max
-      } else {
-        currents[comp.id] = 0.0;
-      }
+    if (vDrop > vForward) {
+      const I = (vDrop - vForward) / 68.0; // 68Ω series resistance
+      currents[comp.id] = Math.min(I, 0.025); // Clamp at 25mA max
+    } else {
+      currents[comp.id] = 0.0;
     }
-  });
+  }
 
   // Step 4 — Propagate pin voltages from nets
   Object.keys(pinToNet).forEach(pin => {
