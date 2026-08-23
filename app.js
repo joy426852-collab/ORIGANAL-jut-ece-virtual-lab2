@@ -1205,8 +1205,13 @@ function renderProductCatalog() {
 
   if (empty) empty.style.display = 'none';
 
+  const cartMap = new Map();
+  for (const item of AppState.cart) {
+    cartMap.set(item.id, item);
+  }
+
   grid.innerHTML = filtered.map(item => {
-    const cartItem = AppState.cart.find(c => c.id === item.id);
+    const cartItem = cartMap.get(item.id);
     const inCartQty = cartItem ? cartItem.qty : 0;
     const isWishlisted = AppState.wishlist.has(item.id);
 
