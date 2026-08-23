@@ -532,12 +532,12 @@
 <script>
     // --- GLOBAL STATE & GAMIFICATION ---
     let totalCredits = parseInt(localStorage.getItem('jut_zone3_credits')) || 0;
-    document.getElementById('total-credits').innerText = totalCredits;
+    if (document.getElementById('total-credits')) document.getElementById('total-credits').innerText = totalCredits;
 
     function addCredits(amt, reason) {
         totalCredits += amt;
         localStorage.setItem('jut_zone3_credits', totalCredits);
-        document.getElementById('total-credits').innerText = totalCredits;
+        if (document.getElementById('total-credits')) document.getElementById('total-credits').innerText = totalCredits;
         showNotification(`+${amt} Credits: ${reason}`);
     }
 
@@ -559,13 +559,13 @@
         currentTab = tabId;
         
         if(tabId === 'tab-motor') {
-            document.getElementById('hud-hint').innerText = "Adjust load and observe slip characteristics.";
+            if (document.getElementById('hud-hint')) document.getElementById('hud-hint').innerText = "Adjust load and observe slip characteristics.";
             if(!motorSceneInited) initMotorScene();
         } else if (tabId === 'tab-grid') {
-            document.getElementById('hud-hint').innerText = "Balance grid load to maintain 50Hz frequency.";
+            if (document.getElementById('hud-hint')) document.getElementById('hud-hint').innerText = "Balance grid load to maintain 50Hz frequency.";
             if(!gridInited) initGrid();
         } else if (tabId === 'tab-tour') {
-            document.getElementById('hud-hint').innerText = "Walk around to find equipment and hazards.";
+            if (document.getElementById('hud-hint')) document.getElementById('hud-hint').innerText = "Walk around to find equipment and hazards.";
             if(!tourInited) initTour();
         }
     }
@@ -702,13 +702,13 @@
         if(isMotorRunning) {
             btn.innerText = "Power: ON";
             btn.classList.add('active-toggle');
-            document.getElementById('hud-status').innerText = "Status: Motor Running";
+            if (document.getElementById('hud-status')) document.getElementById('hud-status').innerText = "Status: Motor Running";
             addCredits(10, "Started AC Motor");
             updateMotorSim();
         } else {
             btn.innerText = "Power: OFF";
             btn.classList.remove('active-toggle');
-            document.getElementById('hud-status').innerText = "Status: Idle";
+            if (document.getElementById('hud-status')) document.getElementById('hud-status').innerText = "Status: Idle";
             targetRpm = 0;
             motorSpeed = 0;
             updateReadouts(0, 0, 0, 0);
@@ -736,8 +736,8 @@
     function updateMotorSim() {
         simVoltage = document.getElementById('slider-voltage').value;
         simLoad = document.getElementById('slider-load').value;
-        document.getElementById('val-voltage').innerText = simVoltage;
-        document.getElementById('val-load').innerText = simLoad;
+        if (document.getElementById('val-voltage')) document.getElementById('val-voltage').innerText = simVoltage;
+        if (document.getElementById('val-load')) document.getElementById('val-load').innerText = simLoad;
 
         if(isMotorRunning) {
             // Very simple Induction Motor physics
@@ -761,10 +761,10 @@
     }
 
     function updateReadouts(rpm, cur, pwr, eff) {
-        document.getElementById('ro-speed').innerText = rpm;
-        document.getElementById('ro-current').innerText = cur;
-        document.getElementById('ro-power').innerText = pwr;
-        document.getElementById('ro-eff').innerText = eff;
+        if (document.getElementById('ro-speed')) document.getElementById('ro-speed').innerText = rpm;
+        if (document.getElementById('ro-current')) document.getElementById('ro-current').innerText = cur;
+        if (document.getElementById('ro-power')) document.getElementById('ro-power').innerText = pwr;
+        if (document.getElementById('ro-eff')) document.getElementById('ro-eff').innerText = eff;
     }
 
     function drawTorqueCurve(loadPercent = 0) {
@@ -863,8 +863,8 @@
             gridFreq = 50 + (delta / 1000) * 0.1; // simplified droop
             
             // Update Dashboard
-            document.getElementById('grid-load').innerText = gridLoad + " kW";
-            document.getElementById('grid-freq').innerText = gridFreq.toFixed(2) + " Hz";
+            if (document.getElementById('grid-load')) document.getElementById('grid-load').innerText = gridLoad + " kW";
+            if (document.getElementById('grid-freq')) document.getElementById('grid-freq').innerText = gridFreq.toFixed(2) + " Hz";
             if(gridFreq < 49.5 || gridFreq > 50.5) {
                 document.getElementById('grid-freq').style.color = '#ef4444';
             } else {
@@ -968,17 +968,17 @@
 
     function correctPF() {
         pfCapacitorOn = !pfCapacitorOn;
-        document.getElementById('grid-pf').innerText = pfCapacitorOn ? "0.98 Lead" : "0.85 Lag";
+        if (document.getElementById('grid-pf')) document.getElementById('grid-pf').innerText = pfCapacitorOn ? "0.98 Lead" : "0.85 Lag";
         addCredits(10, "Switched Capacitor Bank");
     }
 
     function updateSCR() {
         let alpha = document.getElementById('slider-alpha').value;
-        document.getElementById('val-alpha').innerText = alpha;
+        if (document.getElementById('val-alpha')) document.getElementById('val-alpha').innerText = alpha;
         
         let Vm = 325; // 230V rms
         let Vdc = (Vm / Math.PI) * (1 + Math.cos(alpha * Math.PI / 180));
-        document.getElementById('scr-vdc').innerText = Vdc.toFixed(1);
+        if (document.getElementById('scr-vdc')) document.getElementById('scr-vdc').innerText = Vdc.toFixed(1);
 
         const cvs = document.getElementById('scr-canvas');
         if(!cvs) return;
@@ -1268,7 +1268,7 @@
                 } else {
                     currentIntersect = null;
                     document.getElementById('crosshair').style.background = 'white';
-                    document.getElementById('hud-hint').innerText = isTouchMobile ? "Use joystick to explore plant." : "Walk around to find equipment.";
+                    if (document.getElementById('hud-hint')) document.getElementById('hud-hint').innerText = isTouchMobile ? "Use joystick to explore plant." : "Walk around to find equipment.";
                 }
                 
                 drawMinimap();
@@ -1297,7 +1297,7 @@
             interactables = interactables.filter(i => i !== currentIntersect);
             currentIntersect = null;
             hazardsFound++;
-            document.getElementById('hazard-count').innerText = hazardsFound;
+            if (document.getElementById('hazard-count')) document.getElementById('hazard-count').innerText = hazardsFound;
             addCredits(10, "Hazard Identified");
             if(hazardsFound === 5) addCredits(30, "Safety Certificate Unlocked!");
             return;
@@ -1308,10 +1308,10 @@
             document.exitPointerLock();
             const card = document.getElementById('inspect-card');
             card.style.display = 'block';
-            document.getElementById('insp-title').innerText = data.name;
-            document.getElementById('insp-syll').innerText = data.syll;
-            document.getElementById('insp-desc').innerText = data.desc;
-            document.getElementById('insp-q').innerText = data.q;
+            if (document.getElementById('insp-title')) document.getElementById('insp-title').innerText = data.name;
+            if (document.getElementById('insp-syll')) document.getElementById('insp-syll').innerText = data.syll;
+            if (document.getElementById('insp-desc')) document.getElementById('insp-desc').innerText = data.desc;
+            if (document.getElementById('insp-q')) document.getElementById('insp-q').innerText = data.q;
             
             const optsDiv = document.getElementById('insp-opts');
             optsDiv.innerHTML = '';

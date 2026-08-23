@@ -980,7 +980,7 @@ int main() {
         function switchTab(tabId) {
             // Update buttons
             document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-            event.currentTarget.classList.add('active');
+            event?.currentTarget.classList.add('active');
 
             // Update content
             document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
@@ -1004,7 +1004,7 @@ int main() {
 
         // Initialize default tab guide
         switchTab('c-terminal');
-        // Hack to set first button active manually since event.currentTarget isn't valid on init
+        // Hack to set first button active manually since event?.currentTarget isn't valid on init
         document.querySelector('.tab-btn').classList.add('active');
 
         // --- TAB 1: C TERMINAL LOGIC ---
@@ -1146,7 +1146,7 @@ int main() {
         // --- TAB 2: PHYSICS & CHEM ---
         function switchSubTab(sub) {
             document.querySelectorAll('.sub-tab-btn').forEach(btn => btn.classList.remove('active'));
-            event.currentTarget.classList.add('active');
+            event?.currentTarget.classList.add('active');
             
             document.querySelectorAll('.sim-container').forEach(cont => cont.classList.remove('active'));
             document.getElementById('sim-' + sub).classList.add('active');
@@ -1507,7 +1507,7 @@ int main() {
             cam.updateProjectionMatrix();
 
             egRenderer.render(egScene, cam);
-            ctx.drawImage(egRenderer.domElement, 0, 0, ctx.canvas.width, ctx.canvas.height);
+            if (ctx.canvas.width > 0 && ctx.canvas.height > 0 && egRenderer.domElement.width > 0 && egRenderer.domElement.height > 0) ctx.drawImage(egRenderer.domElement, 0, 0, ctx.canvas.width, ctx.canvas.height);
 
             // restore
             egScene.children.forEach(c => {

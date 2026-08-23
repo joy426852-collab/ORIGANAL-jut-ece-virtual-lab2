@@ -913,7 +913,7 @@ function switchAcademyModule(moduleKey) {
   document.querySelectorAll('.academy-tab').forEach((tab, i) => {
     tab.classList.remove('active');
   });
-  if (event && event.currentTarget) event.currentTarget.classList.add('active');
+  if (window.event && window.event.currentTarget) window.event.currentTarget.classList.add('active');
 
   // Switch Module Views
   const views = ['botany', 'nutrition', 'coldchain', 'quest'];
@@ -1319,7 +1319,7 @@ function setFilter(filterKey) {
   document.querySelectorAll('.filter-pill').forEach(btn => {
     btn.classList.remove('active');
   });
-  if (event && event.target) event.target.classList.add('active');
+  if (window.event && window.event.target) window.event.target.classList.add('active');
   renderProductCatalog();
   playSynthSound('beep');
 }
