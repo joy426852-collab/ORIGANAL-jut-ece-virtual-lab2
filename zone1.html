@@ -1419,6 +1419,8 @@ int main() {
         // --- TAB 3: ENGINEERING GRAPHICS ---
         let egScene, egCamera, egRenderer, egControls, currentSolid;
         let orthoCameras = {}, orthoCanvases = {};
+        let orthoRenderTarget;
+        let orthoReadBuffer, orthoFlippedBuffer, orthoImgData;
 
         function initGraphicsScene() {
             const container = document.getElementById('graphics-3d-container');
@@ -1471,6 +1473,8 @@ int main() {
                 orthoCanvases[view] = cvs.getContext('2d');
             });
 
+            orthoRenderTarget = new THREE.WebGLRenderTarget(256, 256);
+
             setGraphicsSolid('cube');
 
             function render() {
@@ -1493,10 +1497,11 @@ int main() {
             const ctx = orthoCanvases[viewName];
             if(!cam || !ctx) return;
 
-            // Render to main WebGL context briefly with ortho camera
-            // to extract pixels. (A bit hacky but works for demo).
-            // Actually, better: render to main canvas, then drawImage to 2D canvas.
-            
+            // Resize render target if needed
+            if (orthoRenderTarget.width !== ctx.canvas.width || orthoRenderTarget.height !== ctx.canvas.height) {
+                orthoRenderTarget.setSize(ctx.canvas.width, ctx.canvas.height);
+            }
+
             // hide grid/axes in 2D views
             egScene.children.forEach(c => {
                 if(c.type === 'GridHelper' || c.type === 'AxesHelper') c.visible = false;
@@ -1511,8 +1516,32 @@ int main() {
             cam.bottom = -d;
             cam.updateProjectionMatrix();
 
+            egRenderer.setRenderTarget(orthoRenderTarget);
             egRenderer.render(egScene, cam);
-            ctx.drawImage(egRenderer.domElement, 0, 0, ctx.canvas.width, ctx.canvas.height);
+            egRenderer.setRenderTarget(null);
+
+            const width = ctx.canvas.width;
+            const height = ctx.canvas.height;
+
+            const bufferSize = width * height * 4;
+            if (!orthoReadBuffer || orthoReadBuffer.length !== bufferSize) {
+                orthoReadBuffer = new Uint8Array(bufferSize);
+                orthoFlippedBuffer = new Uint8ClampedArray(bufferSize);
+                orthoImgData = new ImageData(width, height);
+            }
+
+            egRenderer.readRenderTargetPixels(orthoRenderTarget, 0, 0, width, height, orthoReadBuffer);
+
+            // Flip pixels vertically (WebGL is bottom-up, Canvas2D is top-down)
+            const rowBytes = width * 4;
+            for (let y = 0; y < height; y++) {
+                const srcOffset = y * rowBytes;
+                const dstOffset = (height - 1 - y) * rowBytes;
+                orthoFlippedBuffer.set(orthoReadBuffer.subarray(srcOffset, srcOffset + rowBytes), dstOffset);
+            }
+
+            orthoImgData.data.set(orthoFlippedBuffer);
+            ctx.putImageData(orthoImgData, 0, 0);
 
             // restore
             egScene.children.forEach(c => {
