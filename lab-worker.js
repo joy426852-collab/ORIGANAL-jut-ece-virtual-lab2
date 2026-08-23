@@ -76,6 +76,46 @@ function rebuildNetMap() {
   pinToNet = {};
   netNodes = {};
   let netCounter = 0;
+  let parent = {};
+  let rank = {};
+
+  // Union-Find find with path compression
+  function find(net) {
+    if (parent[net] === undefined) return net;
+    let root = net;
+    while (parent[root] !== undefined) {
+      root = parent[root];
+    }
+    let curr = net;
+    while (curr !== root) {
+      let nxt = parent[curr];
+      parent[curr] = root;
+      curr = nxt;
+    }
+    return root;
+  }
+
+  // Union-Find union with union-by-rank
+  function union(netA, netB) {
+    let rootA = find(netA);
+    let rootB = find(netB);
+    if (rootA !== rootB) {
+      if (rootA === 'GND') parent[rootB] = rootA;
+      else if (rootB === 'GND') parent[rootA] = rootB;
+      else {
+        let rankA = rank[rootA] || 0;
+        let rankB = rank[rootB] || 0;
+        if (rankA < rankB) {
+          parent[rootA] = rootB;
+        } else if (rankA > rankB) {
+          parent[rootB] = rootA;
+        } else {
+          parent[rootB] = rootA;
+          rank[rootA] = rankA + 1;
+        }
+      }
+    }
+  }
 
   // Pre-assign ground rails
   function setGnd(pin) { pinToNet[pin] = 'GND'; }
@@ -100,10 +140,8 @@ function rebuildNetMap() {
     } else if (!netA && netB) {
       pinToNet[a] = netB;
     } else if (netA !== netB) {
-      // Merge netB into netA
-      Object.keys(pinToNet).forEach(p => {
-        if (pinToNet[p] === netB) pinToNet[p] = netA;
-      });
+      // Merge netB and netA using Union-Find
+      union(netA, netB);
     }
   });
 
@@ -114,6 +152,11 @@ function rebuildNetMap() {
         if (pin && !pinToNet[pin]) pinToNet[pin] = `NET_${netCounter++}`;
       });
     }
+  });
+
+  // Flatten the net tree so every pin points directly to the root net
+  Object.keys(pinToNet).forEach(pin => {
+    pinToNet[pin] = find(pinToNet[pin]);
   });
 }
 
