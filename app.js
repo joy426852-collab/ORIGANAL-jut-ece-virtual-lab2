@@ -1250,9 +1250,9 @@ function renderProductCatalog() {
             <div class="card-action-wrap" id="actionWrap-${item.id}">
               ${inCartQty > 0 ? `
                 <div class="qty-stepper">
-                  <button class="qty-btn" onclick="updateItemQty('${item.id}', -1, event)">−</button>
+                  <button class="qty-btn" aria-label="Decrease quantity" onclick="updateItemQty('${item.id}', -1, event)">−</button>
                   <span class="qty-display">${inCartQty}</span>
-                  <button class="qty-btn" onclick="updateItemQty('${item.id}', 1, event)">+</button>
+                  <button class="qty-btn" aria-label="Increase quantity" onclick="updateItemQty('${item.id}', 1, event)">+</button>
                 </div>
               ` : `
                 <button class="add-cart-btn" onclick="addToCart('${item.id}', event)">
@@ -1596,9 +1596,9 @@ function updateCartDrawerUI() {
           </div>
           <div class="cart-item-actions">
             <div class="qty-stepper">
-              <button class="qty-btn" onclick="updateItemQty('${prod.id}', -1)">−</button>
+              <button class="qty-btn" aria-label="Decrease quantity" onclick="updateItemQty('${prod.id}', -1)">−</button>
               <span class="qty-display">${cartItem.qty}</span>
-              <button class="qty-btn" onclick="updateItemQty('${prod.id}', 1)">+</button>
+              <button class="qty-btn" aria-label="Increase quantity" onclick="updateItemQty('${prod.id}', 1)">+</button>
             </div>
             <span class="cart-item-remove" onclick="removeFromCart('${prod.id}')">Remove</span>
           </div>

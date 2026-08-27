@@ -568,7 +568,7 @@ BEHAVIOR RULES:
             <div class="ai-header-sub" id="jut-page-ctx">📍 ${currentPageContext}</div>
           </div>
           <span class="ai-status-dot"></span>
-          <button id="jut-ai-settings-btn" onclick="window.jutAI.showSettings()" title="Change API Key">⚙</button>
+          <button id="jut-ai-settings-btn" aria-label="Settings" onclick="window.jutAI.showSettings()" title="Change API Key">⚙</button>
           <button id="jut-ai-close" onclick="window.jutAI.toggle()" aria-label="Close">✕</button>
         </div>
 
