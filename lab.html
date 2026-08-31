@@ -183,7 +183,7 @@
   <div class="scope-header">
     <span class="scope-title">▋ OSCILLOSCOPE — CH1</span>
     <div class="scope-controls">
-      <button class="scope-btn" onclick="toggleScope()">✕</button>
+      <button class="scope-btn" aria-label="Close Oscilloscope" onclick="toggleScope()">✕</button>
     </div>
   </div>
   <canvas id="scope-canvas-2d" width="320" height="160"></canvas>
@@ -269,7 +269,7 @@
   box-shadow:0 8px 32px rgba(0,0,0,.5);">
   <div style="padding:12px 14px;border-bottom:1px solid rgba(255,255,255,.07);display:flex;align-items:center;justify-content:space-between;">
     <span style="font-size:10px;font-family:'JetBrains Mono',monospace;font-weight:600;letter-spacing:.1em;color:#a855f7;text-transform:uppercase;">🔲 LOGIC GATES</span>
-    <button onclick="toggleLogicPanel()" style="background:none;border:none;color:#475569;cursor:pointer;font-size:14px;">✕</button>
+    <button aria-label="Close Logic Panel" onclick="toggleLogicPanel()" style="background:none;border:none;color:#475569;cursor:pointer;font-size:14px;">✕</button>
   </div>
   <div style="padding:10px;display:flex;flex-direction:column;gap:8px;overflow-y:auto;">
     <div style="font-size:9px;font-family:'JetBrains Mono',monospace;color:#475569;letter-spacing:.1em;text-transform:uppercase;margin-bottom:4px;">Digital Logic Simulator</div>
@@ -333,7 +333,7 @@
         <div style="font-size:14px;font-weight:700;color:#00d4ff;font-family:'Space Grotesk',sans-serif;letter-spacing:.05em;">🖥️ 8085 MICROPROCESSOR VISUALIZER</div>
         <div style="font-size:10px;font-family:'JetBrains Mono',monospace;color:#475569;margin-top:2px;">Intel 8085 — 8-bit CPU | JUT ECE Sem 4 — Unit 2</div>
       </div>
-      <button onclick="toggleCPU()" style="background:none;border:1px solid rgba(255,255,255,.1);color:#94a3b8;cursor:pointer;border-radius:8px;padding:6px 12px;font-size:12px;font-family:'JetBrains Mono',monospace;">✕ Close</button>
+      <button aria-label="Close CPU Panel" onclick="toggleCPU()" style="background:none;border:1px solid rgba(255,255,255,.1);color:#94a3b8;cursor:pointer;border-radius:8px;padding:6px 12px;font-size:12px;font-family:'JetBrains Mono',monospace;">✕ Close</button>
     </div>
 
     <!-- CPU Diagram + Registers -->

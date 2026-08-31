@@ -424,11 +424,11 @@
                 </div>
 
                 <div class="control-group" id="ctrl-voltage">
-                    <label>Supply Voltage: <span id="val-voltage">415</span>V</label>
+                    <label for="slider-voltage">Supply Voltage: <span id="val-voltage">415</span>V</label>
                     <input type="range" class="slider" id="slider-voltage" min="200" max="440" value="415" oninput="updateMotorSim()">
                 </div>
                 <div class="control-group" id="ctrl-load">
-                    <label>Mechanical Load: <span id="val-load">0</span>%</label>
+                    <label for="slider-load">Mechanical Load: <span id="val-load">0</span>%</label>
                     <input type="range" class="slider" id="slider-load" min="0" max="100" value="0" oninput="updateMotorSim()">
                 </div>
 
@@ -452,7 +452,7 @@
                 </div>
 
                 <div class="control-group">
-                    <label>Torque-Speed Characteristic</label>
+                    <div style="font-weight: bold; margin-bottom: 8px;">Torque-Speed Characteristic</div>
                     <canvas id="torque-curve"></canvas>
                 </div>
             </div>
@@ -479,7 +479,7 @@
                         <div class="panel-title">Power Electronics (SCR Control)</div>
                         <canvas id="scr-canvas"></canvas>
                         <div class="control-group">
-                            <label>Firing Angle (α): <span id="val-alpha">45</span>°</label>
+                            <label for="slider-alpha">Firing Angle (α): <span id="val-alpha">45</span>°</label>
                             <input type="range" class="slider" id="slider-alpha" min="0" max="180" value="45" oninput="updateSCR()">
                         </div>
                         <div style="font-family: var(--font-mono); font-size: 0.8rem; color: #aaa;">
