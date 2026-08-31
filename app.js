@@ -1219,7 +1219,7 @@ function renderProductCatalog() {
             ${item.badge ? `<span class="badge ${item.badgeClass || 'badge-organic'}">${item.badge}</span>` : ''}
           </div>
 
-          <button class="card-fav-btn ${isWishlisted ? 'active' : ''}" onclick="toggleWishlist('${item.id}', event)" title="Add to Wishlist">
+          <button class="card-fav-btn ${isWishlisted ? 'active' : ''}" aria-label="Toggle wishlist" onclick="toggleWishlist('${item.id}', event)" title="Add to Wishlist">
             <i data-lucide="heart" style="${isWishlisted ? 'fill: currentColor;' : ''}"></i>
           </button>
 
@@ -1250,9 +1250,9 @@ function renderProductCatalog() {
             <div class="card-action-wrap" id="actionWrap-${item.id}">
               ${inCartQty > 0 ? `
                 <div class="qty-stepper">
-                  <button class="qty-btn" onclick="updateItemQty('${item.id}', -1, event)">−</button>
+                  <button class="qty-btn" aria-label="Decrease quantity" onclick="updateItemQty('${item.id}', -1, event)">−</button>
                   <span class="qty-display">${inCartQty}</span>
-                  <button class="qty-btn" onclick="updateItemQty('${item.id}', 1, event)">+</button>
+                  <button class="qty-btn" aria-label="Increase quantity" onclick="updateItemQty('${item.id}', 1, event)">+</button>
                 </div>
               ` : `
                 <button class="add-cart-btn" onclick="addToCart('${item.id}', event)">
@@ -1596,9 +1596,9 @@ function updateCartDrawerUI() {
           </div>
           <div class="cart-item-actions">
             <div class="qty-stepper">
-              <button class="qty-btn" onclick="updateItemQty('${prod.id}', -1)">−</button>
+              <button class="qty-btn" aria-label="Decrease quantity" onclick="updateItemQty('${prod.id}', -1)">−</button>
               <span class="qty-display">${cartItem.qty}</span>
-              <button class="qty-btn" onclick="updateItemQty('${prod.id}', 1)">+</button>
+              <button class="qty-btn" aria-label="Increase quantity" onclick="updateItemQty('${prod.id}', 1)">+</button>
             </div>
             <span class="cart-item-remove" onclick="removeFromCart('${prod.id}')">Remove</span>
           </div>
@@ -1993,7 +1993,7 @@ function openQuickView(productId) {
         <button class="btn btn-primary btn-lg btn-block" onclick="addToCart('${prod.id}'); closeModal('quickViewModal');">
           <i data-lucide="shopping-cart"></i> Add to Cart (₹${prod.price})
         </button>
-        <button class="icon-btn" onclick="toggleWishlist('${prod.id}')" title="Save to wishlist">
+        <button class="icon-btn" aria-label="Toggle wishlist" onclick="toggleWishlist('${prod.id}')" title="Save to wishlist">
           <i data-lucide="heart" style="${AppState.wishlist.has(prod.id) ? 'color: #ef4444; fill: currentColor;' : ''}"></i>
         </button>
       </div>
