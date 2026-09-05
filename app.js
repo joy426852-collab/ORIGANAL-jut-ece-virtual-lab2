@@ -1368,11 +1368,6 @@ function handleSearch(val) {
   renderProductCatalog();
 }
 
-function clearSearch() {
-  const input = document.getElementById('searchInput');
-  if (input) input.value = '';
-  handleSearch('');
-}
 
 function executeSearch() {
   const input = document.getElementById('searchInput');
