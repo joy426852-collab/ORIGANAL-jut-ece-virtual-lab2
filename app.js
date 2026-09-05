@@ -985,13 +985,6 @@ function updateColdChainSim(val) {
   }
 }
 
-function rotate3DLabObject(delta) {
-  physicsObjects.forEach(obj => {
-    obj.rotation.y += delta;
-  });
-  playSynthSound('whoosh');
-}
-
 function toggleLabWireframe() {
   physicsObjects.forEach(obj => {
     if (obj.material) obj.material.wireframe = !obj.material.wireframe;
