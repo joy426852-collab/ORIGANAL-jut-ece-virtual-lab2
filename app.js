@@ -1399,11 +1399,15 @@ function showSearchDropdown() {
   ).slice(0, 5);
 
   if (matches.length === 0) {
-    dropdown.innerHTML = `
-      <div style="padding: 16px; text-align: center; color: var(--text-muted); font-size: 0.85rem;">
-        No items found for "<strong>${val}</strong>"
-      </div>
-    `;
+    const emptyDiv = document.createElement('div');
+    emptyDiv.style.cssText = 'padding: 16px; text-align: center; color: var(--text-muted); font-size: 0.85rem;';
+    emptyDiv.appendChild(document.createTextNode('No items found for "'));
+    const strongEl = document.createElement('strong');
+    strongEl.textContent = val;
+    emptyDiv.appendChild(strongEl);
+    emptyDiv.appendChild(document.createTextNode('"'));
+    dropdown.innerHTML = '';
+    dropdown.appendChild(emptyDiv);
   } else {
     dropdown.innerHTML = matches.map(item => `
       <div class="search-suggestion-item" onclick="selectSearchItem('${item.id}')">
