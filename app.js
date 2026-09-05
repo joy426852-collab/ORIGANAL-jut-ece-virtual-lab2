@@ -1374,14 +1374,6 @@ function clearSearch() {
   handleSearch('');
 }
 
-function executeSearch() {
-  const input = document.getElementById('searchInput');
-  if (input) handleSearch(input.value);
-  scrollToProducts();
-  const dropdown = document.getElementById('searchDropdown');
-  if (dropdown) dropdown.classList.remove('active');
-}
-
 function showSearchDropdown() {
   const input = document.getElementById('searchInput');
   const dropdown = document.getElementById('searchDropdown');
