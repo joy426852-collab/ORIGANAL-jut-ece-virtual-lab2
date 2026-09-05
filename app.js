@@ -903,10 +903,6 @@ function toggleSpatialAudio() {
 // ==========================================================================
 // 6. LEARNABLE 3D SCIENCE ACADEMY & LAB MODULES
 // ==========================================================================
-function scrollToLab() {
-  const lab = document.getElementById('science-academy');
-  if (lab) lab.scrollIntoView({ behavior: 'smooth' });
-}
 
 function switchAcademyModule(moduleKey) {
   // Update Tab buttons
