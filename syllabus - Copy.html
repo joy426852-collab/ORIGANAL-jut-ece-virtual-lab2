@@ -468,19 +468,19 @@
         </div>
         <div class="nav-actions">
             <input type="text" id="nav-search" placeholder="Quick search..." onkeyup="syncSearch(this.value)">
-            <button class="icon-btn" onclick="toggleTheme()" title="Toggle Theme (T)">☀️</button>
-            <button class="icon-btn" onclick="toggleExamMode()" title="Toggle Exam Mode" id="exam-toggle">📝</button>
+            <button aria-label="Toggle theme" class="icon-btn" onclick="toggleTheme()" title="Toggle Theme (T)">☀️</button>
+            <button aria-label="Toggle exam mode" class="icon-btn" onclick="toggleExamMode()" title="Toggle Exam Mode" id="exam-toggle">📝</button>
             <a href="calculator.html" class="btn" style="border-color:var(--accent-cyan);color:var(--accent-cyan);">🧮 Tools</a>
             <a href="hub.html" class="btn">Back to Hub</a>
 <!-- Hamburger button (hidden on desktop, shown on mobile via CSS) -->
-<button id="mob-ham" onclick="toggleSyllabusNav()" style="
+<button aria-label="Button" id="mob-ham" onclick="toggleSyllabusNav()" style="
   display:none;background:none;border:1px solid rgba(255,255,255,.1);
   border-radius:8px;padding:6px 10px;cursor:pointer;color:#94a3b8;
   font-size:18px;line-height:1;">☰</button>
 <div id="mob-menu" style="display:none;position:fixed;inset:0;z-index:9998;
   background:rgba(6,8,16,.97);backdrop-filter:blur(20px);
   flex-direction:column;align-items:center;justify-content:center;gap:20px;">
-  <button onclick="toggleSyllabusNav()" style="position:absolute;top:16px;right:16px;
+  <button aria-label="Close menu" onclick="toggleSyllabusNav()" style="position:absolute;top:16px;right:16px;
     background:none;border:none;color:#94a3b8;font-size:24px;cursor:pointer;">✕</button>
   <a href="hub.html" style="color:#f0f4f8;text-decoration:none;font-size:18px;font-family:'Space Grotesk',sans-serif;font-weight:600;">🏠 Hub</a>
   <a href="zone1.html" style="color:#f59e0b;text-decoration:none;font-size:18px;font-family:'Space Grotesk',sans-serif;font-weight:600;">🧪 Zone 1</a>
@@ -878,7 +878,7 @@
                         <div class="q-text">State and prove De Moivre's Theorem. Apply it to find the nth roots of unity.</div>
                         <div class="q-footer">
                             <button class="practice-btn" onclick="toggleAnswer(this)">Practice / Hint</button>
-                            <button class="bookmark-btn" onclick="toggleBookmark(this, 'De Moivre Theorem')" data-id="q1">⭐</button>
+                            <button aria-label="Toggle bookmark" class="bookmark-btn" onclick="toggleBookmark(this, 'De Moivre Theorem')" data-id="q1">⭐</button>
                         </div>
                         <div class="answer-drawer">Hint: (cosθ + i sinθ)^n = cos(nθ) + i sin(nθ). For roots, use θ + 2kπ and set n as fraction.</div>
                     </div>
@@ -887,7 +887,7 @@
                         <div class="q-text">Solve a system of linear equations using Cramer's Rule and Matrix Inversion Method.</div>
                         <div class="q-footer">
                             <button class="practice-btn" onclick="toggleAnswer(this)">Practice / Hint</button>
-                            <button class="bookmark-btn" onclick="toggleBookmark(this, 'Cramers Rule')" data-id="q2">⭐</button>
+                            <button aria-label="Toggle bookmark" class="bookmark-btn" onclick="toggleBookmark(this, 'Cramers Rule')" data-id="q2">⭐</button>
                         </div>
                         <div class="answer-drawer">Hint: Cramer's: x = Dx/D, y = Dy/D. Inversion: X = A^(-1)B where A^(-1) = adj(A)/|A|.</div>
                     </div>
@@ -896,7 +896,7 @@
                         <div class="q-text">Explain principle, construction, and working of He-Ne Laser with energy level diagram.</div>
                         <div class="q-footer">
                             <button class="practice-btn" onclick="toggleAnswer(this)">Practice / Hint</button>
-                            <button class="bookmark-btn" onclick="toggleBookmark(this, 'He-Ne Laser')" data-id="q3">⭐</button>
+                            <button aria-label="Toggle bookmark" class="bookmark-btn" onclick="toggleBookmark(this, 'He-Ne Laser')" data-id="q3">⭐</button>
                         </div>
                         <div class="answer-drawer">Hint: Ratio 10:1 (He:Ne). Excitation of He, energy transfer to Ne via collision, population inversion in Ne, emission at 632.8 nm.</div>
                     </div>
@@ -905,7 +905,7 @@
                         <div class="q-text">Explain EDTA method for determining total hardness of water with chemical equations.</div>
                         <div class="q-footer">
                             <button class="practice-btn" onclick="toggleAnswer(this)">Practice / Hint</button>
-                            <button class="bookmark-btn" onclick="toggleBookmark(this, 'EDTA Hardness')" data-id="q4">⭐</button>
+                            <button aria-label="Toggle bookmark" class="bookmark-btn" onclick="toggleBookmark(this, 'EDTA Hardness')" data-id="q4">⭐</button>
                         </div>
                         <div class="answer-drawer">Hint: EBT indicator forms wine red complex with Ca/Mg. Titration with EDTA replaces EBT, turning solution blue. pH ~10 maintained by buffer.</div>
                     </div>
@@ -914,7 +914,7 @@
                         <div class="q-text">Write a C program to multiply two 3×3 matrices with input validation.</div>
                         <div class="q-footer">
                             <button class="practice-btn" onclick="toggleAnswer(this)">Practice / Hint</button>
-                            <button class="bookmark-btn" onclick="toggleBookmark(this, 'Matrix Multiply C')" data-id="q5">⭐</button>
+                            <button aria-label="Toggle bookmark" class="bookmark-btn" onclick="toggleBookmark(this, 'Matrix Multiply C')" data-id="q5">⭐</button>
                         </div>
                         <div class="answer-drawer">Hint: Use 3 nested loops (i, j, k). c[i][j] += a[i][k] * b[k][j]. Initialize result matrix to 0.</div>
                     </div>
@@ -929,7 +929,7 @@
                         <div class="q-text">Explain Full Wave Bridge Rectifier. Derive efficiency and ripple factor expressions.</div>
                         <div class="q-footer">
                             <button class="practice-btn" onclick="toggleAnswer(this)">Practice / Hint</button>
-                            <button class="bookmark-btn" onclick="toggleBookmark(this, 'Bridge Rectifier')" data-id="q6">⭐</button>
+                            <button aria-label="Toggle bookmark" class="bookmark-btn" onclick="toggleBookmark(this, 'Bridge Rectifier')" data-id="q6">⭐</button>
                         </div>
                         <div class="answer-drawer">Hint: Uses 4 diodes. Efficiency = 81.2%. Ripple factor = 0.482. Vdc = 2Vm/π.</div>
                     </div>
@@ -938,7 +938,7 @@
                         <div class="q-text">State and prove Maximum Power Transfer Theorem for AC circuits.</div>
                         <div class="q-footer">
                             <button class="practice-btn" onclick="toggleAnswer(this)">Practice / Hint</button>
-                            <button class="bookmark-btn" onclick="toggleBookmark(this, 'Max Power Transfer')" data-id="q7">⭐</button>
+                            <button aria-label="Toggle bookmark" class="bookmark-btn" onclick="toggleBookmark(this, 'Max Power Transfer')" data-id="q7">⭐</button>
                         </div>
                         <div class="answer-drawer">Hint: Z_load must be the complex conjugate of Z_thevenin (R_L = R_th, X_L = -X_th). P_max = V_th^2 / 4R_th.</div>
                     </div>
@@ -947,7 +947,7 @@
                         <div class="q-text">Draw and explain internal architecture of 8085 Microprocessor.</div>
                         <div class="q-footer">
                             <button class="practice-btn" onclick="toggleAnswer(this)">Practice / Hint</button>
-                            <button class="bookmark-btn" onclick="toggleBookmark(this, '8085 Arch')" data-id="q8">⭐</button>
+                            <button aria-label="Toggle bookmark" class="bookmark-btn" onclick="toggleBookmark(this, '8085 Arch')" data-id="q8">⭐</button>
                         </div>
                         <div class="answer-drawer">Hint: ALU, Accumulator, General purpose registers (B,C,D,E,H,L), Program Counter, Stack Pointer, Instruction Decoder, Timing & Control.</div>
                     </div>
@@ -956,7 +956,7 @@
                         <div class="q-text">State and prove Sampling Theorem. Explain aliasing and prevention.</div>
                         <div class="q-footer">
                             <button class="practice-btn" onclick="toggleAnswer(this)">Practice / Hint</button>
-                            <button class="bookmark-btn" onclick="toggleBookmark(this, 'Sampling Theorem')" data-id="q9">⭐</button>
+                            <button aria-label="Toggle bookmark" class="bookmark-btn" onclick="toggleBookmark(this, 'Sampling Theorem')" data-id="q9">⭐</button>
                         </div>
                         <div class="answer-drawer">Hint: fs ≥ 2fm. Aliasing occurs if fs < 2fm, causing spectral overlap. Prevent with anti-aliasing low-pass filter before sampling.</div>
                     </div>
@@ -971,7 +971,7 @@
                         <div class="q-text">Determine stability using Routh-Hurwitz criterion for a given characteristic equation.</div>
                         <div class="q-footer">
                             <button class="practice-btn" onclick="toggleAnswer(this)">Practice / Hint</button>
-                            <button class="bookmark-btn" onclick="toggleBookmark(this, 'Routh-Hurwitz')" data-id="q10">⭐</button>
+                            <button aria-label="Toggle bookmark" class="bookmark-btn" onclick="toggleBookmark(this, 'Routh-Hurwitz')" data-id="q10">⭐</button>
                         </div>
                         <div class="answer-drawer">Hint: Form Routh array. System is stable if all elements in the first column have the same sign. Sign changes = roots in RHS.</div>
                     </div>
@@ -980,7 +980,7 @@
                         <div class="q-text">Explain construction, working, V-I characteristics of SCR. Define latching/holding current.</div>
                         <div class="q-footer">
                             <button class="practice-btn" onclick="toggleAnswer(this)">Practice / Hint</button>
-                            <button class="bookmark-btn" onclick="toggleBookmark(this, 'SCR Characteristics')" data-id="q11">⭐</button>
+                            <button aria-label="Toggle bookmark" class="bookmark-btn" onclick="toggleBookmark(this, 'SCR Characteristics')" data-id="q11">⭐</button>
                         </div>
                         <div class="answer-drawer">Hint: 4-layer PNPN device. 3 junctions. Forward blocking, forward conduction (avalanche at V_BO or via gate pulse), reverse blocking. Latching > Holding.</div>
                     </div>
@@ -989,7 +989,7 @@
                         <div class="q-text">What is a chopper? Explain Step-up and Step-down choppers with output voltage derivations.</div>
                         <div class="q-footer">
                             <button class="practice-btn" onclick="toggleAnswer(this)">Practice / Hint</button>
-                            <button class="bookmark-btn" onclick="toggleBookmark(this, 'Choppers')" data-id="q12">⭐</button>
+                            <button aria-label="Toggle bookmark" class="bookmark-btn" onclick="toggleBookmark(this, 'Choppers')" data-id="q12">⭐</button>
                         </div>
                         <div class="answer-drawer">Hint: DC-DC converter. Step-down: Vo = D*Vs. Step-up: Vo = Vs / (1-D). Where D = duty cycle = Ton/T.</div>
                     </div>

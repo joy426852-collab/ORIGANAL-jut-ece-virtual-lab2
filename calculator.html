@@ -512,7 +512,7 @@
 
                 <div class="form-row">
                     <div class="input-group">
-                        <label>Band 1 (1st Digit)</label>
+                        <label for="res-b1">Band 1 (1st Digit)</label>
                         <select id="res-b1" onchange="calcResistor()">
                             <option value="1" style="color:#92400e;">Brown (1)</option>
                             <option value="2" style="color:#ef4444;">Red (2)</option>
@@ -527,7 +527,7 @@
                     </div>
 
                     <div class="input-group">
-                        <label>Band 2 (2nd Digit)</label>
+                        <label for="res-b2">Band 2 (2nd Digit)</label>
                         <select id="res-b2" onchange="calcResistor()">
                             <option value="0" style="color:#000;">Black (0)</option>
                             <option value="1" style="color:#92400e;">Brown (1)</option>
@@ -543,7 +543,7 @@
                     </div>
 
                     <div class="input-group">
-                        <label>Band 3 (Multiplier)</label>
+                        <label for="res-b3">Band 3 (Multiplier)</label>
                         <select id="res-b3" onchange="calcResistor()">
                             <option value="1">Black (×1 Ω)</option>
                             <option value="10">Brown (×10 Ω)</option>
@@ -558,7 +558,7 @@
                     </div>
 
                     <div class="input-group">
-                        <label>Band 4 (Tolerance)</label>
+                        <label for="res-b4">Band 4 (Tolerance)</label>
                         <select id="res-b4" onchange="calcResistor()">
                             <option value="5" selected>Gold (±5%)</option>
                             <option value="10">Silver (±10%)</option>
@@ -671,15 +671,15 @@ HLT</textarea>
 
                 <div class="form-row">
                     <div class="input-group">
-                        <label>Resistance R (Ω)</label>
+                        <label for="rlc-r">Resistance R (Ω)</label>
                         <input type="number" inputmode="decimal" id="rlc-r" class="input-field" value="50" oninput="calcRLC()">
                     </div>
                     <div class="input-group">
-                        <label>Inductance L (mH)</label>
+                        <label for="rlc-l">Inductance L (mH)</label>
                         <input type="number" inputmode="decimal" id="rlc-l" class="input-field" value="10" oninput="calcRLC()">
                     </div>
                     <div class="input-group">
-                        <label>Capacitance C (µF)</label>
+                        <label for="rlc-c">Capacitance C (µF)</label>
                         <input type="number" inputmode="decimal" id="rlc-c" class="input-field" value="1" oninput="calcRLC()">
                     </div>
                 </div>
@@ -704,15 +704,15 @@ HLT</textarea>
 
                 <div class="form-row">
                     <div class="input-group">
-                        <label>Resistor R1 (kΩ)</label>
+                        <label for="tm-r1">Resistor R1 (kΩ)</label>
                         <input type="number" inputmode="decimal" id="tm-r1" class="input-field" value="10" oninput="calc555()">
                     </div>
                     <div class="input-group">
-                        <label>Resistor R2 (kΩ)</label>
+                        <label for="tm-r2">Resistor R2 (kΩ)</label>
                         <input type="number" inputmode="decimal" id="tm-r2" class="input-field" value="47" oninput="calc555()">
                     </div>
                     <div class="input-group">
-                        <label>Capacitor C (µF)</label>
+                        <label for="tm-c">Capacitor C (µF)</label>
                         <input type="number" inputmode="decimal" id="tm-c" class="input-field" value="0.1" oninput="calc555()">
                     </div>
                 </div>
@@ -737,22 +737,22 @@ HLT</textarea>
 
                 <div class="form-row">
                     <div class="input-group">
-                        <label>Configuration</label>
+                        <label for="op-type">Configuration</label>
                         <select id="op-type" onchange="calcOpAmp()">
                             <option value="inv">Inverting Amplifier (Gain = -Rf / Rin)</option>
                             <option value="noninv">Non-Inverting Amplifier (Gain = 1 + Rf / Rin)</option>
                         </select>
                     </div>
                     <div class="input-group">
-                        <label>Input Voltage Vin (V)</label>
+                        <label for="op-vin">Input Voltage Vin (V)</label>
                         <input type="number" inputmode="decimal" id="op-vin" class="input-field" value="1.0" oninput="calcOpAmp()">
                     </div>
                     <div class="input-group">
-                        <label>Input Resistor Rin (kΩ)</label>
+                        <label for="op-rin">Input Resistor Rin (kΩ)</label>
                         <input type="number" inputmode="decimal" id="op-rin" class="input-field" value="10" oninput="calcOpAmp()">
                     </div>
                     <div class="input-group">
-                        <label>Feedback Resistor Rf (kΩ)</label>
+                        <label for="op-rf">Feedback Resistor Rf (kΩ)</label>
                         <input type="number" inputmode="decimal" id="op-rf" class="input-field" value="100" oninput="calcOpAmp()">
                     </div>
                 </div>
@@ -777,19 +777,19 @@ HLT</textarea>
 
                 <div class="form-row">
                     <div class="input-group">
-                        <label>Decimal (Base 10)</label>
+                        <label for="base-dec">Decimal (Base 10)</label>
                         <input type="number" inputmode="numeric" id="base-dec" class="input-field" value="42" oninput="convFromDec(this.value)">
                     </div>
                     <div class="input-group">
-                        <label>Binary (Base 2)</label>
+                        <label for="base-bin">Binary (Base 2)</label>
                         <input type="text" inputmode="numeric" id="base-bin" class="input-field" value="101010" oninput="convFromBin(this.value)">
                     </div>
                     <div class="input-group">
-                        <label>Hexadecimal (Base 16)</label>
+                        <label for="base-hex">Hexadecimal (Base 16)</label>
                         <input type="text" id="base-hex" class="input-field" value="2A" oninput="convFromHex(this.value)">
                     </div>
                     <div class="input-group">
-                        <label>Octal (Base 8)</label>
+                        <label for="base-oct">Octal (Base 8)</label>
                         <input type="text" inputmode="numeric" id="base-oct" class="input-field" value="52" oninput="convFromOct(this.value)">
                     </div>
                 </div>
