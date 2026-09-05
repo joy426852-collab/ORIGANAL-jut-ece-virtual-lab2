@@ -442,7 +442,6 @@ const AppState = {
   selectedAiIngredients: ['Avocado', 'Ripe Tomatoes', 'Baby Spinach'],
   orders: [],
   gravity: 0.0, // 0G by default
-  isVortexActive: false,
   audioMuted: false,
   questScore: 0,
   activeQuestIndex: 0
@@ -629,16 +628,6 @@ function animateThreeJS() {
       // Apply Gravity force
       obj.userData.velocity.y -= AppState.gravity * 0.006;
 
-      // Vortex attractor force towards center or mouse
-      if (AppState.isVortexActive) {
-        const targetX = (mouse.x * boundX) * 0.5;
-        const targetY = (mouse.y * boundY) * 0.5;
-        const dx = targetX - obj.position.x;
-        const dy = targetY - obj.position.y;
-        obj.userData.velocity.x += dx * 0.0025;
-        obj.userData.velocity.y += dy * 0.0025;
-      }
-
       // Apply drag / friction in air
       obj.userData.velocity.multiplyScalar(0.994);
 
@@ -767,15 +756,6 @@ function updateGravityPreset(val) {
   const slider = document.getElementById('gravitySlider');
   if (slider) slider.value = val;
   updateGravityField(val);
-}
-
-function toggleVortexAttractor() {
-  AppState.isVortexActive = !AppState.isVortexActive;
-  const btn = document.getElementById('vortexBtn');
-  if (btn) btn.classList.toggle('active', AppState.isVortexActive);
-
-  showToast(AppState.isVortexActive ? '🌀 Gravitational Vortex Enabled' : 'Gravitational Vortex Disabled', 'info', 'disc');
-  playSynthSound('scan');
 }
 
 function triggerGravityExplosion() {
