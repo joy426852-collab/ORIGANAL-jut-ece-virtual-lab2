@@ -778,18 +778,6 @@ function toggleVortexAttractor() {
   playSynthSound('scan');
 }
 
-function triggerGravityExplosion() {
-  physicsObjects.forEach(obj => {
-    obj.userData.velocity.x = (Math.random() - 0.5) * 0.35;
-    obj.userData.velocity.y = (Math.random() - 0.5) * 0.35;
-    obj.userData.rotVelocity.x = (Math.random() - 0.5) * 0.15;
-    obj.userData.rotVelocity.y = (Math.random() - 0.5) * 0.15;
-  });
-
-  playSynthSound('blast');
-  showToast('💥 Antigravity Pulse Discharged!', 'success', 'sparkles');
-}
-
 function toggleHudPanel() {
   const p = document.getElementById('hudPanel');
   if (p) p.classList.toggle('collapsed');
