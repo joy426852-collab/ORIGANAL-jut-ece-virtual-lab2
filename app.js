@@ -908,23 +908,6 @@ function scrollToLab() {
   if (lab) lab.scrollIntoView({ behavior: 'smooth' });
 }
 
-function switchAcademyModule(moduleKey) {
-  // Update Tab buttons
-  document.querySelectorAll('.academy-tab').forEach((tab, i) => {
-    tab.classList.remove('active');
-  });
-  if (event && event.currentTarget) event.currentTarget.classList.add('active');
-
-  // Switch Module Views
-  const views = ['botany', 'nutrition', 'coldchain', 'quest'];
-  views.forEach(v => {
-    const el = document.getElementById(`module-${v}`);
-    if (el) el.style.display = v === moduleKey ? 'block' : 'none';
-  });
-
-  playSynthSound('beep');
-}
-
 function showNodeDetail(nodeType) {
   const title = document.getElementById('botanyNodeTitle');
   const desc = document.getElementById('botanyNodeDesc');
