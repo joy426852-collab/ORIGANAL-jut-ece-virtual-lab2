@@ -884,22 +884,6 @@ function playSynthSound(type) {
   }
 }
 
-function toggleSpatialAudio() {
-  AppState.audioMuted = !AppState.audioMuted;
-  const icon = document.getElementById('audioIcon');
-  if (icon) {
-    if (AppState.audioMuted) {
-      icon.setAttribute('data-lucide', 'volume-x');
-      showToast('Audio Muted', 'info', 'volume-x');
-    } else {
-      icon.setAttribute('data-lucide', 'volume-2');
-      showToast('Audio FX Active', 'success', 'volume-2');
-      playSynthSound('beep');
-    }
-    if (window.lucide) window.lucide.createIcons();
-  }
-}
-
 // ==========================================================================
 // 6. LEARNABLE 3D SCIENCE ACADEMY & LAB MODULES
 // ==========================================================================
