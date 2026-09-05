@@ -925,28 +925,6 @@ function switchAcademyModule(moduleKey) {
   playSynthSound('beep');
 }
 
-function showNodeDetail(nodeType) {
-  const title = document.getElementById('botanyNodeTitle');
-  const desc = document.getElementById('botanyNodeDesc');
-  const impact = document.getElementById('botanyCulinaryImpact');
-
-  if (nodeType === 'chlorophyll') {
-    if (title) title.innerText = 'Photosynthesis & Chlorophyll Absorption';
-    if (desc) desc.innerText = 'Chlorophyll-a molecules absorb photons at 430nm & 660nm wavelengths, synthesizing clean glucose and locking plant turgidity with zero pesticide run-off.';
-    if (impact) impact.innerText = 'Preserves vegetable leaf crunch for 7+ days and boosts dietary magnesium by 35%.';
-  } else if (nodeType === 'osmosis') {
-    if (title) title.innerText = 'Hydroponic Mineral Root Osmosis';
-    if (desc) desc.innerText = 'Plant root hairs absorb potassium, calcium, and chelated iron ions directly from dissolved oxygen-saturated waterbeds without soil pathogens.';
-    if (impact) impact.innerText = '100% grit-free spinach and lettuce that requires zero harsh chemical sanitizers.';
-  } else if (nodeType === 'monounsaturated') {
-    if (title) title.innerText = 'Oleic Acid Lipid Esterification';
-    if (desc) desc.innerText = 'Avocados store 71% of their energy as monounsaturated Oleic Acid (18:1 cis-9), which stabilizes cell membranes and enhances fat-soluble vitamin absorption.';
-    if (impact) impact.innerText = 'Boosts carotenoid bioavailability by 4.3x when added to salads.';
-  }
-
-  playSynthSound('pop');
-}
-
 function showNutritionNode(molType) {
   const title = document.getElementById('nutriTitle');
   const desc = document.getElementById('nutriDesc');
