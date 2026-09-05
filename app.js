@@ -1810,8 +1810,13 @@ function useCartIngredientsForAi() {
     return;
   }
 
+  const productMap = {};
+  for (let i = 0; i < PRODUCTS_DATA.length; i++) {
+    productMap[PRODUCTS_DATA[i].id] = PRODUCTS_DATA[i];
+  }
+
   AppState.cart.forEach(cartItem => {
-    const prod = PRODUCTS_DATA.find(p => p.id === cartItem.id);
+    const prod = productMap[cartItem.id];
     if (prod && !AppState.selectedAiIngredients.includes(prod.name)) {
       AppState.selectedAiIngredients.push(prod.name);
     }
