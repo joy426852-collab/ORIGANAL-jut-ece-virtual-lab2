@@ -790,11 +790,6 @@ function triggerGravityExplosion() {
   showToast('💥 Antigravity Pulse Discharged!', 'success', 'sparkles');
 }
 
-function toggleHudPanel() {
-  const p = document.getElementById('hudPanel');
-  if (p) p.classList.toggle('collapsed');
-}
-
 function handleCardParallax(e, card) {
   const rect = card.getBoundingClientRect();
   const x = e.clientX - rect.left - rect.width / 2;
