@@ -80,48 +80,48 @@
 <!-- TOOL PALETTE (LEFT)                                                         -->
 <!-- ═══════════════════════════════════════════════════════════════════════════ -->
 <aside id="tool-palette">
-  <button class="tool-btn active" id="btn-select" data-tool="SELECT" data-key="Q" onclick="setTool('SELECT')" title="Select / Orbit Camera">
+  <button aria-label="Select / Orbit Camera" class="tool-btn active" id="btn-select" data-tool="SELECT" data-key="Q" onclick="setTool('SELECT')" title="Select / Orbit Camera">
     <span class="tool-icon">🖱️</span>
     <span class="tool-label">Select</span>
   </button>
 
   <div class="palette-divider"></div>
 
-  <button class="tool-btn" id="btn-battery" data-tool="BATTERY_9V" data-key="B" onclick="setTool('BATTERY_9V')" title="Place 9V Battery">
+  <button aria-label="Place 9V Battery" class="tool-btn" id="btn-battery" data-tool="BATTERY_9V" data-key="B" onclick="setTool('BATTERY_9V')" title="Place 9V Battery">
     <span class="tool-icon">🔋</span>
     <span class="tool-label">9V Batt</span>
   </button>
 
-  <button class="tool-btn" id="btn-led" data-tool="LED" data-key="L" onclick="setTool('LED')" title="Place LED (Neon)">
+  <button aria-label="Place LED (Neon)" class="tool-btn" id="btn-led" data-tool="LED" data-key="L" onclick="setTool('LED')" title="Place LED (Neon)">
     <span class="tool-icon">💡</span>
     <span class="tool-label">LED</span>
   </button>
 
-  <button class="tool-btn" id="btn-resistor" data-tool="RESISTOR" data-key="R" onclick="setTool('RESISTOR')" title="Place 220Ω Resistor">
+  <button aria-label="Place 220Ω Resistor" class="tool-btn" id="btn-resistor" data-tool="RESISTOR" data-key="R" onclick="setTool('RESISTOR')" title="Place 220Ω Resistor">
     <span class="tool-icon">⚡</span>
     <span class="tool-label">220Ω</span>
   </button>
 
-  <button class="tool-btn" id="btn-cap" data-tool="CAPACITOR" data-key="C" onclick="setTool('CAPACITOR')" title="Place 100µF Capacitor">
+  <button aria-label="Place 100µF Capacitor" class="tool-btn" id="btn-cap" data-tool="CAPACITOR" data-key="C" onclick="setTool('CAPACITOR')" title="Place 100µF Capacitor">
     <span class="tool-icon">🔲</span>
     <span class="tool-label">100µF</span>
   </button>
 
   <div class="palette-divider"></div>
 
-  <button class="tool-btn" id="btn-wire" data-tool="WIRE" data-key="W" onclick="setTool('WIRE')" title="Route Jumper Wire">
+  <button aria-label="Route Jumper Wire" class="tool-btn" id="btn-wire" data-tool="WIRE" data-key="W" onclick="setTool('WIRE')" title="Route Jumper Wire">
     <span class="tool-icon">〰️</span>
     <span class="tool-label">Wire</span>
   </button>
 
-  <button class="tool-btn" id="btn-probe" data-tool="PROBE" data-key="P" onclick="setTool('PROBE')" title="Oscilloscope Probe">
+  <button aria-label="Oscilloscope Probe" class="tool-btn" id="btn-probe" data-tool="PROBE" data-key="P" onclick="setTool('PROBE')" title="Oscilloscope Probe">
     <span class="tool-icon">📡</span>
     <span class="tool-label">Probe</span>
   </button>
 
   <div class="palette-divider"></div>
 
-  <button class="tool-btn danger" id="btn-delete" data-tool="DELETE" data-key="Del" onclick="setTool('DELETE')" title="Delete Component">
+  <button aria-label="Delete Component" class="tool-btn danger" id="btn-delete" data-tool="DELETE" data-key="Del" onclick="setTool('DELETE')" title="Delete Component">
     <span class="tool-icon">🗑️</span>
     <span class="tool-label">Delete</span>
   </button>
@@ -183,7 +183,7 @@
   <div class="scope-header">
     <span class="scope-title">▋ OSCILLOSCOPE — CH1</span>
     <div class="scope-controls">
-      <button class="scope-btn" onclick="toggleScope()">✕</button>
+      <button class="scope-btn" aria-label="Close oscilloscope" onclick="toggleScope()">✕</button>
     </div>
   </div>
   <canvas id="scope-canvas-2d" width="320" height="160"></canvas>
@@ -269,7 +269,7 @@
   box-shadow:0 8px 32px rgba(0,0,0,.5);">
   <div style="padding:12px 14px;border-bottom:1px solid rgba(255,255,255,.07);display:flex;align-items:center;justify-content:space-between;">
     <span style="font-size:10px;font-family:'JetBrains Mono',monospace;font-weight:600;letter-spacing:.1em;color:#a855f7;text-transform:uppercase;">🔲 LOGIC GATES</span>
-    <button onclick="toggleLogicPanel()" style="background:none;border:none;color:#475569;cursor:pointer;font-size:14px;">✕</button>
+    <button aria-label="Close logic panel" onclick="toggleLogicPanel()" style="background:none;border:none;color:#475569;cursor:pointer;font-size:14px;">✕</button>
   </div>
   <div style="padding:10px;display:flex;flex-direction:column;gap:8px;overflow-y:auto;">
     <div style="font-size:9px;font-family:'JetBrains Mono',monospace;color:#475569;letter-spacing:.1em;text-transform:uppercase;margin-bottom:4px;">Digital Logic Simulator</div>
@@ -333,7 +333,7 @@
         <div style="font-size:14px;font-weight:700;color:#00d4ff;font-family:'Space Grotesk',sans-serif;letter-spacing:.05em;">🖥️ 8085 MICROPROCESSOR VISUALIZER</div>
         <div style="font-size:10px;font-family:'JetBrains Mono',monospace;color:#475569;margin-top:2px;">Intel 8085 — 8-bit CPU | JUT ECE Sem 4 — Unit 2</div>
       </div>
-      <button onclick="toggleCPU()" style="background:none;border:1px solid rgba(255,255,255,.1);color:#94a3b8;cursor:pointer;border-radius:8px;padding:6px 12px;font-size:12px;font-family:'JetBrains Mono',monospace;">✕ Close</button>
+      <button aria-label="Close CPU visualizer" onclick="toggleCPU()" style="background:none;border:1px solid rgba(255,255,255,.1);color:#94a3b8;cursor:pointer;border-radius:8px;padding:6px 12px;font-size:12px;font-family:'JetBrains Mono',monospace;">✕ Close</button>
     </div>
 
     <!-- CPU Diagram + Registers -->
