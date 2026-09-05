@@ -947,24 +947,6 @@ function showNodeDetail(nodeType) {
   playSynthSound('pop');
 }
 
-function showNutritionNode(molType) {
-  const title = document.getElementById('nutriTitle');
-  const desc = document.getElementById('nutriDesc');
-
-  if (molType === 'proline') {
-    if (title) title.innerText = 'Proline-67 Amino Acid Bond (A2 Milk)';
-    if (desc) desc.innerText = 'Desi Gir cows produce beta-casein with Proline at position 67, preventing gastrointestinal release of inflammatory BCM-7 opioid peptides.';
-  } else if (molType === 'omega3') {
-    if (title) title.innerText = 'Omega-3 EPA & DHA Lipids (Wild Salmon)';
-    if (desc) desc.innerText = 'Long-chain polyunsaturated fatty acids reduce systemic inflammation and support cardiovascular neurotransmission.';
-  } else if (molType === 'lycopene') {
-    if (title) title.innerText = 'Lycopene C40H56 Carotenoid (Cherry Tomatoes)';
-    if (desc) desc.innerText = 'A potent acyclic tetraterpene antioxidant that protects cell DNA from oxidative ultraviolet stress.';
-  }
-
-  playSynthSound('pop');
-}
-
 function updateColdChainSim(val) {
   const temp = parseFloat(val);
   const disp = document.getElementById('simTempDisplay');
