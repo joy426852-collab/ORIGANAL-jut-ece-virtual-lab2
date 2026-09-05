@@ -1314,16 +1314,6 @@ function setCategory(catKey) {
   playSynthSound('beep');
 }
 
-function setFilter(filterKey) {
-  AppState.activeFilter = filterKey;
-  document.querySelectorAll('.filter-pill').forEach(btn => {
-    btn.classList.remove('active');
-  });
-  if (event && event.target) event.target.classList.add('active');
-  renderProductCatalog();
-  playSynthSound('beep');
-}
-
 function handleSort(sortVal) {
   AppState.sortBy = sortVal;
   renderProductCatalog();
