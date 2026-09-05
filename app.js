@@ -763,12 +763,6 @@ function updateGravityField(val) {
   playSynthSound('beep');
 }
 
-function updateGravityPreset(val) {
-  const slider = document.getElementById('gravitySlider');
-  if (slider) slider.value = val;
-  updateGravityField(val);
-}
-
 function toggleVortexAttractor() {
   AppState.isVortexActive = !AppState.isVortexActive;
   const btn = document.getElementById('vortexBtn');
