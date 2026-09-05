@@ -1082,15 +1082,6 @@ function renderCurrentQuest() {
   }
 }
 
-function copyAndApplyReward(code) {
-  AppState.appliedCoupon = { code: code, rate: 0.30 };
-  const input = document.getElementById('couponInput');
-  if (input) input.value = code;
-  applyCouponCode();
-  toggleCartDrawer();
-  showToast(`🎉 30% OFF coupon ${code} applied to your cart!`, 'success', 'award');
-}
-
 // ==========================================
 // 7. INITIALIZATION & STORAGE
 // ==========================================
