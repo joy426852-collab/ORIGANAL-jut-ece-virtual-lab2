@@ -1515,9 +1515,14 @@ function updateCartDrawerUI() {
   if (mobileCountEl) mobileCountEl.innerText = totalItemsCount;
   if (badgeEl) badgeEl.innerText = `${totalItemsCount} items`;
 
+  const productMap = new Map();
+  for (let i = 0; i < PRODUCTS_DATA.length; i++) {
+    productMap.set(PRODUCTS_DATA[i].id, PRODUCTS_DATA[i]);
+  }
+
   let subtotal = 0;
   AppState.cart.forEach(cartItem => {
-    const prod = PRODUCTS_DATA.find(p => p.id === cartItem.id);
+    const prod = productMap.get(cartItem.id);
     if (prod) subtotal += prod.price * cartItem.qty;
   });
 
@@ -1583,7 +1588,7 @@ function updateCartDrawerUI() {
     `;
   } else {
     list.innerHTML = AppState.cart.map(cartItem => {
-      const prod = PRODUCTS_DATA.find(p => p.id === cartItem.id);
+      const prod = productMap.get(cartItem.id);
       if (!prod) return '';
 
       return `
