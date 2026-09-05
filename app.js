@@ -1612,13 +1612,6 @@ function updateCartDrawerUI() {
   }
 }
 
-function copyCoupon(code) {
-  const input = document.getElementById('couponInput');
-  if (input) input.value = code;
-  applyCouponCode();
-  toggleCartDrawer();
-}
-
 function applyCouponCode() {
   const input = document.getElementById('couponInput');
   const feedback = document.getElementById('couponFeedback');
