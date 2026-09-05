@@ -394,6 +394,11 @@ const PRODUCTS_DATA = [
   }
 ];
 
+const PRODUCTS_BY_ID = PRODUCTS_DATA.reduce((acc, p) => {
+  acc[p.id] = p;
+  return acc;
+}, {});
+
 // ==========================================================================
 // 2. RECIPE ENGINE DATABASE
 // ==========================================================================
@@ -1456,7 +1461,7 @@ function addToCart(productId, event) {
   updateCartDrawerUI();
   renderProductCatalog();
 
-  const product = PRODUCTS_DATA.find(p => p.id === productId);
+  const product = PRODUCTS_BY_ID[productId];
   showToast(`Added ${product ? product.name : 'item'} to cart!`, 'success', 'shopping-bag');
   playSynthSound('pop');
 }
@@ -1517,7 +1522,7 @@ function updateCartDrawerUI() {
 
   let subtotal = 0;
   AppState.cart.forEach(cartItem => {
-    const prod = PRODUCTS_DATA.find(p => p.id === cartItem.id);
+    const prod = PRODUCTS_BY_ID[cartItem.id];
     if (prod) subtotal += prod.price * cartItem.qty;
   });
 
@@ -1583,7 +1588,7 @@ function updateCartDrawerUI() {
     `;
   } else {
     list.innerHTML = AppState.cart.map(cartItem => {
-      const prod = PRODUCTS_DATA.find(p => p.id === cartItem.id);
+      const prod = PRODUCTS_BY_ID[cartItem.id];
       if (!prod) return '';
 
       return `
@@ -1700,7 +1705,7 @@ function updateWishlistUI() {
     `;
   } else {
     list.innerHTML = Array.from(AppState.wishlist).map(id => {
-      const prod = PRODUCTS_DATA.find(p => p.id === id);
+      const prod = PRODUCTS_BY_ID[id];
       if (!prod) return '';
 
       return `
@@ -1811,7 +1816,7 @@ function useCartIngredientsForAi() {
   }
 
   AppState.cart.forEach(cartItem => {
-    const prod = PRODUCTS_DATA.find(p => p.id === cartItem.id);
+    const prod = PRODUCTS_BY_ID[cartItem.id];
     if (prod && !AppState.selectedAiIngredients.includes(prod.name)) {
       AppState.selectedAiIngredients.push(prod.name);
     }
@@ -1946,7 +1951,7 @@ function addMissingRecipeIngredients(recipeIndex) {
 // 13. 3D HOLOGRAPHIC PRODUCT INSPECTOR
 // ==========================================
 function openQuickView(productId) {
-  const prod = PRODUCTS_DATA.find(p => p.id === productId);
+  const prod = PRODUCTS_BY_ID[productId];
   if (!prod) return;
 
   const content = document.getElementById('quickViewContent');
