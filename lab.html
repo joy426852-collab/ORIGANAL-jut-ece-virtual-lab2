@@ -1699,6 +1699,7 @@ function deleteSelectedComponent() {
 }
 
 function clearAll() {
+  if (!confirm("Are you sure you want to clear the entire workbench? This action cannot be undone.")) return;
   AppState.components.forEach(c => {
     const c3D = AppState.scene3D[c.id];
     if (c3D?.group) scene.remove(c3D.group);
