@@ -915,6 +915,8 @@ HLT</textarea>
             document.getElementById('kmap-minterms').innerText = `Minterms: ${ones.map(m => 'm' + m).join(', ')}`;
         }
         function clearKMap() {
+    if(!confirm("Are you sure you want to perform this destructive action?")) return;
+
             kmapState.fill(0);
             document.querySelectorAll('.kmap-cell').forEach(c => {
                 c.classList.remove('active-1', 'active-x');
@@ -957,6 +959,8 @@ HLT</textarea>
             document.getElementById('asm-status').innerText = `Execution complete. Accumulator = ${A} (Hex: ${A.toString(16).toUpperCase()}H)`;
         }
         function resetAsm() {
+    if(!confirm("Are you sure you want to perform this destructive action?")) return;
+
             ['A','B','C','D','E','H','L'].forEach(r => {
                 const el = document.getElementById(`asm-${r}`);
                 if(el) el.innerText = '00H';

@@ -1175,6 +1175,8 @@ int main() {
         }
         
         function resetPendulum() {
+    if(!confirm("Are you sure you want to perform this destructive action?")) return;
+
             penTheta = Math.PI / 4;
             penOmega = 0;
             addCredits(5);
