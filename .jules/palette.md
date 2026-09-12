@@ -1,3 +1,4 @@
 ## 2024-05-14 - Add ARIA Labels to Icon Buttons
 **Learning:** Icon-only buttons (like hamburger menu, theme toggle, bookmark) in this app often lack `aria-label` attributes. This is a common accessibility issue that prevents screen readers from announcing the button's purpose.
 **Action:** Add descriptive `aria-label`s to all icon-only buttons across HTML files to improve accessibility for screen reader users.
+## 2026-09-12 - Destructive Action Confirmation\n**Learning:** Users can easily lose their entire workbench progress by accidentally clicking the 'Clear' button. A simple confirmation dialog acts as a necessary safeguard for such destructive actions in this application.\n**Action:** Ensure all destructive actions (like clearing progress or deleting significant data) are protected by a confirmation dialog (e.g., `confirm()`) to prevent data loss.
