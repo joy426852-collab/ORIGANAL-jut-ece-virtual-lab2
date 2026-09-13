@@ -1254,6 +1254,7 @@ If $f_s < 2 f_{max}$ (under-sampling), high-frequency spectral components fold i
     },
 
     clearChat() {
+      if (!confirm('Are you sure you want to clear the chat history?')) return;
       conversationHistory = [];
       const container = document.getElementById('jut-ai-messages');
       if (container) container.innerHTML = '';
