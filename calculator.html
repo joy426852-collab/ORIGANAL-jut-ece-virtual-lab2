@@ -915,6 +915,7 @@ HLT</textarea>
             document.getElementById('kmap-minterms').innerText = `Minterms: ${ones.map(m => 'm' + m).join(', ')}`;
         }
         function clearKMap() {
+            if (!confirm('Are you sure you want to clear the K-Map grid? All progress will be lost.')) return;
             kmapState.fill(0);
             document.querySelectorAll('.kmap-cell').forEach(c => {
                 c.classList.remove('active-1', 'active-x');
@@ -931,6 +932,7 @@ HLT</textarea>
             search: "LXI H, 2050H\nMVI M, 25H\nMOV A, M\nHLT"
         };
         function loadAsmPreset(k) {
+            if (!confirm('Are you sure you want to load a preset? This will overwrite your current code.')) return;
             document.getElementById('asm-input').value = asmPresets[k] || '';
             resetAsm();
         }
