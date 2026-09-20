@@ -2248,6 +2248,7 @@ function toggleCPU() {
 }
 
 function resetCPU() {
+  if (!confirm('Are you sure you want to reset the CPU? All registers will be cleared.')) return;
   Object.keys(CPU.regs).forEach(k => CPU.regs[k] = 0);
   Object.keys(CPU.flags).forEach(k => CPU.flags[k] = 0);
   CPU.PC = 0; CPU.SP = 0xFFFF; CPU.instructionCount = 0;
