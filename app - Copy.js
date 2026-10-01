@@ -1344,11 +1344,6 @@ function scrollToProducts(category) {
   if (el) el.scrollIntoView({ behavior: 'smooth' });
 }
 
-function toggleDepartmentMenu() {
-  const wrap = document.querySelector('.category-dropdown-wrap');
-  if (wrap) wrap.classList.toggle('open');
-}
-
 // ==========================================
 // 9. SEARCH SYSTEM
 // ==========================================
