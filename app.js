@@ -1304,11 +1304,6 @@ function setFilter(filterKey) {
   playSynthSound('beep');
 }
 
-function handleSort(sortVal) {
-  AppState.sortBy = sortVal;
-  renderProductCatalog();
-}
-
 function resetFilters() {
   AppState.activeCategory = 'all';
   AppState.activeFilter = 'all';
