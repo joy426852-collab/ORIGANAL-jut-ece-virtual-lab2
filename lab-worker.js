@@ -76,6 +76,23 @@ function rebuildNetMap() {
   pinToNet = {};
   netNodes = {};
   let netCounter = 0;
+  const netAlias = {};
+
+  function getRootNet(net) {
+    if (!net) return net;
+    let curr = net;
+    while (netAlias[curr] && netAlias[curr] !== curr) {
+      curr = netAlias[curr];
+    }
+    // Path compression
+    let p = net;
+    while (netAlias[p] && netAlias[p] !== p) {
+      let nxt = netAlias[p];
+      netAlias[p] = curr;
+      p = nxt;
+    }
+    return curr;
+  }
 
   // Pre-assign ground rails
   function setGnd(pin) { pinToNet[pin] = 'GND'; }
@@ -88,22 +105,27 @@ function rebuildNetMap() {
   wires.forEach(wire => {
     const a = wire.fromPin;
     const b = wire.toPin;
-    const netA = pinToNet[a];
-    const netB = pinToNet[b];
+    const netA = getRootNet(pinToNet[a]);
+    const netB = getRootNet(pinToNet[b]);
 
     if (!netA && !netB) {
       const name = `NET_${netCounter++}`;
       pinToNet[a] = name;
       pinToNet[b] = name;
+      netAlias[name] = name;
     } else if (netA && !netB) {
       pinToNet[b] = netA;
     } else if (!netA && netB) {
       pinToNet[a] = netB;
     } else if (netA !== netB) {
-      // Merge netB into netA
-      Object.keys(pinToNet).forEach(p => {
-        if (pinToNet[p] === netB) pinToNet[p] = netA;
-      });
+      // Merge nets, prioritizing 'GND' as root
+      if (netA === 'GND') {
+        netAlias[netB] = netA;
+      } else if (netB === 'GND') {
+        netAlias[netA] = netB;
+      } else {
+        netAlias[netB] = netA;
+      }
     }
   });
 
@@ -114,6 +136,12 @@ function rebuildNetMap() {
         if (pin && !pinToNet[pin]) pinToNet[pin] = `NET_${netCounter++}`;
       });
     }
+  });
+
+  // Flatten all pins to their absolute root nets
+  Object.keys(pinToNet).forEach(pin => {
+    const root = getRootNet(pinToNet[pin]);
+    if (root) pinToNet[pin] = root;
   });
 }
 
