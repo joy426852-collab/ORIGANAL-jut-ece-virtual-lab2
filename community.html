@@ -533,11 +533,11 @@
                 const div = document.createElement('div');
                 div.className = `msg-bubble ${isSelf ? 'self' : ''}`;
                 div.innerHTML = `
-                    <div class="msg-avatar">${m.avatar || '⚡'}</div>
+                    <div class="msg-avatar">${escapeHtml(m.avatar || '⚡')}</div>
                     <div class="msg-content">
                         <div class="msg-header">
-                            <span class="msg-author">${m.sender}</span>
-                            <span class="msg-badge">${m.roll || 'ECE'} &bull; ${m.semester || 'Sem 4'}</span>
+                            <span class="msg-author">${escapeHtml(m.sender)}</span>
+                            <span class="msg-badge">${escapeHtml(m.roll || 'ECE')} &bull; ${escapeHtml(m.semester || 'Sem 4')}</span>
                             <span class="msg-time">${timeStr}</span>
                         </div>
                         <div class="msg-text">${escapeHtml(m.text)}</div>
