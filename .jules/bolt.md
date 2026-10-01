@@ -1,3 +1,3 @@
-## 2024-05-18 - Graceful inline event handling
-**Learning:** Checking for `typeof event !== "undefined" && event && event.currentTarget` is a robust way to handle functions that act both as click handlers and manual initializers in vanilla JS.
-**Action:** Use this pattern instead of manual external DOM hacks when initializing states.
+## 2026-09-05 - Optimizing Array Traversals to Hash Maps
+**Learning:** O(N) array traversals (like Array.find()) in loops or highly recurrent code blocks cause performance bottlenecks (O(N^2)). Using a precomputed Hash Map via Map.get() allows for O(1) lookups, providing measurable performance gains and scaling effectively with data size.
+**Action:** Always refactor redundant Array.find() inside loops into a Map mapping key-value pairs ahead of execution.
