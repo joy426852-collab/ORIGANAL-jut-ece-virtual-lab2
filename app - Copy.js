@@ -1329,15 +1329,6 @@ function handleSort(sortVal) {
   renderProductCatalog();
 }
 
-function resetFilters() {
-  AppState.activeCategory = 'all';
-  AppState.activeFilter = 'all';
-  AppState.searchQuery = '';
-  const searchInput = document.getElementById('searchInput');
-  if (searchInput) searchInput.value = '';
-  setCategory('all');
-}
-
 function scrollToProducts(category) {
   if (category) setCategory(category);
   const el = document.getElementById('products');
