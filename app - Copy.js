@@ -965,26 +965,6 @@ function showNutritionNode(molType) {
   playSynthSound('pop');
 }
 
-function updateColdChainSim(val) {
-  const temp = parseFloat(val);
-  const disp = document.getElementById('simTempDisplay');
-  const status = document.getElementById('simTempStatus');
-
-  if (disp) disp.innerText = `${temp.toFixed(1)}°C`;
-  if (status) {
-    if (temp <= 5) {
-      status.style.color = '#34d399';
-      status.innerText = '✅ Optimal 4°C: Enzymatic Latency Maintained (Max Freshness)';
-    } else if (temp <= 12) {
-      status.style.color = '#f59e0b';
-      status.innerText = '⚠️ Sub-optimal: Respiration rate accelerated by 40%';
-    } else {
-      status.style.color = '#ef4444';
-      status.innerText = '❌ Warning: Cell turgidity loss & vitamin degradation';
-    }
-  }
-}
-
 function rotate3DLabObject(delta) {
   physicsObjects.forEach(obj => {
     obj.rotation.y += delta;
