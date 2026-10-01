@@ -972,13 +972,6 @@ function rotate3DLabObject(delta) {
   playSynthSound('whoosh');
 }
 
-function toggleLabWireframe() {
-  physicsObjects.forEach(obj => {
-    if (obj.material) obj.material.wireframe = !obj.material.wireframe;
-  });
-  playSynthSound('beep');
-}
-
 // Learn & Earn Quests
 const QUEST_DATA = [
   {
